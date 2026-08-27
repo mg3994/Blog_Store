@@ -485,7 +485,7 @@ class CachedCatalogProductsCompanion
 }
 
 class $CartItemsTable extends CartItems
-    with TableInfo<$CartItemsTable, CartItem> {
+    with TableInfo<$CartItemsTable, CartItemTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -540,7 +540,7 @@ class $CartItemsTable extends CartItems
   String get actualTableName => $name;
   static const String $name = 'cart_items';
   @override
-  VerificationContext validateIntegrity(Insertable<CartItem> instance,
+  VerificationContext validateIntegrity(Insertable<CartItemTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -587,9 +587,9 @@ class $CartItemsTable extends CartItems
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  CartItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+  CartItemTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return CartItem(
+    return CartItemTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       productId: attachedDatabase.typeMapping
@@ -613,7 +613,8 @@ class $CartItemsTable extends CartItems
   }
 }
 
-class CartItem extends DataClass implements Insertable<CartItem> {
+class CartItemTableData extends DataClass
+    implements Insertable<CartItemTableData> {
   final String id;
   final String productId;
   final String title;
@@ -621,7 +622,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
   final String currency;
   final String? imageUrl;
   final int quantity;
-  const CartItem(
+  const CartItemTableData(
       {required this.id,
       required this.productId,
       required this.title,
@@ -658,10 +659,10 @@ class CartItem extends DataClass implements Insertable<CartItem> {
     );
   }
 
-  factory CartItem.fromJson(Map<String, dynamic> json,
+  factory CartItemTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return CartItem(
+    return CartItemTableData(
       id: serializer.fromJson<String>(json['id']),
       productId: serializer.fromJson<String>(json['productId']),
       title: serializer.fromJson<String>(json['title']),
@@ -685,7 +686,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
     };
   }
 
-  CartItem copyWith(
+  CartItemTableData copyWith(
           {String? id,
           String? productId,
           String? title,
@@ -693,7 +694,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
           String? currency,
           Value<String?> imageUrl = const Value.absent(),
           int? quantity}) =>
-      CartItem(
+      CartItemTableData(
         id: id ?? this.id,
         productId: productId ?? this.productId,
         title: title ?? this.title,
@@ -702,8 +703,8 @@ class CartItem extends DataClass implements Insertable<CartItem> {
         imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
         quantity: quantity ?? this.quantity,
       );
-  CartItem copyWithCompanion(CartItemsCompanion data) {
-    return CartItem(
+  CartItemTableData copyWithCompanion(CartItemsCompanion data) {
+    return CartItemTableData(
       id: data.id.present ? data.id.value : this.id,
       productId: data.productId.present ? data.productId.value : this.productId,
       title: data.title.present ? data.title.value : this.title,
@@ -716,7 +717,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
 
   @override
   String toString() {
-    return (StringBuffer('CartItem(')
+    return (StringBuffer('CartItemTableData(')
           ..write('id: $id, ')
           ..write('productId: $productId, ')
           ..write('title: $title, ')
@@ -734,7 +735,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is CartItem &&
+      (other is CartItemTableData &&
           other.id == this.id &&
           other.productId == this.productId &&
           other.title == this.title &&
@@ -744,7 +745,7 @@ class CartItem extends DataClass implements Insertable<CartItem> {
           other.quantity == this.quantity);
 }
 
-class CartItemsCompanion extends UpdateCompanion<CartItem> {
+class CartItemsCompanion extends UpdateCompanion<CartItemTableData> {
   final Value<String> id;
   final Value<String> productId;
   final Value<String> title;
@@ -777,7 +778,7 @@ class CartItemsCompanion extends UpdateCompanion<CartItem> {
         title = Value(title),
         price = Value(price),
         currency = Value(currency);
-  static Insertable<CartItem> custom({
+  static Insertable<CartItemTableData> custom({
     Expression<String>? id,
     Expression<String>? productId,
     Expression<String>? title,
@@ -867,7 +868,7 @@ class CartItemsCompanion extends UpdateCompanion<CartItem> {
 }
 
 class $WishlistItemsTable extends WishlistItems
-    with TableInfo<$WishlistItemsTable, WishlistItem> {
+    with TableInfo<$WishlistItemsTable, WishlistItemTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -902,7 +903,8 @@ class $WishlistItemsTable extends WishlistItems
   String get actualTableName => $name;
   static const String $name = 'wishlist_items';
   @override
-  VerificationContext validateIntegrity(Insertable<WishlistItem> instance,
+  VerificationContext validateIntegrity(
+      Insertable<WishlistItemTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -932,9 +934,9 @@ class $WishlistItemsTable extends WishlistItems
   @override
   Set<GeneratedColumn> get $primaryKey => {productId};
   @override
-  WishlistItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+  WishlistItemTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return WishlistItem(
+    return WishlistItemTableData(
       productId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}product_id'])!,
       title: attachedDatabase.typeMapping
@@ -952,12 +954,13 @@ class $WishlistItemsTable extends WishlistItems
   }
 }
 
-class WishlistItem extends DataClass implements Insertable<WishlistItem> {
+class WishlistItemTableData extends DataClass
+    implements Insertable<WishlistItemTableData> {
   final String productId;
   final String title;
   final double? price;
   final String? imageUrl;
-  const WishlistItem(
+  const WishlistItemTableData(
       {required this.productId,
       required this.title,
       this.price,
@@ -988,10 +991,10 @@ class WishlistItem extends DataClass implements Insertable<WishlistItem> {
     );
   }
 
-  factory WishlistItem.fromJson(Map<String, dynamic> json,
+  factory WishlistItemTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WishlistItem(
+    return WishlistItemTableData(
       productId: serializer.fromJson<String>(json['productId']),
       title: serializer.fromJson<String>(json['title']),
       price: serializer.fromJson<double?>(json['price']),
@@ -1009,19 +1012,19 @@ class WishlistItem extends DataClass implements Insertable<WishlistItem> {
     };
   }
 
-  WishlistItem copyWith(
+  WishlistItemTableData copyWith(
           {String? productId,
           String? title,
           Value<double?> price = const Value.absent(),
           Value<String?> imageUrl = const Value.absent()}) =>
-      WishlistItem(
+      WishlistItemTableData(
         productId: productId ?? this.productId,
         title: title ?? this.title,
         price: price.present ? price.value : this.price,
         imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
       );
-  WishlistItem copyWithCompanion(WishlistItemsCompanion data) {
-    return WishlistItem(
+  WishlistItemTableData copyWithCompanion(WishlistItemsCompanion data) {
+    return WishlistItemTableData(
       productId: data.productId.present ? data.productId.value : this.productId,
       title: data.title.present ? data.title.value : this.title,
       price: data.price.present ? data.price.value : this.price,
@@ -1031,7 +1034,7 @@ class WishlistItem extends DataClass implements Insertable<WishlistItem> {
 
   @override
   String toString() {
-    return (StringBuffer('WishlistItem(')
+    return (StringBuffer('WishlistItemTableData(')
           ..write('productId: $productId, ')
           ..write('title: $title, ')
           ..write('price: $price, ')
@@ -1045,14 +1048,14 @@ class WishlistItem extends DataClass implements Insertable<WishlistItem> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WishlistItem &&
+      (other is WishlistItemTableData &&
           other.productId == this.productId &&
           other.title == this.title &&
           other.price == this.price &&
           other.imageUrl == this.imageUrl);
 }
 
-class WishlistItemsCompanion extends UpdateCompanion<WishlistItem> {
+class WishlistItemsCompanion extends UpdateCompanion<WishlistItemTableData> {
   final Value<String> productId;
   final Value<String> title;
   final Value<double?> price;
@@ -1073,7 +1076,7 @@ class WishlistItemsCompanion extends UpdateCompanion<WishlistItem> {
     this.rowid = const Value.absent(),
   })  : productId = Value(productId),
         title = Value(title);
-  static Insertable<WishlistItem> custom({
+  static Insertable<WishlistItemTableData> custom({
     Expression<String>? productId,
     Expression<String>? title,
     Expression<double>? price,
@@ -1512,14 +1515,17 @@ class $$CartItemsTableAnnotationComposer
 class $$CartItemsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $CartItemsTable,
-    CartItem,
+    CartItemTableData,
     $$CartItemsTableFilterComposer,
     $$CartItemsTableOrderingComposer,
     $$CartItemsTableAnnotationComposer,
     $$CartItemsTableCreateCompanionBuilder,
     $$CartItemsTableUpdateCompanionBuilder,
-    (CartItem, BaseReferences<_$AppDatabase, $CartItemsTable, CartItem>),
-    CartItem,
+    (
+      CartItemTableData,
+      BaseReferences<_$AppDatabase, $CartItemsTable, CartItemTableData>
+    ),
+    CartItemTableData,
     PrefetchHooks Function()> {
   $$CartItemsTableTableManager(_$AppDatabase db, $CartItemsTable table)
       : super(TableManagerState(
@@ -1581,14 +1587,17 @@ class $$CartItemsTableTableManager extends RootTableManager<
 typedef $$CartItemsTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $CartItemsTable,
-    CartItem,
+    CartItemTableData,
     $$CartItemsTableFilterComposer,
     $$CartItemsTableOrderingComposer,
     $$CartItemsTableAnnotationComposer,
     $$CartItemsTableCreateCompanionBuilder,
     $$CartItemsTableUpdateCompanionBuilder,
-    (CartItem, BaseReferences<_$AppDatabase, $CartItemsTable, CartItem>),
-    CartItem,
+    (
+      CartItemTableData,
+      BaseReferences<_$AppDatabase, $CartItemsTable, CartItemTableData>
+    ),
+    CartItemTableData,
     PrefetchHooks Function()>;
 typedef $$WishlistItemsTableCreateCompanionBuilder = WishlistItemsCompanion
     Function({
@@ -1676,17 +1685,17 @@ class $$WishlistItemsTableAnnotationComposer
 class $$WishlistItemsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $WishlistItemsTable,
-    WishlistItem,
+    WishlistItemTableData,
     $$WishlistItemsTableFilterComposer,
     $$WishlistItemsTableOrderingComposer,
     $$WishlistItemsTableAnnotationComposer,
     $$WishlistItemsTableCreateCompanionBuilder,
     $$WishlistItemsTableUpdateCompanionBuilder,
     (
-      WishlistItem,
-      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItem>
+      WishlistItemTableData,
+      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItemTableData>
     ),
-    WishlistItem,
+    WishlistItemTableData,
     PrefetchHooks Function()> {
   $$WishlistItemsTableTableManager(_$AppDatabase db, $WishlistItemsTable table)
       : super(TableManagerState(
@@ -1736,17 +1745,17 @@ class $$WishlistItemsTableTableManager extends RootTableManager<
 typedef $$WishlistItemsTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $WishlistItemsTable,
-    WishlistItem,
+    WishlistItemTableData,
     $$WishlistItemsTableFilterComposer,
     $$WishlistItemsTableOrderingComposer,
     $$WishlistItemsTableAnnotationComposer,
     $$WishlistItemsTableCreateCompanionBuilder,
     $$WishlistItemsTableUpdateCompanionBuilder,
     (
-      WishlistItem,
-      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItem>
+      WishlistItemTableData,
+      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItemTableData>
     ),
-    WishlistItem,
+    WishlistItemTableData,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {

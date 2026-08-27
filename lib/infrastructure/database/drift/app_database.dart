@@ -18,6 +18,7 @@ class CachedCatalogProducts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('CartItemTableData')
 class CartItems extends Table {
   TextColumn get id => text()();
   TextColumn get productId => text()();
@@ -31,6 +32,7 @@ class CartItems extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('WishlistItemTableData')
 class WishlistItems extends Table {
   TextColumn get productId => text()();
   TextColumn get title => text()();
