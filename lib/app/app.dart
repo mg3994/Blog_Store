@@ -26,7 +26,7 @@ import '../injection/dependency_injection.dart'
 import 'settings/cubit/settings.dart' show SettingsCubit, SettingsState;
 
 class BootStrap extends StatefulWidget {
-  const new({super.key, required this.onReady});
+  const BootStrap({super.key, required this.onReady});
   final VoidCallback onReady;
 
   @override
