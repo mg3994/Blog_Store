@@ -1,8 +1,7 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
     show BlocSignalBuilder;
 import 'package:blogstore/app/helpers/extensions.dart';
-import 'package:blogstore/app/router/router.dart'
-    show appRouterConfig, createRouterConfig;
+import 'package:blogstore/app/router/router.dart' show createRouterConfig;
 
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
 

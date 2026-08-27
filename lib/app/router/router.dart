@@ -26,9 +26,7 @@ final class ProductDetailRoute extends AppRoute {
 AppRouterConfig<AppRoute> createRouterConfig(
   AnalyticsGateway analyticsGateway,
 ) => AppRouterConfig<AppRoute>(
-  observers: () => [
-    FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-  ],
+  observers: () => [analyticsGateway.observer()],
   onScreenChanged: (route) => analyticsGateway.logScreenView(route.routeName),
   onTransition: (from, to) {
     if (to.isNotEmpty) {
