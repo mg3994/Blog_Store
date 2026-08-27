@@ -1,0 +1,746 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'app_database.dart';
+
+// ignore_for_file: type=lint
+class $CachedCatalogProductsTable extends CachedCatalogProducts
+    with TableInfo<$CachedCatalogProductsTable, CachedCatalogProduct> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedCatalogProductsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _priceMeta = const VerificationMeta('price');
+  @override
+  late final GeneratedColumn<double> price = GeneratedColumn<double>(
+    'price',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceUrlMeta = const VerificationMeta(
+    'sourceUrl',
+  );
+  @override
+  late final GeneratedColumn<String> sourceUrl = GeneratedColumn<String>(
+    'source_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    description,
+    imageUrl,
+    price,
+    currency,
+    sourceUrl,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_catalog_products';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedCatalogProduct> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('price')) {
+      context.handle(
+        _priceMeta,
+        price.isAcceptableOrUnknown(data['price']!, _priceMeta),
+      );
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('source_url')) {
+      context.handle(
+        _sourceUrlMeta,
+        sourceUrl.isAcceptableOrUnknown(data['source_url']!, _sourceUrlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceUrlMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedCatalogProduct map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedCatalogProduct(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+      price: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}price'],
+      ),
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      ),
+      sourceUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_url'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedCatalogProductsTable createAlias(String alias) {
+    return $CachedCatalogProductsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedCatalogProduct extends DataClass
+    implements Insertable<CachedCatalogProduct> {
+  final String id;
+  final String name;
+  final String description;
+  final String? imageUrl;
+  final double? price;
+  final String? currency;
+  final String sourceUrl;
+  const CachedCatalogProduct({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.imageUrl,
+    this.price,
+    this.currency,
+    required this.sourceUrl,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    if (!nullToAbsent || price != null) {
+      map['price'] = Variable<double>(price);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    map['source_url'] = Variable<String>(sourceUrl);
+    return map;
+  }
+
+  CachedCatalogProductsCompanion toCompanion(bool nullToAbsent) {
+    return CachedCatalogProductsCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: Value(description),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+      price: price == null && nullToAbsent
+          ? const Value.absent()
+          : Value(price),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      sourceUrl: Value(sourceUrl),
+    );
+  }
+
+  factory CachedCatalogProduct.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedCatalogProduct(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      price: serializer.fromJson<double?>(json['price']),
+      currency: serializer.fromJson<String?>(json['currency']),
+      sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+      'price': serializer.toJson<double?>(price),
+      'currency': serializer.toJson<String?>(currency),
+      'sourceUrl': serializer.toJson<String>(sourceUrl),
+    };
+  }
+
+  CachedCatalogProduct copyWith({
+    String? id,
+    String? name,
+    String? description,
+    Value<String?> imageUrl = const Value.absent(),
+    Value<double?> price = const Value.absent(),
+    Value<String?> currency = const Value.absent(),
+    String? sourceUrl,
+  }) => CachedCatalogProduct(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    price: price.present ? price.value : this.price,
+    currency: currency.present ? currency.value : this.currency,
+    sourceUrl: sourceUrl ?? this.sourceUrl,
+  );
+  CachedCatalogProduct copyWithCompanion(CachedCatalogProductsCompanion data) {
+    return CachedCatalogProduct(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      price: data.price.present ? data.price.value : this.price,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedCatalogProduct(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('price: $price, ')
+          ..write('currency: $currency, ')
+          ..write('sourceUrl: $sourceUrl')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, description, imageUrl, price, currency, sourceUrl);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedCatalogProduct &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.imageUrl == this.imageUrl &&
+          other.price == this.price &&
+          other.currency == this.currency &&
+          other.sourceUrl == this.sourceUrl);
+}
+
+class CachedCatalogProductsCompanion
+    extends UpdateCompanion<CachedCatalogProduct> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> description;
+  final Value<String?> imageUrl;
+  final Value<double?> price;
+  final Value<String?> currency;
+  final Value<String> sourceUrl;
+  final Value<int> rowid;
+  const CachedCatalogProductsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.price = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.sourceUrl = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedCatalogProductsCompanion.insert({
+    required String id,
+    required String name,
+    required String description,
+    this.imageUrl = const Value.absent(),
+    this.price = const Value.absent(),
+    this.currency = const Value.absent(),
+    required String sourceUrl,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       description = Value(description),
+       sourceUrl = Value(sourceUrl);
+  static Insertable<CachedCatalogProduct> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? imageUrl,
+    Expression<double>? price,
+    Expression<String>? currency,
+    Expression<String>? sourceUrl,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (price != null) 'price': price,
+      if (currency != null) 'currency': currency,
+      if (sourceUrl != null) 'source_url': sourceUrl,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedCatalogProductsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? description,
+    Value<String?>? imageUrl,
+    Value<double?>? price,
+    Value<String?>? currency,
+    Value<String>? sourceUrl,
+    Value<int>? rowid,
+  }) {
+    return CachedCatalogProductsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      price: price ?? this.price,
+      currency: currency ?? this.currency,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (price.present) {
+      map['price'] = Variable<double>(price.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (sourceUrl.present) {
+      map['source_url'] = Variable<String>(sourceUrl.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedCatalogProductsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('price: $price, ')
+          ..write('currency: $currency, ')
+          ..write('sourceUrl: $sourceUrl, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+abstract class _$AppDatabase extends GeneratedDatabase {
+  _$AppDatabase(QueryExecutor e) : super(e);
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $CachedCatalogProductsTable cachedCatalogProducts =
+      $CachedCatalogProductsTable(this);
+  @override
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  @override
+  List<DatabaseSchemaEntity> get allSchemaEntities => [cachedCatalogProducts];
+}
+
+typedef $$CachedCatalogProductsTableCreateCompanionBuilder =
+    CachedCatalogProductsCompanion Function({
+      required String id,
+      required String name,
+      required String description,
+      Value<String?> imageUrl,
+      Value<double?> price,
+      Value<String?> currency,
+      required String sourceUrl,
+      Value<int> rowid,
+    });
+typedef $$CachedCatalogProductsTableUpdateCompanionBuilder =
+    CachedCatalogProductsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> description,
+      Value<String?> imageUrl,
+      Value<double?> price,
+      Value<String?> currency,
+      Value<String> sourceUrl,
+      Value<int> rowid,
+    });
+
+class $$CachedCatalogProductsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedCatalogProductsTable> {
+  $$CachedCatalogProductsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get price => $composableBuilder(
+    column: $table.price,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedCatalogProductsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedCatalogProductsTable> {
+  $$CachedCatalogProductsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get price => $composableBuilder(
+    column: $table.price,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedCatalogProductsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedCatalogProductsTable> {
+  $$CachedCatalogProductsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<double> get price =>
+      $composableBuilder(column: $table.price, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceUrl =>
+      $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
+}
+
+class $$CachedCatalogProductsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedCatalogProductsTable,
+          CachedCatalogProduct,
+          $$CachedCatalogProductsTableFilterComposer,
+          $$CachedCatalogProductsTableOrderingComposer,
+          $$CachedCatalogProductsTableAnnotationComposer,
+          $$CachedCatalogProductsTableCreateCompanionBuilder,
+          $$CachedCatalogProductsTableUpdateCompanionBuilder,
+          (
+            CachedCatalogProduct,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedCatalogProductsTable,
+              CachedCatalogProduct
+            >,
+          ),
+          CachedCatalogProduct,
+          PrefetchHooks Function()
+        > {
+  $$CachedCatalogProductsTableTableManager(
+    _$AppDatabase db,
+    $CachedCatalogProductsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedCatalogProductsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedCatalogProductsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedCatalogProductsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<double?> price = const Value.absent(),
+                Value<String?> currency = const Value.absent(),
+                Value<String> sourceUrl = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedCatalogProductsCompanion(
+                id: id,
+                name: name,
+                description: description,
+                imageUrl: imageUrl,
+                price: price,
+                currency: currency,
+                sourceUrl: sourceUrl,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String description,
+                Value<String?> imageUrl = const Value.absent(),
+                Value<double?> price = const Value.absent(),
+                Value<String?> currency = const Value.absent(),
+                required String sourceUrl,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedCatalogProductsCompanion.insert(
+                id: id,
+                name: name,
+                description: description,
+                imageUrl: imageUrl,
+                price: price,
+                currency: currency,
+                sourceUrl: sourceUrl,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedCatalogProductsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedCatalogProductsTable,
+      CachedCatalogProduct,
+      $$CachedCatalogProductsTableFilterComposer,
+      $$CachedCatalogProductsTableOrderingComposer,
+      $$CachedCatalogProductsTableAnnotationComposer,
+      $$CachedCatalogProductsTableCreateCompanionBuilder,
+      $$CachedCatalogProductsTableUpdateCompanionBuilder,
+      (
+        CachedCatalogProduct,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedCatalogProductsTable,
+          CachedCatalogProduct
+        >,
+      ),
+      CachedCatalogProduct,
+      PrefetchHooks Function()
+    >;
+
+class $AppDatabaseManager {
+  final _$AppDatabase _db;
+  $AppDatabaseManager(this._db);
+  $$CachedCatalogProductsTableTableManager get cachedCatalogProducts =>
+      $$CachedCatalogProductsTableTableManager(_db, _db.cachedCatalogProducts);
+}

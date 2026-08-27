@@ -1,0 +1,12 @@
+import '../../../../core/auth/auth_gateway.dart';
+import '../repositories/auth_repository.dart';
+
+final class SignInWithEmail {
+  const SignInWithEmail(this._repository);
+
+  final AuthRepository _repository;
+
+  Future<AuthUser> call({required String email, required String password}) {
+    return _repository.signInWithEmail(email: email, password: password);
+  }
+}
