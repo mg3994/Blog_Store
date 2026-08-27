@@ -59,12 +59,16 @@ final class BloggerCatalogDataSource implements CatalogContentDataSource {
     return rawEntries
         .whereType<Map<String, dynamic>>()
         .expand((entry) {
-          final content = entry['content'];
-          final value = content is Map<String, dynamic>
-              ? content['\$t']
-              : entry['content'];
+          final value = _extractContent(entry['content']);
           return parser.parse(value, languageCode: languageCode);
         })
         .toList(growable: false);
+  }
+
+  Object? _extractContent(Object? content) {
+    if (content is Map<String, dynamic>) {
+      return content['\$t'] ?? content;
+    }
+    return content;
   }
 }
