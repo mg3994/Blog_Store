@@ -1,6 +1,4 @@
 // 1. Alias the type for convenience
-import 'package:firebase_analytics/firebase_analytics.dart'
-    show FirebaseAnalyticsObserver, FirebaseAnalytics;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
