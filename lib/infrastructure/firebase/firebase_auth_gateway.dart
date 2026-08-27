@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/auth/auth_gateway.dart';
+import '../../features/auth/domain/entities/auth_user.dart';
 
 final class FirebaseAuthGateway implements AuthGateway {
   FirebaseAuthGateway(this._auth);
@@ -8,11 +9,11 @@ final class FirebaseAuthGateway implements AuthGateway {
   final FirebaseAuth _auth;
 
   @override
-  Stream<User?> get authStateChanges =>
-      _auth.authStateChanges().map((user) => user);
+  Stream<AuthUser?> get authStateChanges =>
+      _auth.authStateChanges().map(_toAuthUser);
 
   @override
-  Future<User?> signInWithEmail({
+  Future<AuthUser?> signInWithEmail({
     required String email,
     required String password,
   }) async {
@@ -24,9 +25,20 @@ final class FirebaseAuthGateway implements AuthGateway {
     if (user == null) {
       throw StateError('Firebase returned no authenticated user.');
     }
-    return user;
+    return _toAuthUser(user);
   }
 
   @override
   Future<void> signOut() => _auth.signOut();
+
+  AuthUser? _toAuthUser(User? user) {
+    if (user == null) return null;
+    return AuthUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoUrl: user.photoURL,
+      isEmailVerified: user.emailVerified,
+    );
+  }
 }

@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart' show User;
-
-
+import '../entities/auth_user.dart';
 import '../repositories/auth_repository.dart';
 
 final class SignInWithEmail {
@@ -8,7 +6,7 @@ final class SignInWithEmail {
 
   final AuthRepository _repository;
 
-  Future<User?> call({required String email, required String password}) {
+  Future<AuthUser?> call({required String email, required String password}) {
     return _repository.signInWithEmail(email: email, password: password);
   }
 }

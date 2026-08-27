@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart' show User;
+import '../../features/auth/domain/entities/auth_user.dart';
 
 abstract interface class SocialAuthGateway {
-  Future<User?> signInWithGoogle();
+  Future<AuthUser?> signInWithGoogle();
 }
