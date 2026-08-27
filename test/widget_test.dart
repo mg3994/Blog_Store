@@ -8,14 +8,17 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:blogstore/app/app.dart';
+import 'package:blogstore/features/catalog/domain/entities/catalog_filter.dart';
 import 'package:blogstore/features/catalog/domain/entities/store_product.dart';
 import 'package:blogstore/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:blogstore/features/catalog/domain/usecases/get_catalog_products.dart';
 
 final class _FakeCatalogRepository implements CatalogRepository {
   @override
-  Future<List<StoreProduct>> getProducts({bool forceRefresh = false}) async =>
-      const [];
+  Future<List<StoreProduct>> getProducts({
+    CatalogFilter filter = const CatalogFilter(),
+    bool forceRefresh = false,
+  }) async => const [];
 }
 
 void main() {

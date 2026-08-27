@@ -1,15 +1,21 @@
 import 'dart:convert';
 
 import '../../features/catalog/data/models/store_product_model.dart';
+import '../../features/catalog/domain/entities/service_area.dart';
+import '../../shared/i18n/json_ld_localized_value_reader.dart';
 
 final class JsonLdProductParser {
-  const JsonLdProductParser();
+  const JsonLdProductParser({
+    this.localizedValueReader = const JsonLdLocalizedValueReader(),
+  });
 
-  List<StoreProductModel> parse(Object? source) {
+  final JsonLdLocalizedValueReader localizedValueReader;
+
+  List<StoreProductModel> parse(Object? source, {String languageCode = 'en'}) {
     final documents = _decodeDocuments(source);
     final products = documents.expand(_findProducts);
     return products
-        .map(_toModel)
+        .map((value) => _toModel(value, languageCode))
         .whereType<StoreProductModel>()
         .toList(growable: false);
   }
@@ -63,9 +69,9 @@ final class JsonLdProductParser {
     return false;
   }
 
-  StoreProductModel? _toModel(Map<String, dynamic> value) {
-    final name = value['name'];
-    if (name is! String || name.trim().isEmpty) return null;
+  StoreProductModel? _toModel(Map<String, dynamic> value, String languageCode) {
+    final name = localizedValueReader.read(value['name']).resolve(languageCode);
+    if (name.trim().isEmpty) return null;
 
     final offer = value['offers'];
     final offerMap = offer is Map<String, dynamic>
@@ -77,6 +83,9 @@ final class JsonLdProductParser {
     final price = priceValue is num
         ? priceValue.toDouble()
         : double.tryParse('$priceValue');
+    final description = localizedValueReader
+        .read(value['description'])
+        .resolve(languageCode);
     final image = value['image'];
     final imageUrl = image is String
         ? image
@@ -84,14 +93,36 @@ final class JsonLdProductParser {
         ? image.first as String
         : null;
 
+    final areas = _serviceAreas(value['areaServed'], languageCode);
+    final publishedAt = DateTime.tryParse(
+      value['datePublished']?.toString() ?? '',
+    )?.toLocal();
+
     return StoreProductModel(
       id: '${value['sku'] ?? value['productID'] ?? value['url'] ?? name}',
       name: name,
-      description: value['description'] as String? ?? '',
+      description: description,
       imageUrl: imageUrl,
       price: price,
       currency: offerMap['priceCurrency'] as String?,
       sourceUrl: value['url'] as String? ?? '',
+      serviceAreas: areas,
+      publishedAt: publishedAt,
     );
+  }
+
+  List<ServiceArea> _serviceAreas(Object? value, String languageCode) {
+    final values = value is List<dynamic> ? value : <Object?>[value];
+    return values
+        .whereType<Map<String, dynamic>>()
+        .map((area) {
+          final type = area['@type']?.toString() ?? 'Place';
+          final name = localizedValueReader
+              .read(area['name'])
+              .resolve(languageCode);
+          return ServiceArea(type: type, name: name);
+        })
+        .where((area) => area.name.isNotEmpty)
+        .toList(growable: false);
   }
 }

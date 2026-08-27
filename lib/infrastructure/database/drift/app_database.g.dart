@@ -80,6 +80,28 @@ class $CachedCatalogProductsTable extends CachedCatalogProducts
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _serviceAreasJsonMeta = const VerificationMeta(
+    'serviceAreasJson',
+  );
+  @override
+  late final GeneratedColumn<String> serviceAreasJson = GeneratedColumn<String>(
+    'service_areas_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _publishedAtMeta = const VerificationMeta(
+    'publishedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> publishedAt = GeneratedColumn<DateTime>(
+    'published_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -89,6 +111,8 @@ class $CachedCatalogProductsTable extends CachedCatalogProducts
     price,
     currency,
     sourceUrl,
+    serviceAreasJson,
+    publishedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -152,6 +176,26 @@ class $CachedCatalogProductsTable extends CachedCatalogProducts
     } else if (isInserting) {
       context.missing(_sourceUrlMeta);
     }
+    if (data.containsKey('service_areas_json')) {
+      context.handle(
+        _serviceAreasJsonMeta,
+        serviceAreasJson.isAcceptableOrUnknown(
+          data['service_areas_json']!,
+          _serviceAreasJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_serviceAreasJsonMeta);
+    }
+    if (data.containsKey('published_at')) {
+      context.handle(
+        _publishedAtMeta,
+        publishedAt.isAcceptableOrUnknown(
+          data['published_at']!,
+          _publishedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -189,6 +233,14 @@ class $CachedCatalogProductsTable extends CachedCatalogProducts
         DriftSqlType.string,
         data['${effectivePrefix}source_url'],
       )!,
+      serviceAreasJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_areas_json'],
+      )!,
+      publishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}published_at'],
+      ),
     );
   }
 
@@ -207,6 +259,8 @@ class CachedCatalogProduct extends DataClass
   final double? price;
   final String? currency;
   final String sourceUrl;
+  final String serviceAreasJson;
+  final DateTime? publishedAt;
   const CachedCatalogProduct({
     required this.id,
     required this.name,
@@ -215,6 +269,8 @@ class CachedCatalogProduct extends DataClass
     this.price,
     this.currency,
     required this.sourceUrl,
+    required this.serviceAreasJson,
+    this.publishedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -232,6 +288,10 @@ class CachedCatalogProduct extends DataClass
       map['currency'] = Variable<String>(currency);
     }
     map['source_url'] = Variable<String>(sourceUrl);
+    map['service_areas_json'] = Variable<String>(serviceAreasJson);
+    if (!nullToAbsent || publishedAt != null) {
+      map['published_at'] = Variable<DateTime>(publishedAt);
+    }
     return map;
   }
 
@@ -250,6 +310,10 @@ class CachedCatalogProduct extends DataClass
           ? const Value.absent()
           : Value(currency),
       sourceUrl: Value(sourceUrl),
+      serviceAreasJson: Value(serviceAreasJson),
+      publishedAt: publishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publishedAt),
     );
   }
 
@@ -266,6 +330,8 @@ class CachedCatalogProduct extends DataClass
       price: serializer.fromJson<double?>(json['price']),
       currency: serializer.fromJson<String?>(json['currency']),
       sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
+      serviceAreasJson: serializer.fromJson<String>(json['serviceAreasJson']),
+      publishedAt: serializer.fromJson<DateTime?>(json['publishedAt']),
     );
   }
   @override
@@ -279,6 +345,8 @@ class CachedCatalogProduct extends DataClass
       'price': serializer.toJson<double?>(price),
       'currency': serializer.toJson<String?>(currency),
       'sourceUrl': serializer.toJson<String>(sourceUrl),
+      'serviceAreasJson': serializer.toJson<String>(serviceAreasJson),
+      'publishedAt': serializer.toJson<DateTime?>(publishedAt),
     };
   }
 
@@ -290,6 +358,8 @@ class CachedCatalogProduct extends DataClass
     Value<double?> price = const Value.absent(),
     Value<String?> currency = const Value.absent(),
     String? sourceUrl,
+    String? serviceAreasJson,
+    Value<DateTime?> publishedAt = const Value.absent(),
   }) => CachedCatalogProduct(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -298,6 +368,8 @@ class CachedCatalogProduct extends DataClass
     price: price.present ? price.value : this.price,
     currency: currency.present ? currency.value : this.currency,
     sourceUrl: sourceUrl ?? this.sourceUrl,
+    serviceAreasJson: serviceAreasJson ?? this.serviceAreasJson,
+    publishedAt: publishedAt.present ? publishedAt.value : this.publishedAt,
   );
   CachedCatalogProduct copyWithCompanion(CachedCatalogProductsCompanion data) {
     return CachedCatalogProduct(
@@ -310,6 +382,12 @@ class CachedCatalogProduct extends DataClass
       price: data.price.present ? data.price.value : this.price,
       currency: data.currency.present ? data.currency.value : this.currency,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
+      serviceAreasJson: data.serviceAreasJson.present
+          ? data.serviceAreasJson.value
+          : this.serviceAreasJson,
+      publishedAt: data.publishedAt.present
+          ? data.publishedAt.value
+          : this.publishedAt,
     );
   }
 
@@ -322,14 +400,25 @@ class CachedCatalogProduct extends DataClass
           ..write('imageUrl: $imageUrl, ')
           ..write('price: $price, ')
           ..write('currency: $currency, ')
-          ..write('sourceUrl: $sourceUrl')
+          ..write('sourceUrl: $sourceUrl, ')
+          ..write('serviceAreasJson: $serviceAreasJson, ')
+          ..write('publishedAt: $publishedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, description, imageUrl, price, currency, sourceUrl);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    imageUrl,
+    price,
+    currency,
+    sourceUrl,
+    serviceAreasJson,
+    publishedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -340,7 +429,9 @@ class CachedCatalogProduct extends DataClass
           other.imageUrl == this.imageUrl &&
           other.price == this.price &&
           other.currency == this.currency &&
-          other.sourceUrl == this.sourceUrl);
+          other.sourceUrl == this.sourceUrl &&
+          other.serviceAreasJson == this.serviceAreasJson &&
+          other.publishedAt == this.publishedAt);
 }
 
 class CachedCatalogProductsCompanion
@@ -352,6 +443,8 @@ class CachedCatalogProductsCompanion
   final Value<double?> price;
   final Value<String?> currency;
   final Value<String> sourceUrl;
+  final Value<String> serviceAreasJson;
+  final Value<DateTime?> publishedAt;
   final Value<int> rowid;
   const CachedCatalogProductsCompanion({
     this.id = const Value.absent(),
@@ -361,6 +454,8 @@ class CachedCatalogProductsCompanion
     this.price = const Value.absent(),
     this.currency = const Value.absent(),
     this.sourceUrl = const Value.absent(),
+    this.serviceAreasJson = const Value.absent(),
+    this.publishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CachedCatalogProductsCompanion.insert({
@@ -371,11 +466,14 @@ class CachedCatalogProductsCompanion
     this.price = const Value.absent(),
     this.currency = const Value.absent(),
     required String sourceUrl,
+    required String serviceAreasJson,
+    this.publishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
        description = Value(description),
-       sourceUrl = Value(sourceUrl);
+       sourceUrl = Value(sourceUrl),
+       serviceAreasJson = Value(serviceAreasJson);
   static Insertable<CachedCatalogProduct> custom({
     Expression<String>? id,
     Expression<String>? name,
@@ -384,6 +482,8 @@ class CachedCatalogProductsCompanion
     Expression<double>? price,
     Expression<String>? currency,
     Expression<String>? sourceUrl,
+    Expression<String>? serviceAreasJson,
+    Expression<DateTime>? publishedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -394,6 +494,8 @@ class CachedCatalogProductsCompanion
       if (price != null) 'price': price,
       if (currency != null) 'currency': currency,
       if (sourceUrl != null) 'source_url': sourceUrl,
+      if (serviceAreasJson != null) 'service_areas_json': serviceAreasJson,
+      if (publishedAt != null) 'published_at': publishedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -406,6 +508,8 @@ class CachedCatalogProductsCompanion
     Value<double?>? price,
     Value<String?>? currency,
     Value<String>? sourceUrl,
+    Value<String>? serviceAreasJson,
+    Value<DateTime?>? publishedAt,
     Value<int>? rowid,
   }) {
     return CachedCatalogProductsCompanion(
@@ -416,6 +520,8 @@ class CachedCatalogProductsCompanion
       price: price ?? this.price,
       currency: currency ?? this.currency,
       sourceUrl: sourceUrl ?? this.sourceUrl,
+      serviceAreasJson: serviceAreasJson ?? this.serviceAreasJson,
+      publishedAt: publishedAt ?? this.publishedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -444,6 +550,12 @@ class CachedCatalogProductsCompanion
     if (sourceUrl.present) {
       map['source_url'] = Variable<String>(sourceUrl.value);
     }
+    if (serviceAreasJson.present) {
+      map['service_areas_json'] = Variable<String>(serviceAreasJson.value);
+    }
+    if (publishedAt.present) {
+      map['published_at'] = Variable<DateTime>(publishedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -460,6 +572,8 @@ class CachedCatalogProductsCompanion
           ..write('price: $price, ')
           ..write('currency: $currency, ')
           ..write('sourceUrl: $sourceUrl, ')
+          ..write('serviceAreasJson: $serviceAreasJson, ')
+          ..write('publishedAt: $publishedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -487,6 +601,8 @@ typedef $$CachedCatalogProductsTableCreateCompanionBuilder =
       Value<double?> price,
       Value<String?> currency,
       required String sourceUrl,
+      required String serviceAreasJson,
+      Value<DateTime?> publishedAt,
       Value<int> rowid,
     });
 typedef $$CachedCatalogProductsTableUpdateCompanionBuilder =
@@ -498,6 +614,8 @@ typedef $$CachedCatalogProductsTableUpdateCompanionBuilder =
       Value<double?> price,
       Value<String?> currency,
       Value<String> sourceUrl,
+      Value<String> serviceAreasJson,
+      Value<DateTime?> publishedAt,
       Value<int> rowid,
     });
 
@@ -542,6 +660,16 @@ class $$CachedCatalogProductsTableFilterComposer
 
   ColumnFilters<String> get sourceUrl => $composableBuilder(
     column: $table.sourceUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceAreasJson => $composableBuilder(
+    column: $table.serviceAreasJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -589,6 +717,16 @@ class $$CachedCatalogProductsTableOrderingComposer
     column: $table.sourceUrl,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get serviceAreasJson => $composableBuilder(
+    column: $table.serviceAreasJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CachedCatalogProductsTableAnnotationComposer
@@ -622,6 +760,16 @@ class $$CachedCatalogProductsTableAnnotationComposer
 
   GeneratedColumn<String> get sourceUrl =>
       $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceAreasJson => $composableBuilder(
+    column: $table.serviceAreasJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get publishedAt => $composableBuilder(
+    column: $table.publishedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$CachedCatalogProductsTableTableManager
@@ -677,6 +825,8 @@ class $$CachedCatalogProductsTableTableManager
                 Value<double?> price = const Value.absent(),
                 Value<String?> currency = const Value.absent(),
                 Value<String> sourceUrl = const Value.absent(),
+                Value<String> serviceAreasJson = const Value.absent(),
+                Value<DateTime?> publishedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CachedCatalogProductsCompanion(
                 id: id,
@@ -686,6 +836,8 @@ class $$CachedCatalogProductsTableTableManager
                 price: price,
                 currency: currency,
                 sourceUrl: sourceUrl,
+                serviceAreasJson: serviceAreasJson,
+                publishedAt: publishedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -697,6 +849,8 @@ class $$CachedCatalogProductsTableTableManager
                 Value<double?> price = const Value.absent(),
                 Value<String?> currency = const Value.absent(),
                 required String sourceUrl,
+                required String serviceAreasJson,
+                Value<DateTime?> publishedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CachedCatalogProductsCompanion.insert(
                 id: id,
@@ -706,6 +860,8 @@ class $$CachedCatalogProductsTableTableManager
                 price: price,
                 currency: currency,
                 sourceUrl: sourceUrl,
+                serviceAreasJson: serviceAreasJson,
+                publishedAt: publishedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

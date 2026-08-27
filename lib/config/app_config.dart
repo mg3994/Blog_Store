@@ -1,13 +1,17 @@
 abstract final class AppConfig {
+  static const blogId = String.fromEnvironment(
+    'BLOG_ID',
+    defaultValue: '1774904866501098696',
+  );
+
+  static const bloggerFeedsBaseUrl = 'https://www.blogger.com/feeds';
+  static const bloggerV3BaseUrl = 'https://www.googleapis.com/blogger/v3';
   static const sharedApiBaseUrl = 'https://api.antinna.in';
 
-  // Supply the real deployment URLs when the public and authenticated APIs
-  // are finalized. The shared API is the stable Antinna endpoint.
-  static const publicApiBaseUrl = sharedApiBaseUrl;
-  static const authenticatedApiBaseUrl = sharedApiBaseUrl;
+  static const publicCatalogPath = '/$blogId/posts/default';
+  static const authenticatedCatalogPath = '/blogs/$blogId/posts';
+  static const sharedCatalogPath = '/catalog';
 
-  // Replace these paths with the API contract paths without changing layers.
-  static const publicCatalogPath = '/catalog';
-  static const authenticatedCatalogPath = '/catalog';
-  static const sharedCatalogPath = '/store/catalog';
+  static const publicApiBaseUrl = bloggerFeedsBaseUrl;
+  static const authenticatedApiBaseUrl = bloggerV3BaseUrl;
 }

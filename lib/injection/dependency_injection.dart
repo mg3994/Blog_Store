@@ -65,14 +65,17 @@ final class Dependencies {
       publicSource: BloggerCatalogDataSource(
         client: publicClient,
         path: AppConfig.publicCatalogPath,
+        scope: ApiScope.public,
       ),
       authenticatedSource: BloggerCatalogDataSource(
         client: authenticatedClient,
         path: AppConfig.authenticatedCatalogPath,
+        scope: ApiScope.authenticated,
       ),
       sharedSource: BloggerCatalogDataSource(
         client: sharedClient,
         path: AppConfig.sharedCatalogPath,
+        scope: ApiScope.shared,
       ),
       accessTokenProvider: tokenProvider,
     );

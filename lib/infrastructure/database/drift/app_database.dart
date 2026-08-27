@@ -11,6 +11,8 @@ class CachedCatalogProducts extends Table {
   RealColumn get price => real().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get sourceUrl => text()();
+  TextColumn get serviceAreasJson => text()();
+  DateTimeColumn get publishedAt => dateTime().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
