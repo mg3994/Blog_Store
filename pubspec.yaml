@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.14.0-168.0.dev
+  sdk: ">=3.5.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -47,8 +47,8 @@ dependencies:
   firebase_analytics: ^12.5.0
   firebase_crashlytics: ^5.3.0
   google_sign_in: ^7.2.0
-  drift: ^2.34.3
-  drift_dev: ^2.34.5
+  drift: ^2.20.0
+  drift_dev: ^2.20.0
   drift_flutter: ^0.3.1
   sqlite3: ^3.5.2
   path_provider: ^2.1.6
@@ -63,7 +63,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  kaisel_lint: ^0.5.1
+  # kaisel_lint: ^0.5.1
   build_runner:
     ^2.15.1
   # We use this to compile the shared web worker for the web database. This dependency
@@ -71,7 +71,7 @@ dev_dependencies:
   # web workers for drift AND want to compile those web workers through `build_runner`.
   # Either way, using this package with Flutter requires a delicate setup described in
   # `build.yaml`.
-  build_web_compilers: ^4.8.5
+  # build_web_compilers: ^4.8.5
   build: ^4.0.7
 
 # For information on the generic Dart part of this file, see the
