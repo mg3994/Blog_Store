@@ -52,7 +52,7 @@ final class SchemaReferenceResolver {
     required SchemaDocumentFetcher fetcher,
     int maxDepth = 8,
   }) async {
-    final copy = jsonDecode(jsonEncode(schema)) as Map<String, dynamic>;
+    final copy = deepMerge(schema, const {});
     await _walk(
       copy,
       base: base,

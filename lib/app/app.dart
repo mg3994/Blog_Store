@@ -80,6 +80,7 @@ class _BootStrapState extends State<BootStrap> {
 
   @override
   void dispose() {
+    _settingsCubit?.close();
     _dependencies?.dispose();
     super.dispose();
   }
