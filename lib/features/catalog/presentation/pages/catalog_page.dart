@@ -1,7 +1,10 @@
+import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
+    show BlocSignalBuilder;
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/store_product.dart';
 import '../../domain/usecases/get_catalog_products.dart';
+import '../cubit/catalog_cubit.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({required this.getProducts, super.key});
@@ -13,20 +16,21 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
-  late Future<List<StoreProduct>> _products;
+  late final CatalogCubit _cubit;
 
   @override
   void initState() {
     super.initState();
-    _products = widget.getProducts();
+    _cubit = CatalogCubit(widget.getProducts)..loadProducts();
   }
 
-  Future<void> _refresh() async {
-    setState(() {
-      _products = widget.getProducts(forceRefresh: true);
-    });
-    await _products;
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
   }
+
+  Future<void> _refresh() => _cubit.loadProducts(forceRefresh: true);
 
   @override
   Widget build(BuildContext context) {
@@ -41,27 +45,22 @@ class _CatalogPageState extends State<CatalogPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<StoreProduct>>(
-        future: _products,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Could not load catalog: ${snapshot.error}'),
-            );
-          }
-          final products = snapshot.data ?? const <StoreProduct>[];
-          if (products.isEmpty) {
-            return const Center(child: Text('No products available.'));
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: products.length,
-            itemBuilder: (context, index) =>
-                _ProductTile(product: products[index]),
-          );
+      body: BlocSignalBuilder<CatalogCubit, CatalogState>(
+        bloc: _cubit,
+        builder: (context, state) => switch (state) {
+          CatalogInitial() || CatalogLoading() =>
+            const Center(child: CircularProgressIndicator()),
+          CatalogError(:final message) => Center(
+            child: Text('Could not load catalog: $message'),
+          ),
+          CatalogLoaded(:final products) => products.isEmpty
+              ? const Center(child: Text('No products available.'))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) =>
+                      _ProductTile(product: products[index]),
+                ),
         },
       ),
     );
