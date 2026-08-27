@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show runApp, WidgetsFlutterBinding;
 
 import 'app/app.dart';
-import 'injection/dependency_injection.dart';
 
 void main() {
-  final dependencies = Dependencies.create();
-  runApp(BlogStoreApp(getProducts: dependencies.getCatalogProducts));
+  // Obtain the single global WidgetsBinding instance
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  binding.deferFirstFrame();
+  return runApp(BootStrap(onReady: () => binding.allowFirstFrame()));
 }

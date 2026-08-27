@@ -1,4 +1,8 @@
+import 'package:material_ui/material_ui.dart' show Locale, ThemeMode;
+
 abstract final class AppConfig {
+  static const defaultThemeMode = ThemeMode.system;
+  static const defaultLocale = Locale.fromSubtags(languageCode: 'en');
   static const blogId = String.fromEnvironment(
     'BLOG_ID',
     defaultValue: '1774904866501098696',

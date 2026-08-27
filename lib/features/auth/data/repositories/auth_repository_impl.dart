@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart' show User;
+
 import '../../../../core/auth/auth_gateway.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -7,10 +9,10 @@ final class AuthRepositoryImpl implements AuthRepository {
   final AuthGateway _gateway;
 
   @override
-  Stream<AuthUser?> get authStateChanges => _gateway.authStateChanges;
+  Stream<User?> get authStateChanges => _gateway.authStateChanges;
 
   @override
-  Future<AuthUser> signInWithEmail({
+  Future<User?> signInWithEmail({
     required String email,
     required String password,
   }) {

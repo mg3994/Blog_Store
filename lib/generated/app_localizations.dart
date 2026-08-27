@@ -93,11 +93,71 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// The name of the application
+  ///
+  /// In en, this message translates to:
+  /// **'BlogStore'**
+  String get appName;
+
   /// The conventional newborn programmer greeting
   ///
   /// In en, this message translates to:
   /// **'Hello World!'**
   String get helloWorld;
+
+  /// A pronoun selected by gender
+  ///
+  /// In en, this message translates to:
+  /// **'{gender, select, male{he} female{she} other{they}}'**
+  String pronoun(String gender);
+
+  /// A personalized greeting for a signed-in user
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {userName}!'**
+  String welcomeUser(String userName);
+
+  /// The number of posts in a catalog
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No posts yet} =1{1 post} other{# posts}}'**
+  String postCount(int count);
+
+  /// The estimated reading time for a blog post
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =0{Less than a minute} =1{1 minute read} other{# minutes read}}'**
+  String readingTime(int minutes);
+
+  /// A search result summary with a nested string placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No results for \"{query}\"} =1{1 result for \"{query}\"} other{# results for \"{query}\"}}'**
+  String searchResults(int count, String query);
+
+  /// A readable label for a user's role
+  ///
+  /// In en, this message translates to:
+  /// **'{role, select, author{Author} editor{Editor} admin{Administrator} other{Member}}'**
+  String authorRole(String role);
+
+  /// A localized numeric article price
+  ///
+  /// In en, this message translates to:
+  /// **'Price: {amount}'**
+  String articlePrice(double amount);
+
+  /// A blog post publication date formatted for the current locale
+  ///
+  /// In en, this message translates to:
+  /// **'Published {date}'**
+  String publishedDate(DateTime date);
+
+  /// A blog post publication time formatted for the current locale
+  ///
+  /// In en, this message translates to:
+  /// **'Published at {time}'**
+  String publishedTime(DateTime time);
 }
 
 class _AppLocalizationsDelegate

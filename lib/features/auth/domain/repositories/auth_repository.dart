@@ -1,9 +1,10 @@
-import '../../../../core/auth/auth_gateway.dart';
+import 'package:firebase_auth/firebase_auth.dart' show User;
+
 
 abstract interface class AuthRepository {
-  Stream<AuthUser?> get authStateChanges;
+  Stream<User?> get authStateChanges;
 
-  Future<AuthUser> signInWithEmail({
+  Future<User?> signInWithEmail({
     required String email,
     required String password,
   });

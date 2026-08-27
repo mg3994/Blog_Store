@@ -48,14 +48,15 @@ dependencies:
   firebase_crashlytics: ^5.3.0
   google_sign_in: ^7.2.0
   drift: ^2.34.3
-  drift_dev: ^2.34.5
   drift_flutter: ^0.3.1
   sqlite3: ^3.5.2
   path_provider: ^2.1.6
   path: ^1.9.1
+  cupertino_ui: ^1.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  drift_dev: ^2.34.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -64,8 +65,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   kaisel_lint: ^0.5.1
-  build_runner:
-    ^2.15.1
+  build_runner: ^2.15.1
   # We use this to compile the shared web worker for the web database. This dependency
   # isn't required for most apps. You only need it if you want to target the web, use
   # web workers for drift AND want to compile those web workers through `build_runner`.

@@ -1,17 +1,12 @@
-abstract interface class AuthGateway {
-  Stream<AuthUser?> get authStateChanges;
+import 'package:firebase_auth/firebase_auth.dart' show User;
 
-  Future<AuthUser> signInWithEmail({
+abstract interface class AuthGateway {
+  Stream<User?> get authStateChanges;
+
+  Future<User?> signInWithEmail({
     required String email,
     required String password,
   });
 
   Future<void> signOut();
-}
-
-final class AuthUser {
-  const AuthUser({required this.id, required this.email});
-
-  final String id;
-  final String email;
 }

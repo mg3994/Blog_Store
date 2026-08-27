@@ -9,4 +9,4 @@ untranslated-messages-file: build/untranslated.json
 use-escaping: false
 use-deferred-loading: true
 relax-syntax: true
-synthetic-package: false
+# synthetic-package: false

@@ -1,7 +1,26 @@
+import 'package:blogstore/config/app_config.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:material_ui/material_ui.dart' show ThemeMode;
+import 'package:path_provider/path_provider.dart'
+    show getApplicationSupportDirectory;
 
 part 'app_database.g.dart';
+
+class UserSettings extends Table {
+  IntColumn get id => integer()();
+
+  // Stores the enum index in SQLite (INTEGER) and maps directly to ThemeMode in Dart
+  IntColumn get themeMode => intEnum<ThemeMode>().withDefault(
+    Constant(AppConfig.defaultThemeMode.index),
+  )();
+
+  TextColumn get languageCode =>
+      text().withDefault(Constant(AppConfig.defaultLocale.languageCode))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
 
 class CachedCatalogProducts extends Table {
   TextColumn get id => text()();
@@ -18,11 +37,52 @@ class CachedCatalogProducts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [CachedCatalogProducts])
+@DriftDatabase(tables: [UserSettings, CachedCatalogProducts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
-    : super(executor ?? driftDatabase(name: 'blogstore'));
+    : super(
+        executor ??
+            driftDatabase(
+              name: 'blogstore',
+              native: const DriftNativeOptions(
+                databaseDirectory: getApplicationSupportDirectory,
+              ),
+              web: DriftWebOptions(
+                sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+                driftWorker: Uri.parse('drift_worker.js'),
+              ),
+            ),
+      );
 
   @override
   int get schemaVersion => 1;
+
+  Stream<UserSetting> watchSettings() {
+    return (select(
+      userSettings,
+    )..where((t) => t.id.equals(1))).watchSingleOrNull().map(
+      (setting) =>
+          setting ??
+          const UserSetting(
+            id: 1,
+            themeMode: ThemeMode.system,
+            languageCode: 'en',
+          ),
+    );
+  }
+
+  Future<void> updateSettings({
+    ThemeMode? themeMode,
+    String? languageCode,
+  }) async {
+    await into(userSettings).insertOnConflictUpdate(
+      UserSettingsCompanion(
+        id: const Value(1),
+        themeMode: themeMode != null ? Value(themeMode) : const Value.absent(),
+        languageCode: languageCode != null
+            ? Value(languageCode)
+            : const Value.absent(),
+      ),
+    );
+  }
 }

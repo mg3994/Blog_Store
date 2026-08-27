@@ -1,88 +1,83 @@
-import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'
+    show FirebaseMessaging;
 
-import '../config/app_config.dart';
+import 'package:material_ui/material_ui.dart'
+    show BuildContext, InheritedWidget;
+
+import '../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
 import '../core/auth/access_token_provider.dart';
-import '../core/network/api_client.dart';
-import '../core/network/api_scope.dart';
-import '../core/network/scoped_api_client.dart';
-import '../features/catalog/data/datasources/blogger_catalog_data_source.dart';
-import '../features/catalog/data/datasources/catalog_content_data_source.dart';
-import '../features/catalog/data/datasources/composite_catalog_data_source.dart';
-import '../features/catalog/data/repositories/catalog_repository_impl.dart';
-import '../features/catalog/domain/usecases/get_catalog_products.dart';
-import '../features/catalog/domain/services/catalog_serviceability.dart';
+import '../core/monitoring/crash_reporter.dart' show CrashReporter;
+import '../core/notifications/notification_gateway.dart'
+    show NotificationGateway;
+
 import '../infrastructure/auth/firebase_access_token_provider.dart';
 import '../infrastructure/database/drift/app_database.dart';
-import '../infrastructure/database/drift/drift_catalog_cache.dart';
+
+import '../infrastructure/firebase/firebase_analytics_gateway.dart'
+    show FirebaseAnalyticsGateway;
+import '../infrastructure/firebase/firebase_crash_reporter.dart'
+    show FirebaseCrashReporter;
+import '../infrastructure/firebase/firebase_initializer.dart'
+    show FirebaseInitializer, DefaultFirebaseInitializer;
+import '../infrastructure/firebase/firebase_notification_gateway.dart'
+    show FirebaseNotificationGateway;
 
 final class Dependencies {
   factory Dependencies.create() {
-    final database = AppDatabase();
-    final tokenProvider = FirebaseAccessTokenProvider(FirebaseAuth.instance);
-    final publicClient = _client(AppConfig.publicApiBaseUrl);
-    final authenticatedClient = _client(
-      AppConfig.authenticatedApiBaseUrl,
-      tokenProvider: tokenProvider,
+    return Dependencies._(
+      database: AppDatabase(),
+      firebaseInitializer: DefaultFirebaseInitializer(),
     );
-    final sharedClient = _client(AppConfig.sharedApiBaseUrl);
-    final content = _catalogContentSource(
-      publicClient: publicClient,
-      authenticatedClient: authenticatedClient,
-      sharedClient: sharedClient,
-      tokenProvider: tokenProvider,
-    );
-    final cache = DriftCatalogCache(database);
-    final repository = CatalogRepositoryImpl(
-      content,
-      cache,
-      const CatalogServiceability(),
-    );
-
-    return Dependencies._(database, GetCatalogProducts(repository));
   }
 
-  const Dependencies._(this.database, this.getCatalogProducts);
+  // Non-const constructor allows late final fields
+  Dependencies._({required this.database, required this.firebaseInitializer});
 
   final AppDatabase database;
-  final GetCatalogProducts getCatalogProducts;
+  final FirebaseInitializer firebaseInitializer;
+
+  // Lazily initialized on first access (after await firebaseInitializer.initialize())
+  late final AccessTokenProvider accessTokenProvider =
+      FirebaseAccessTokenProvider(FirebaseAuth.instance);
+
+  late final NotificationGateway notificationGateway =
+      FirebaseNotificationGateway(FirebaseMessaging.instance);
+
+  late final CrashReporter crashReporter = FirebaseCrashReporter(
+    FirebaseCrashlytics.instance,
+  );
+
+  late final AnalyticsGateway analyticsGateway = FirebaseAnalyticsGateway(
+    FirebaseAnalytics.instance,
+  );
 
   Future<void> dispose() => database.close();
+}
 
-  static ApiClient _client(
-    String baseUrl, {
-    AccessTokenProvider? tokenProvider,
-  }) {
-    return ScopedApiClient(
-      dio: Dio(BaseOptions(baseUrl: baseUrl)),
-      scope: tokenProvider == null ? ApiScope.public : ApiScope.authenticated,
-      accessTokenProvider: tokenProvider,
-    );
+class DependenciesProvider extends InheritedWidget {
+  const DependenciesProvider({
+    super.key,
+    required this.dependencies,
+    required super.child,
+  });
+
+  final Dependencies dependencies;
+
+  static Dependencies of(BuildContext context) {
+    final DependenciesProvider? result = context
+        .dependOnInheritedWidgetOfExactType<DependenciesProvider>();
+    assert(result != null, 'No DependenciesProvider found in context');
+    return result!.dependencies;
   }
 
-  static CatalogContentDataSource _catalogContentSource({
-    required ApiClient publicClient,
-    required ApiClient authenticatedClient,
-    required ApiClient sharedClient,
-    required AccessTokenProvider tokenProvider,
-  }) {
-    return CompositeCatalogDataSource(
-      publicSource: BloggerCatalogDataSource(
-        client: publicClient,
-        path: AppConfig.publicCatalogPath,
-        scope: ApiScope.public,
-      ),
-      authenticatedSource: BloggerCatalogDataSource(
-        client: authenticatedClient,
-        path: AppConfig.authenticatedCatalogPath,
-        scope: ApiScope.authenticated,
-      ),
-      sharedSource: BloggerCatalogDataSource(
-        client: sharedClient,
-        path: AppConfig.sharedCatalogPath,
-        scope: ApiScope.shared,
-      ),
-      accessTokenProvider: tokenProvider,
-    );
-  }
+  @override
+  bool updateShouldNotify(DependenciesProvider oldWidget) =>
+      dependencies != oldWidget.dependencies;
+}
+
+extension DependenciesBuildContextX on BuildContext {
+  Dependencies get dependencies => DependenciesProvider.of(this);
 }

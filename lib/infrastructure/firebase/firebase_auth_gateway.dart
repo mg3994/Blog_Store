@@ -8,13 +8,11 @@ final class FirebaseAuthGateway implements AuthGateway {
   final FirebaseAuth _auth;
 
   @override
-  Stream<AuthUser?> get authStateChanges => _auth.authStateChanges().map(
-    (user) =>
-        user == null ? null : AuthUser(id: user.uid, email: user.email ?? ''),
-  );
+  Stream<User?> get authStateChanges =>
+      _auth.authStateChanges().map((user) => user);
 
   @override
-  Future<AuthUser> signInWithEmail({
+  Future<User?> signInWithEmail({
     required String email,
     required String password,
   }) async {
@@ -26,7 +24,7 @@ final class FirebaseAuthGateway implements AuthGateway {
     if (user == null) {
       throw StateError('Firebase returned no authenticated user.');
     }
-    return AuthUser(id: user.uid, email: user.email ?? email);
+    return user;
   }
 
   @override
