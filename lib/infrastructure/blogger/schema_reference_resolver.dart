@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../features/catalog/domain/entities/schema_reference.dart';
+import '../../features/catalog/domain/services/schema_reference.dart';
 
 abstract interface class SchemaDocumentFetcher {
   Future<Map<String, dynamic>?> fetch(SchemaReference reference);
