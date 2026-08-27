@@ -1,8 +1,8 @@
 import '../../domain/entities/catalog_filter.dart';
-import '../../domain/entities/blogger_post.dart';
+import '../models/blogger_post_model.dart';
 
 abstract interface class BloggerPostsDataSource {
-  Future<List<BloggerPost>> fetchPosts(CatalogFilter filter);
+  Future<List<BloggerPostModel>> fetchPosts(CatalogFilter filter);
 
-  Future<BloggerPost?> fetchPost({required String postId});
+  Future<BloggerPostModel?> fetchPost({required String postId});
 }
