@@ -18,37 +18,33 @@ final class CatalogRepositoryImpl implements CatalogRepository {
     CatalogFilter filter = const CatalogFilter(),
     bool forceRefresh = false,
   }) async {
+    List<StoreProductModel> rawProducts = const [];
+
     if (!forceRefresh) {
-      final cached = await _cache.readProducts(filter: filter);
-      if (cached.isNotEmpty) {
-        return _filter(
-          cached,
-          filter,
-        ).map((product) => product.toEntity()).toList(growable: false);
-      }
+      rawProducts = await _cache.readProducts(filter: filter);
     }
 
-    final remote = await _content.loadProducts(filter: filter);
-    await _cache.writeProducts(remote);
-    return _filter(
-      remote,
-      filter,
-    ).map((product) => product.toEntity()).toList(growable: false);
+    if (rawProducts.isEmpty) {
+      rawProducts = await _content.loadProducts(filter: filter);
+      await _cache.writeProducts(rawProducts);
+    }
+
+    return _processProducts(rawProducts, filter);
   }
 
-  List<StoreProductModel> _filter(
+  List<StoreProduct> _processProducts(
     List<StoreProductModel> products,
     CatalogFilter filter,
   ) {
     final location = filter.location;
-    if (location == null) return products;
-    return products
-        .where(
-          (product) => _serviceability.isServiceable(
-            areas: product.serviceAreas,
-            location: location,
-          ),
-        )
-        .toList(growable: false);
+    final filtered = location == null
+        ? products
+        : products.where(
+            (product) => _serviceability.isServiceable(
+              areas: product.serviceAreas,
+              location: location,
+            ),
+          );
+    return filtered.map((product) => product.toEntity()).toList(growable: false);
   }
 }

@@ -72,25 +72,25 @@ final class BloggerPostsDataSourceImpl implements BloggerPostsDataSource {
   }
 
   List<BloggerPostModel> _mapFeedPosts(Object? data, String languageCode) {
-    if (data is! Map<String, dynamic>) return const [];
-    final feed = data['feed'];
-    if (feed is! Map<String, dynamic>) return const [];
-    final entries = feed['entry'];
-    if (entries is! List<dynamic>) return const [];
-    return entries
-        .whereType<Map<String, dynamic>>()
+    return _extractList(data, ['feed', 'entry'])
         .map((entry) => _mapFeedPost(entry, AppConfig.blogId, languageCode))
         .toList(growable: false);
   }
 
   List<BloggerPostModel> _mapV3Posts(Object? data, String languageCode) {
-    if (data is! Map<String, dynamic>) return const [];
-    final items = data['items'];
-    if (items is! List<dynamic>) return const [];
-    return items
-        .whereType<Map<String, dynamic>>()
+    return _extractList(data, ['items'])
         .map((item) => _mapV3Post(item, AppConfig.blogId, languageCode))
         .toList(growable: false);
+  }
+
+  List<Map<String, dynamic>> _extractList(Object? data, List<String> keys) {
+    Object? current = data;
+    for (final key in keys) {
+      if (current is! Map<String, dynamic>) return const [];
+      current = current[key];
+    }
+    if (current is! List<dynamic>) return const [];
+    return current.whereType<Map<String, dynamic>>().toList(growable: false);
   }
 
   BloggerPostModel _mapFeedPost(
