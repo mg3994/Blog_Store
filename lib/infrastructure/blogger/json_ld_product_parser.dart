@@ -1,15 +1,16 @@
-import 'dart:convert';
-
 import '../../features/catalog/data/models/store_product_model.dart';
 import '../../features/catalog/domain/entities/service_area.dart';
 import '../../shared/i18n/json_ld_localized_value_reader.dart';
+import 'json_ld_document_extractor.dart';
 
 final class JsonLdProductParser {
   const JsonLdProductParser({
     this.localizedValueReader = const JsonLdLocalizedValueReader(),
+    this.documentExtractor = const JsonLdDocumentExtractor(),
   });
 
   final JsonLdLocalizedValueReader localizedValueReader;
+  final JsonLdDocumentExtractor documentExtractor;
 
   List<StoreProductModel> parse(Object? source, {String languageCode = 'en'}) {
     final documents = _decodeDocuments(source);
@@ -21,35 +22,7 @@ final class JsonLdProductParser {
   }
 
   Iterable<Map<String, dynamic>> _decodeDocuments(Object? source) {
-    if (source is Map<String, dynamic>) {
-      return <Map<String, dynamic>>[source];
-    }
-    if (source is List<dynamic>) {
-      return source.whereType<Map<String, dynamic>>();
-    }
-    if (source is! String) {
-      return const <Map<String, dynamic>>[];
-    }
-
-    final scripts = RegExp(
-      r'''<script[^>]*type=["']application/ld\+json["'][^>]*>(.*?)</script>''',
-      caseSensitive: false,
-      dotAll: true,
-    ).allMatches(source).map((match) => match.group(1));
-    final candidates = scripts.isEmpty
-        ? <String>[source]
-        : scripts.whereType<String>();
-
-    return candidates
-        .map((value) {
-          try {
-            return jsonDecode(value.trim());
-          } on FormatException {
-            return null;
-          }
-        })
-        .expand((value) => value is List<dynamic> ? value : <Object?>[value])
-        .whereType<Map<String, dynamic>>();
+    return documentExtractor.extract(source);
   }
 
   Iterable<Map<String, dynamic>> _findProducts(Map<String, dynamic> document) {
