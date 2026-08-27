@@ -26,7 +26,7 @@ class $UserSettingsTable extends UserSettings
         false,
         type: DriftSqlType.int,
         requiredDuringInsert: false,
-        defaultValue: Constant(ThemeMode.system.index),
+        defaultValue: Constant(AppConfig.defaultThemeMode.index),
       ).withConverter<ThemeMode>($UserSettingsTable.$converterthemeMode);
   static const VerificationMeta _languageCodeMeta = const VerificationMeta(
     'languageCode',
@@ -38,7 +38,7 @@ class $UserSettingsTable extends UserSettings
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant('en'),
+    defaultValue: Constant(AppConfig.defaultLocale.languageCode),
   );
   @override
   List<GeneratedColumn> get $columns => [id, themeMode, languageCode];

@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' show User;
 
-import '../../../../core/auth/auth_gateway.dart';
+
 import '../repositories/auth_repository.dart';
 
 final class SignInWithEmail {
