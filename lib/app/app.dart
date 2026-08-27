@@ -51,7 +51,7 @@ class _BootStrapState extends State<BootStrap> {
         return true;
       };
 
-      final routerConfig = createRouterConfig(dependencies.analyticsGateway);
+      final routerConfig = createRouterConfig(dependencies);
       final settingsCubit = SettingsCubit(dependencies.database);
       await settingsCubit.loadSettings();
 

@@ -5,6 +5,7 @@ import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
+import '../../injection/dependency_injection.dart' show Dependencies;
 
 typedef AppRouterConfig<T extends KaiselRoute> = KaiselRouterConfig<T>;
 
@@ -23,19 +24,19 @@ final class ProductDetailRoute extends AppRoute {
 }
 
 // 3. Instantiate the configuration
-AppRouterConfig<AppRoute> createRouterConfig(
-  AnalyticsGateway analyticsGateway,
-) => AppRouterConfig<AppRoute>(
-  observers: () => [analyticsGateway.observer()],
-  onScreenChanged: (route) => analyticsGateway.logScreenView(route.routeName),
-  onTransition: (from, to) {
-    if (to.isNotEmpty) {
-      analyticsGateway.logScreenView(to.last.routeName);
-    }
-  },
-  initial: const HomeRoute(),
-  builder: (context, route) => switch (route) {
-    HomeRoute() => Placeholder(),
-    ProductDetailRoute(:final id) => Placeholder(key: Key(id)),
-  },
-);
+AppRouterConfig<AppRoute> createRouterConfig(Dependencies dependencies) =>
+    AppRouterConfig<AppRoute>(
+      observers: () => [dependencies.analyticsGateway.observer()],
+      onScreenChanged: (route) =>
+          dependencies.analyticsGateway.logScreenView(route.routeName),
+      onTransition: (from, to) {
+        if (to.isNotEmpty) {
+          dependencies.analyticsGateway.logScreenView(to.last.routeName);
+        }
+      },
+      initial: const HomeRoute(),
+      builder: (context, route) => switch (route) {
+        HomeRoute() => Placeholder(),
+        ProductDetailRoute(:final id) => Placeholder(key: Key(id)),
+      },
+    );
