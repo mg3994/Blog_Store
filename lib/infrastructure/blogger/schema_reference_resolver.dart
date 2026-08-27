@@ -99,9 +99,10 @@ final class SchemaReferenceResolver {
           fetcher: fetcher,
           maxDepth: maxDepth - depth,
         );
+        final localOverrides = Map<String, dynamic>.from(node);
         node
           ..clear()
-          ..addAll(deepMerge(resolved, Map<String, dynamic>.from(node)));
+          ..addAll(deepMerge(resolved, localOverrides));
         return;
       }
     }
