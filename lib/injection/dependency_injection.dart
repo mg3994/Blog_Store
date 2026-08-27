@@ -11,6 +11,7 @@ import '../features/catalog/data/datasources/catalog_content_data_source.dart';
 import '../features/catalog/data/datasources/composite_catalog_data_source.dart';
 import '../features/catalog/data/repositories/catalog_repository_impl.dart';
 import '../features/catalog/domain/usecases/get_catalog_products.dart';
+import '../features/catalog/domain/services/catalog_serviceability.dart';
 import '../infrastructure/auth/firebase_access_token_provider.dart';
 import '../infrastructure/database/drift/app_database.dart';
 import '../infrastructure/database/drift/drift_catalog_cache.dart';
@@ -32,7 +33,11 @@ final class Dependencies {
       tokenProvider: tokenProvider,
     );
     final cache = DriftCatalogCache(database);
-    final repository = CatalogRepositoryImpl(content, cache);
+    final repository = CatalogRepositoryImpl(
+      content,
+      cache,
+      const CatalogServiceability(),
+    );
 
     return Dependencies._(database, GetCatalogProducts(repository));
   }

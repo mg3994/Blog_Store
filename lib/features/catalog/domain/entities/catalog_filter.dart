@@ -1,3 +1,5 @@
+import 'user_location.dart';
+
 final class CatalogFilter {
   const CatalogFilter({
     this.searchText = '',
@@ -7,6 +9,7 @@ final class CatalogFilter {
     this.state,
     this.city,
     this.postalCode,
+    this.location,
   });
 
   final String searchText;
@@ -16,6 +19,7 @@ final class CatalogFilter {
   final String? state;
   final String? city;
   final String? postalCode;
+  final UserLocation? location;
 
   factory CatalogFilter.fromSearch(String input, {String languageCode = 'en'}) {
     final parsed = PowerSearchParser().parse(input);
