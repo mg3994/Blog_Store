@@ -18,11 +18,39 @@ class CachedCatalogProducts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [CachedCatalogProducts])
+class CartItems extends Table {
+  TextColumn get productId => text()();
+  TextColumn get blogId => text()();
+  TextColumn get postId => text()();
+  TextColumn get title => text()();
+  RealColumn get price => real().nullable()();
+  TextColumn get currency => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  BoolColumn get isAvailable => boolean().withDefault(const Constant(true))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {productId};
+}
+
+class WishlistItems extends Table {
+  TextColumn get productId => text()();
+  TextColumn get blogId => text()();
+  TextColumn get postId => text()();
+  TextColumn get title => text()();
+  RealColumn get price => real().nullable()();
+  TextColumn get currency => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {productId};
+}
+
+@DriftDatabase(tables: [CachedCatalogProducts, CartItems, WishlistItems])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'blogstore'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
