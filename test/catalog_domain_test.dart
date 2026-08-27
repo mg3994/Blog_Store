@@ -60,25 +60,32 @@ void main() {
     );
   });
 
-  test('schema reference resolves relative blogger IDs and merges overrides', () async {
-    final resolver = const SchemaReferenceResolver();
-    final reference = resolver.resolveId('1774904866501098696/10', '20');
-    expect(reference.blogId, '1774904866501098696');
-    expect(reference.postId, '20');
+  test(
+    'schema reference resolves relative blogger IDs and merges overrides',
+    () async {
+      final resolver = const SchemaReferenceResolver();
+      final reference = resolver.resolveId('1774904866501098696/10', '20');
+      expect(reference.blogId, '1774904866501098696');
+      expect(reference.postId, '20');
 
-    final resolved = await resolver.resolve(
-      const {'@id': '20', 'name': 'Override'},
-      base: '1774904866501098696/10',
-      fetcher: _FakeSchemaFetcher(),
-    );
-    expect(resolved['description'], 'Fetched');
-    expect(resolved['name'], 'Override');
-  });
+      final resolved = await resolver.resolve(
+        const {'@id': '20', 'name': 'Override'},
+        base: '1774904866501098696/10',
+        fetcher: _FakeSchemaFetcher(),
+      );
+      expect(resolved['description'], 'Fetched');
+      expect(resolved['name'], 'Override');
+    },
+  );
 }
 
 final class _FakeSchemaFetcher implements SchemaDocumentFetcher {
   @override
   Future<Map<String, dynamic>?> fetch(SchemaReference reference) async {
-    return const {'@type': 'Product', 'name': 'Fetched', 'description': 'Fetched'};
+    return const {
+      '@type': 'Product',
+      'name': 'Fetched',
+      'description': 'Fetched',
+    };
   }
 }
