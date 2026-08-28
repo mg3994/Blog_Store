@@ -4,10 +4,15 @@ import '../../core/notifications/notification_gateway.dart'
     show NotificationGateway;
 
 final class FirebaseNotificationGateway implements NotificationGateway {
-  FirebaseNotificationGateway(this._messaging, {this.vapidKey});
+  FirebaseNotificationGateway(
+    this._messaging, {
+    this.vapidKey,
+    this.serviceWorkerScriptPath,
+  });
 
   final FirebaseMessaging _messaging;
   final String? vapidKey;
+  final String? serviceWorkerScriptPath;
 
   @override
   Future<bool> isSupported() => _messaging.isSupported();
@@ -31,7 +36,10 @@ final class FirebaseNotificationGateway implements NotificationGateway {
     if (!await isSupported()) return null;
 
     try {
-      return await _messaging.getToken(vapidKey: vapidKey);
+      return await _messaging.getToken(
+        vapidKey: vapidKey,
+        serviceWorkerScriptPath: serviceWorkerScriptPath,
+      );
     } catch (_) {
       // Handles APNs delay on iOS or missing browser permissions on web
       return null;
