@@ -9,12 +9,15 @@ import 'package:material_ui/material_ui.dart'
 
 import '../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
 import '../core/auth/access_token_provider.dart';
+import '../core/location/location_service.dart' show LocationService;
 import '../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../core/notifications/notification_gateway.dart'
     show NotificationGateway;
 
 import '../infrastructure/auth/firebase_access_token_provider.dart';
 import '../infrastructure/database/drift/app_database.dart';
+import '../infrastructure/location/geolocator_location_service.dart'
+    show GeolocatorLocationService;
 
 import '../infrastructure/firebase/firebase_analytics_gateway.dart'
     show FirebaseAnalyticsGateway;
@@ -53,6 +56,8 @@ final class Dependencies {
   late final AnalyticsGateway analyticsGateway = FirebaseAnalyticsGateway(
     FirebaseAnalytics.instance,
   );
+
+  late final LocationService locationService = GeolocatorLocationService();
 
   Future<void> dispose() => database.close();
 }
