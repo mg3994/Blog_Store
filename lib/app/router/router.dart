@@ -1,6 +1,7 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
-import 'package:blogstore/app/settings/bloc/settings_bloc.dart';
+import 'package:blogstore/features/app_setting/presentation/bloc/settings_bloc.dart';
+import 'package:blogstore/features/app_setting/presentation/pages/settings_screen.dart';
 import 'package:blogstore/injection/dependency_injection.dart'
     show Dependencies;
 import 'package:kaisel/kaisel.dart';
@@ -13,6 +14,10 @@ sealed class AppRoute extends KaiselRoute {
 
 final class HomeRoute extends AppRoute {
   const HomeRoute();
+}
+
+final class SettingsRoute extends AppRoute {
+  const SettingsRoute();
 }
 
 final class ProductDetailRoute extends AppRoute {
@@ -39,6 +44,7 @@ final class AppRouter {
   Widget _buildRoute(BuildContext context, AppRoute route) {
     return switch (route) {
       HomeRoute() => const HomeScreen(),
+      SettingsRoute() => const SettingsScreen(),
       ProductDetailRoute(:final id) => ProductDetailScreen(id: id),
     };
   }
@@ -51,12 +57,19 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: context.theme.colorScheme.primary),
-      body: Container(
-        color: context.theme.colorScheme.primary,
+      appBar: AppBar(
+        title: const Text('Home'),
+        actions: [
+          IconButton(
+            onPressed: () => context.navigator.push(const SettingsRoute()),
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: Center(
         child: IconButton(
           onPressed: () => context.read<SettingsBloc>().add(
-            SettingsUpdateSeedColorEvent(Colors.red),
+            const SettingsUpdateSeedColorEvent(Colors.red),
           ),
           icon: const Icon(Icons.color_lens),
         ),

@@ -18,13 +18,13 @@ import 'package:material_ui/material_ui.dart'
         FlutterError;
 
 import '../core/theme/app_theme.dart';
+import '../features/app_setting/presentation/bloc/settings_bloc.dart'
+    show SettingsBloc, SettingsState;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
     show firebaseMessagingBackgroundHandler;
 import '../injection/dependency_injection.dart'
     show Dependencies, DependenciesProvider;
-
-import 'settings/bloc/settings_bloc.dart' show SettingsBloc, SettingsState;
 
 class BootStrap extends StatefulWidget {
   const BootStrap({super.key, required this.onReady, this.settingsBloc});
@@ -60,7 +60,14 @@ class _BootStrapState extends State<BootStrap> {
       };
 
       final routerConfig = AppRouter(dependencies).createConfig();
-      final settingsBloc = widget.settingsBloc ?? SettingsBloc(dependencies);
+      final settingsBloc = widget.settingsBloc ??
+          SettingsBloc(
+            getAppSettings: dependencies.getAppSettings,
+            updateThemeMode: dependencies.updateThemeMode,
+            updateLocale: dependencies.updateLocale,
+            updateSeedColor: dependencies.updateSeedColor,
+            crashReporter: dependencies.crashReporter,
+          );
 
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
       await settingsBloc.loadSettings();
