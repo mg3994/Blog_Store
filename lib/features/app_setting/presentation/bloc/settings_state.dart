@@ -1,6 +1,3 @@
-// ==========================================
-// 3. SETTINGS STATE (settings_state.dart)
-// ==========================================
 part of 'settings_bloc.dart';
 
 class SettingsState {

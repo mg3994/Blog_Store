@@ -1,6 +1,3 @@
-// ==========================================
-// 2. SETTINGS EVENT (settings_event.dart)
-// ==========================================
 part of 'settings_bloc.dart';
 
 sealed class SettingsEvent {
