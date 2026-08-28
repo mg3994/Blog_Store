@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart'
 
 import '../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
 import '../core/auth/access_token_provider.dart';
+import '../core/location/location_service.dart' show LocationService;
 import '../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../core/notifications/notification_gateway.dart'
     show NotificationGateway;
@@ -24,6 +25,8 @@ import '../infrastructure/firebase/firebase_initializer.dart'
     show FirebaseInitializer, DefaultFirebaseInitializer;
 import '../infrastructure/firebase/firebase_notification_gateway.dart'
     show FirebaseNotificationGateway;
+import '../infrastructure/location/geolocator_location_service.dart'
+    show GeolocatorLocationService;
 
 final class Dependencies {
   factory Dependencies.create() {
@@ -34,7 +37,7 @@ final class Dependencies {
   }
 
   // Non-const constructor allows late final fields
-   Dependencies._({required this.database, required this.firebaseInitializer});
+  Dependencies._({required this.database, required this.firebaseInitializer});
 
   final AppDatabase database;
   final FirebaseInitializer firebaseInitializer;
@@ -53,6 +56,8 @@ final class Dependencies {
   late final AnalyticsGateway analyticsGateway = FirebaseAnalyticsGateway(
     FirebaseAnalytics.instance,
   );
+
+  late final LocationService locationService = GeolocatorLocationService();
 
   Future<void> dispose() => database.close();
 }
