@@ -8,6 +8,22 @@ external void importScripts(JSString script1, JSString script2);
 @JS('firebase.initializeApp')
 external void initializeApp(JSObject options);
 
+// @JS('firebase.messaging')
+// external JSObject messaging();
+
+@JS('firebase.messaging')
+external FirebaseMessaging messaging();
+
+@JS()
+@staticInterop
+class FirebaseMessaging {}
+
+extension FirebaseMessagingExtension on FirebaseMessaging {
+  external void onBackgroundMessage(JSFunction callback);
+}
+
+@JS('console.log')
+external void consoleLog(JSAny? value);
 void main() {
   importScripts(
     'https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js'.toJS,
@@ -28,4 +44,11 @@ void main() {
           as JSObject;
 
   initializeApp(options);
+  final messagingInstance = messaging();
+
+  messagingInstance.onBackgroundMessage(
+    ((JSAny? message) {
+      consoleLog(message);
+    }).toJS,
+  );
 }

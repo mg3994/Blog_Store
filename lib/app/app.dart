@@ -107,8 +107,8 @@ class _BootStrapState extends State<BootStrap> {
             themeMode: state.themeMode,
             locale: state.locale,
 
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
           );
         },
       ),

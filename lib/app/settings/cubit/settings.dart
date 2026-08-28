@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart' show ThemeMode, Locale;
 import '../../../config/app_config.dart' show AppConfig;
 import '../../../infrastructure/database/drift/app_database.dart'
     show AppDatabase;
+import '../../helpers/extensions.dart' show AppDatabaseSettings;
 
 class SettingsState {
   final ThemeMode themeMode;

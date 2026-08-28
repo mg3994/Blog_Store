@@ -57,32 +57,32 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  Stream<UserSetting> watchSettings() {
-    return (select(
-      userSettings,
-    )..where((t) => t.id.equals(1))).watchSingleOrNull().map(
-      (setting) =>
-          setting ??
-          const UserSetting(
-            id: 1,
-            themeMode: ThemeMode.system,
-            languageCode: 'en',
-          ),
-    );
-  }
+  // Stream<UserSetting> watchSettings() {
+  //   return (select(
+  //     userSettings,
+  //   )..where((t) => t.id.equals(1))).watchSingleOrNull().map(
+  //     (setting) =>
+  //         setting ??
+  //         const UserSetting(
+  //           id: 1,
+  //           themeMode: ThemeMode.system,
+  //           languageCode: 'en',
+  //         ),
+  //   );
+  // }
 
-  Future<void> updateSettings({
-    ThemeMode? themeMode,
-    String? languageCode,
-  }) async {
-    await into(userSettings).insertOnConflictUpdate(
-      UserSettingsCompanion(
-        id: const Value(1),
-        themeMode: themeMode != null ? Value(themeMode) : const Value.absent(),
-        languageCode: languageCode != null
-            ? Value(languageCode)
-            : const Value.absent(),
-      ),
-    );
-  }
+  // Future<void> updateSettings({
+  //   ThemeMode? themeMode,
+  //   String? languageCode,
+  // }) async {
+  //   await into(userSettings).insertOnConflictUpdate(
+  //     UserSettingsCompanion(
+  //       id: const Value(1),
+  //       themeMode: themeMode != null ? Value(themeMode) : const Value.absent(),
+  //       languageCode: languageCode != null
+  //           ? Value(languageCode)
+  //           : const Value.absent(),
+  //     ),
+  //   );
+  // }
 }

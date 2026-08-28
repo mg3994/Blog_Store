@@ -34,7 +34,7 @@ final class Dependencies {
   }
 
   // Non-const constructor allows late final fields
-  Dependencies._({required this.database, required this.firebaseInitializer});
+   Dependencies._({required this.database, required this.firebaseInitializer});
 
   final AppDatabase database;
   final FirebaseInitializer firebaseInitializer;
