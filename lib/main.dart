@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart'
     show runApp, WidgetsFlutterBinding;
 
-import 'app/app.dart';
+import 'app/bootstarp.dart';
 
 void main() {
   // Obtain the single global WidgetsBinding instance
