@@ -19,8 +19,11 @@ import 'package:material_ui/material_ui.dart'
 
 import '../core/theme/app_theme.dart';
 import '../generated/app_localizations.dart';
+import '../infrastructure/firebase/notifications/background_messaging.dart'
+    show firebaseMessagingBackgroundHandler;
 import '../injection/dependency_injection.dart'
     show Dependencies, DependenciesProvider;
+
 import 'settings/bloc/settings_bloc.dart' show SettingsBloc, SettingsState;
 
 class BootStrap extends StatefulWidget {
@@ -42,7 +45,13 @@ class _BootStrapState extends State<BootStrap> {
     final dependencies = Dependencies.create();
 
     try {
+      // 1. Initialize Firebase Core
       await dependencies.firebaseInitializer.initialize();
+
+      // 2. Register FCM Background Handler immediately post-Firebase initialization
+      await dependencies.notificationGateway.registerBackgroundHandler(
+        firebaseMessagingBackgroundHandler,
+      );
 
       FlutterError.onError = dependencies.crashReporter.recordFlutterFatalError;
       PlatformDispatcher.instance.onError = (error, stack) {
@@ -51,10 +60,10 @@ class _BootStrapState extends State<BootStrap> {
       };
 
       final routerConfig = createRouterConfig(dependencies);
-
       final settingsBloc = widget.settingsBloc ?? SettingsBloc(dependencies);
 
-      await settingsBloc.loadSettings(); // should i avoid this here or just do that with that dependencies or somehow 
+      // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
+      await settingsBloc.loadSettings();
 
       if (!mounted) return;
 
@@ -107,14 +116,14 @@ class _BootStrapState extends State<BootStrap> {
           bloc: settingsBloc,
           builder: (context, state) {
             return MaterialApp.router(
-              routerConfig: _routerConfig,
+              routerConfig: routerConfig,
               onGenerateTitle: (context) => context.l10n.appName,
               supportedLocales: AppLocalizations.supportedLocales,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               themeMode: state.themeMode,
               locale: state.locale,
-              theme: AppTheme.light(), // here in we can pass colors
-              darkTheme: AppTheme.dark(),
+              theme: AppTheme.light(seed: state.seedColor),
+              darkTheme: AppTheme.dark(seed: state.seedColor),
             );
           },
         ),

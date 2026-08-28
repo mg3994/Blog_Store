@@ -1,10 +1,11 @@
 // 1. Alias the type for convenience
-import 'package:firebase_analytics/firebase_analytics.dart'
-    show FirebaseAnalyticsObserver, FirebaseAnalytics;
+
+import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
+import 'package:blogstore/app/helpers/extensions.dart';
+import 'package:blogstore/app/settings/bloc/settings_bloc.dart';
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
 import '../../injection/dependency_injection.dart' show Dependencies;
 
 typedef AppRouterConfig<T extends KaiselRoute> = KaiselRouterConfig<T>;
@@ -36,7 +37,18 @@ AppRouterConfig<AppRoute> createRouterConfig(Dependencies dependencies) =>
       },
       initial: const HomeRoute(),
       builder: (context, route) => switch (route) {
-        HomeRoute() => Placeholder(),
+        HomeRoute() => Scaffold(
+          appBar: AppBar(backgroundColor: context.theme.colorScheme.primary),
+          body: Container(
+            color: context.theme.colorScheme.primary,
+            child: IconButton(
+              onPressed: () => context.read<SettingsBloc>().add(
+                SettingsUpdateSeedColorEvent(Colors.red),
+              ),
+              icon: Icon(Icons.color_lens),
+            ),
+          ),
+        ),
         ProductDetailRoute(:final id) => Placeholder(key: Key(id)),
       },
     );
