@@ -1,5 +1,5 @@
-import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoLocalizations;
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:material_ui/material_ui.dart'
     show BuildContext, MaterialLocalizations, ThemeMode;
 
