@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart'
-    show runApp, WidgetsFlutterBinding, Widget, WidgetsBinding;
+    show runApp, WidgetsFlutterBinding;
 
 import 'app/app.dart';
 

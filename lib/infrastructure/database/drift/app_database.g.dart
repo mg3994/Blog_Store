@@ -3,12 +3,12 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $UserSettingsTable extends UserSettings
-    with TableInfo<$UserSettingsTable, UserSetting> {
+class $AppSettingsTable extends AppSettings
+    with TableInfo<$AppSettingsTable, AppSetting> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $UserSettingsTable(this.attachedDatabase, [this._alias]);
+  $AppSettingsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -27,7 +27,7 @@ class $UserSettingsTable extends UserSettings
         type: DriftSqlType.int,
         requiredDuringInsert: false,
         defaultValue: Constant(AppConfig.defaultThemeMode.index),
-      ).withConverter<ThemeMode>($UserSettingsTable.$converterthemeMode);
+      ).withConverter<ThemeMode>($AppSettingsTable.$converterthemeMode);
   static const VerificationMeta _languageCodeMeta = const VerificationMeta(
     'languageCode',
   );
@@ -40,16 +40,33 @@ class $UserSettingsTable extends UserSettings
     requiredDuringInsert: false,
     defaultValue: Constant(AppConfig.defaultLocale.languageCode),
   );
+  static const VerificationMeta _seedColorMeta = const VerificationMeta(
+    'seedColor',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, themeMode, languageCode];
+  late final GeneratedColumn<int> seedColor = GeneratedColumn<int>(
+    'seed_color',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: Constant(AppConfig.defaultThemeSeedColorHex),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    themeMode,
+    languageCode,
+    seedColor,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'user_settings';
+  static const String $name = 'app_settings';
   @override
   VerificationContext validateIntegrity(
-    Insertable<UserSetting> instance, {
+    Insertable<AppSetting> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -66,20 +83,26 @@ class $UserSettingsTable extends UserSettings
         ),
       );
     }
+    if (data.containsKey('seed_color')) {
+      context.handle(
+        _seedColorMeta,
+        seedColor.isAcceptableOrUnknown(data['seed_color']!, _seedColorMeta),
+      );
+    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  UserSetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+  AppSetting map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return UserSetting(
+    return AppSetting(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      themeMode: $UserSettingsTable.$converterthemeMode.fromSql(
+      themeMode: $AppSettingsTable.$converterthemeMode.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.int,
           data['${effectivePrefix}theme_mode'],
@@ -89,26 +112,34 @@ class $UserSettingsTable extends UserSettings
         DriftSqlType.string,
         data['${effectivePrefix}language_code'],
       )!,
+      seedColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seed_color'],
+      )!,
     );
   }
 
   @override
-  $UserSettingsTable createAlias(String alias) {
-    return $UserSettingsTable(attachedDatabase, alias);
+  $AppSettingsTable createAlias(String alias) {
+    return $AppSettingsTable(attachedDatabase, alias);
   }
 
   static JsonTypeConverter2<ThemeMode, int, int> $converterthemeMode =
       const EnumIndexConverter<ThemeMode>(ThemeMode.values);
 }
 
-class UserSetting extends DataClass implements Insertable<UserSetting> {
+class AppSetting extends DataClass implements Insertable<AppSetting> {
   final int id;
   final ThemeMode themeMode;
   final String languageCode;
-  const UserSetting({
+
+  /// Stores ARGB color value as an INTEGER in SQLite
+  final int seedColor;
+  const AppSetting({
     required this.id,
     required this.themeMode,
     required this.languageCode,
+    required this.seedColor,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -116,32 +147,35 @@ class UserSetting extends DataClass implements Insertable<UserSetting> {
     map['id'] = Variable<int>(id);
     {
       map['theme_mode'] = Variable<int>(
-        $UserSettingsTable.$converterthemeMode.toSql(themeMode),
+        $AppSettingsTable.$converterthemeMode.toSql(themeMode),
       );
     }
     map['language_code'] = Variable<String>(languageCode);
+    map['seed_color'] = Variable<int>(seedColor);
     return map;
   }
 
-  UserSettingsCompanion toCompanion(bool nullToAbsent) {
-    return UserSettingsCompanion(
+  AppSettingsCompanion toCompanion(bool nullToAbsent) {
+    return AppSettingsCompanion(
       id: Value(id),
       themeMode: Value(themeMode),
       languageCode: Value(languageCode),
+      seedColor: Value(seedColor),
     );
   }
 
-  factory UserSetting.fromJson(
+  factory AppSetting.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return UserSetting(
+    return AppSetting(
       id: serializer.fromJson<int>(json['id']),
-      themeMode: $UserSettingsTable.$converterthemeMode.fromJson(
+      themeMode: $AppSettingsTable.$converterthemeMode.fromJson(
         serializer.fromJson<int>(json['themeMode']),
       ),
       languageCode: serializer.fromJson<String>(json['languageCode']),
+      seedColor: serializer.fromJson<int>(json['seedColor']),
     );
   }
   @override
@@ -150,84 +184,100 @@ class UserSetting extends DataClass implements Insertable<UserSetting> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'themeMode': serializer.toJson<int>(
-        $UserSettingsTable.$converterthemeMode.toJson(themeMode),
+        $AppSettingsTable.$converterthemeMode.toJson(themeMode),
       ),
       'languageCode': serializer.toJson<String>(languageCode),
+      'seedColor': serializer.toJson<int>(seedColor),
     };
   }
 
-  UserSetting copyWith({int? id, ThemeMode? themeMode, String? languageCode}) =>
-      UserSetting(
-        id: id ?? this.id,
-        themeMode: themeMode ?? this.themeMode,
-        languageCode: languageCode ?? this.languageCode,
-      );
-  UserSetting copyWithCompanion(UserSettingsCompanion data) {
-    return UserSetting(
+  AppSetting copyWith({
+    int? id,
+    ThemeMode? themeMode,
+    String? languageCode,
+    int? seedColor,
+  }) => AppSetting(
+    id: id ?? this.id,
+    themeMode: themeMode ?? this.themeMode,
+    languageCode: languageCode ?? this.languageCode,
+    seedColor: seedColor ?? this.seedColor,
+  );
+  AppSetting copyWithCompanion(AppSettingsCompanion data) {
+    return AppSetting(
       id: data.id.present ? data.id.value : this.id,
       themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
       languageCode: data.languageCode.present
           ? data.languageCode.value
           : this.languageCode,
+      seedColor: data.seedColor.present ? data.seedColor.value : this.seedColor,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('UserSetting(')
+    return (StringBuffer('AppSetting(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
-          ..write('languageCode: $languageCode')
+          ..write('languageCode: $languageCode, ')
+          ..write('seedColor: $seedColor')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, themeMode, languageCode);
+  int get hashCode => Object.hash(id, themeMode, languageCode, seedColor);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is UserSetting &&
+      (other is AppSetting &&
           other.id == this.id &&
           other.themeMode == this.themeMode &&
-          other.languageCode == this.languageCode);
+          other.languageCode == this.languageCode &&
+          other.seedColor == this.seedColor);
 }
 
-class UserSettingsCompanion extends UpdateCompanion<UserSetting> {
+class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<int> id;
   final Value<ThemeMode> themeMode;
   final Value<String> languageCode;
-  const UserSettingsCompanion({
+  final Value<int> seedColor;
+  const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.languageCode = const Value.absent(),
+    this.seedColor = const Value.absent(),
   });
-  UserSettingsCompanion.insert({
+  AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.languageCode = const Value.absent(),
+    this.seedColor = const Value.absent(),
   });
-  static Insertable<UserSetting> custom({
+  static Insertable<AppSetting> custom({
     Expression<int>? id,
     Expression<int>? themeMode,
     Expression<String>? languageCode,
+    Expression<int>? seedColor,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (themeMode != null) 'theme_mode': themeMode,
       if (languageCode != null) 'language_code': languageCode,
+      if (seedColor != null) 'seed_color': seedColor,
     });
   }
 
-  UserSettingsCompanion copyWith({
+  AppSettingsCompanion copyWith({
     Value<int>? id,
     Value<ThemeMode>? themeMode,
     Value<String>? languageCode,
+    Value<int>? seedColor,
   }) {
-    return UserSettingsCompanion(
+    return AppSettingsCompanion(
       id: id ?? this.id,
       themeMode: themeMode ?? this.themeMode,
       languageCode: languageCode ?? this.languageCode,
+      seedColor: seedColor ?? this.seedColor,
     );
   }
 
@@ -239,21 +289,25 @@ class UserSettingsCompanion extends UpdateCompanion<UserSetting> {
     }
     if (themeMode.present) {
       map['theme_mode'] = Variable<int>(
-        $UserSettingsTable.$converterthemeMode.toSql(themeMode.value),
+        $AppSettingsTable.$converterthemeMode.toSql(themeMode.value),
       );
     }
     if (languageCode.present) {
       map['language_code'] = Variable<String>(languageCode.value);
+    }
+    if (seedColor.present) {
+      map['seed_color'] = Variable<int>(seedColor.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('UserSettingsCompanion(')
+    return (StringBuffer('AppSettingsCompanion(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
-          ..write('languageCode: $languageCode')
+          ..write('languageCode: $languageCode, ')
+          ..write('seedColor: $seedColor')
           ..write(')'))
         .toString();
   }
@@ -839,7 +893,7 @@ class CachedCatalogProductsCompanion
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $UserSettingsTable userSettings = $UserSettingsTable(this);
+  late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $CachedCatalogProductsTable cachedCatalogProducts =
       $CachedCatalogProductsTable(this);
   @override
@@ -847,27 +901,29 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    userSettings,
+    appSettings,
     cachedCatalogProducts,
   ];
 }
 
-typedef $$UserSettingsTableCreateCompanionBuilder =
-    UserSettingsCompanion Function({
+typedef $$AppSettingsTableCreateCompanionBuilder =
+    AppSettingsCompanion Function({
       Value<int> id,
       Value<ThemeMode> themeMode,
       Value<String> languageCode,
+      Value<int> seedColor,
     });
-typedef $$UserSettingsTableUpdateCompanionBuilder =
-    UserSettingsCompanion Function({
+typedef $$AppSettingsTableUpdateCompanionBuilder =
+    AppSettingsCompanion Function({
       Value<int> id,
       Value<ThemeMode> themeMode,
       Value<String> languageCode,
+      Value<int> seedColor,
     });
 
-class $$UserSettingsTableFilterComposer
-    extends Composer<_$AppDatabase, $UserSettingsTable> {
-  $$UserSettingsTableFilterComposer({
+class $$AppSettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $AppSettingsTable> {
+  $$AppSettingsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -889,11 +945,16 @@ class $$UserSettingsTableFilterComposer
     column: $table.languageCode,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get seedColor => $composableBuilder(
+    column: $table.seedColor,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$UserSettingsTableOrderingComposer
-    extends Composer<_$AppDatabase, $UserSettingsTable> {
-  $$UserSettingsTableOrderingComposer({
+class $$AppSettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppSettingsTable> {
+  $$AppSettingsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -914,11 +975,16 @@ class $$UserSettingsTableOrderingComposer
     column: $table.languageCode,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get seedColor => $composableBuilder(
+    column: $table.seedColor,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$UserSettingsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $UserSettingsTable> {
-  $$UserSettingsTableAnnotationComposer({
+class $$AppSettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppSettingsTable> {
+  $$AppSettingsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -935,56 +1001,63 @@ class $$UserSettingsTableAnnotationComposer
     column: $table.languageCode,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get seedColor =>
+      $composableBuilder(column: $table.seedColor, builder: (column) => column);
 }
 
-class $$UserSettingsTableTableManager
+class $$AppSettingsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $UserSettingsTable,
-          UserSetting,
-          $$UserSettingsTableFilterComposer,
-          $$UserSettingsTableOrderingComposer,
-          $$UserSettingsTableAnnotationComposer,
-          $$UserSettingsTableCreateCompanionBuilder,
-          $$UserSettingsTableUpdateCompanionBuilder,
+          $AppSettingsTable,
+          AppSetting,
+          $$AppSettingsTableFilterComposer,
+          $$AppSettingsTableOrderingComposer,
+          $$AppSettingsTableAnnotationComposer,
+          $$AppSettingsTableCreateCompanionBuilder,
+          $$AppSettingsTableUpdateCompanionBuilder,
           (
-            UserSetting,
-            BaseReferences<_$AppDatabase, $UserSettingsTable, UserSetting>,
+            AppSetting,
+            BaseReferences<_$AppDatabase, $AppSettingsTable, AppSetting>,
           ),
-          UserSetting,
+          AppSetting,
           PrefetchHooks Function()
         > {
-  $$UserSettingsTableTableManager(_$AppDatabase db, $UserSettingsTable table)
+  $$AppSettingsTableTableManager(_$AppDatabase db, $AppSettingsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$UserSettingsTableFilterComposer($db: db, $table: table),
+              $$AppSettingsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$UserSettingsTableOrderingComposer($db: db, $table: table),
+              $$AppSettingsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$UserSettingsTableAnnotationComposer($db: db, $table: table),
+              $$AppSettingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<ThemeMode> themeMode = const Value.absent(),
                 Value<String> languageCode = const Value.absent(),
-              }) => UserSettingsCompanion(
+                Value<int> seedColor = const Value.absent(),
+              }) => AppSettingsCompanion(
                 id: id,
                 themeMode: themeMode,
                 languageCode: languageCode,
+                seedColor: seedColor,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<ThemeMode> themeMode = const Value.absent(),
                 Value<String> languageCode = const Value.absent(),
-              }) => UserSettingsCompanion.insert(
+                Value<int> seedColor = const Value.absent(),
+              }) => AppSettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
                 languageCode: languageCode,
+                seedColor: seedColor,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -994,21 +1067,21 @@ class $$UserSettingsTableTableManager
       );
 }
 
-typedef $$UserSettingsTableProcessedTableManager =
+typedef $$AppSettingsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $UserSettingsTable,
-      UserSetting,
-      $$UserSettingsTableFilterComposer,
-      $$UserSettingsTableOrderingComposer,
-      $$UserSettingsTableAnnotationComposer,
-      $$UserSettingsTableCreateCompanionBuilder,
-      $$UserSettingsTableUpdateCompanionBuilder,
+      $AppSettingsTable,
+      AppSetting,
+      $$AppSettingsTableFilterComposer,
+      $$AppSettingsTableOrderingComposer,
+      $$AppSettingsTableAnnotationComposer,
+      $$AppSettingsTableCreateCompanionBuilder,
+      $$AppSettingsTableUpdateCompanionBuilder,
       (
-        UserSetting,
-        BaseReferences<_$AppDatabase, $UserSettingsTable, UserSetting>,
+        AppSetting,
+        BaseReferences<_$AppDatabase, $AppSettingsTable, AppSetting>,
       ),
-      UserSetting,
+      AppSetting,
       PrefetchHooks Function()
     >;
 typedef $$CachedCatalogProductsTableCreateCompanionBuilder =
@@ -1316,8 +1389,8 @@ typedef $$CachedCatalogProductsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$UserSettingsTableTableManager get userSettings =>
-      $$UserSettingsTableTableManager(_db, _db.userSettings);
+  $$AppSettingsTableTableManager get appSettings =>
+      $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$CachedCatalogProductsTableTableManager get cachedCatalogProducts =>
       $$CachedCatalogProductsTableTableManager(_db, _db.cachedCatalogProducts);
 }

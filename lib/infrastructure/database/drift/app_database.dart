@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart'
 
 part 'app_database.g.dart';
 
-class UserSettings extends Table {
+class AppSettings extends Table {
   IntColumn get id => integer()();
 
   // Stores the enum index in SQLite (INTEGER) and maps directly to ThemeMode in Dart
@@ -18,6 +18,10 @@ class UserSettings extends Table {
   TextColumn get languageCode =>
       text().withDefault(Constant(AppConfig.defaultLocale.languageCode))();
 
+  /// Stores ARGB color value as an INTEGER in SQLite
+  IntColumn get seedColor => integer().withDefault(
+    Constant(AppConfig.defaultThemeSeedColorHex),
+  )(); // Colors.indigo.value
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -37,7 +41,7 @@ class CachedCatalogProducts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [UserSettings, CachedCatalogProducts])
+@DriftDatabase(tables: [AppSettings, CachedCatalogProducts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(

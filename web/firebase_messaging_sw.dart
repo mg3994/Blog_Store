@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:blogstore/firebase_web_config.dart';
 
@@ -18,27 +19,7 @@ external JSPromise<JSBoolean> isSupported();
 external void consoleLog(JSAny? value);
 
 @JS('self')
-external ServiceWorkerGlobalScope get self;
-
-@JS()
-@staticInterop
-class ServiceWorkerGlobalScope {}
-
-extension ServiceWorkerGlobalScopeExtension on ServiceWorkerGlobalScope {
-  external ServiceWorkerRegistration get registration;
-
-  external JSAny? addEventListener(JSString type, JSFunction listener);
-
-  external JSAny? get clients;
-}
-
-@JS()
-@staticInterop
-class ServiceWorkerRegistration {}
-
-extension ServiceWorkerRegistrationExtension on ServiceWorkerRegistration {
-  external JSPromise<JSAny?> showNotification(JSString title, JSObject options);
-}
+external JSObject get self;
 
 @JS()
 @staticInterop
@@ -63,7 +44,8 @@ void main() {
   //
   // Service worker install
   //
-  self.addEventListener(
+  self.callMethod(
+    'addEventListener'.toJS,
     'install'.toJS,
     ((JSObject event) {
       consoleLog(self);
@@ -74,32 +56,40 @@ void main() {
   //
   // Notification click
   //
-  self.addEventListener(
+  self.callMethod(
+    'addEventListener'.toJS,
     'notificationclick'.toJS,
     ((JSObject event) {
-      final notification = event.getProperty<JSObject?>('notification'.toJS);
+      final notification = event.getProperty('notification'.toJS) as JSObject?;
 
-      notification?.callMethod<void>('close'.toJS);
+      notification?.callMethod('close'.toJS);
 
-      final clients = self.getProperty<JSObject?>('clients'.toJS);
+      final clients = self.getProperty('clients'.toJS) as JSObject?;
 
       if (clients == null) {
         return;
       }
 
-      final matchAll = clients.callMethod<JSPromise<JSArray>>(
-        'matchAll'.toJS,
-        {'type': 'window'.toJS, 'includeUncontrolled': true.toJS}.jsify(),
-      );
+      final matchAllOptions = <String, JSAny?>{
+        'type': 'window'.toJS,
+        'includeUncontrolled': true.toJS,
+      }.jsify();
 
-      event.callMethod<void>('waitUntil'.toJS, matchAll);
+      final matchAll = clients.callMethod(
+        'matchAll'.toJS,
+        matchAllOptions,
+      ) as JSPromise<JSArray>;
+
+      event.callMethod('waitUntil'.toJS, matchAll);
 
       matchAll.toDart.then((clientList) {
-        for (final client in clientList.toDart) {
-          final focused = client.getProperty<JSBoolean?>('focused'.toJS);
+        final array = clientList as JSArray;
+        for (final client in array.toDart) {
+          final jsClient = client as JSObject;
+          final focused = jsClient.getProperty('focused'.toJS) as JSBoolean?;
 
           if (focused?.toDart != true) {
-            client.callMethod<JSPromise<JSAny?>>('focus'.toJS);
+            jsClient.callMethod('focus'.toJS);
             break;
           }
         }
@@ -112,24 +102,23 @@ void main() {
   //
   final options =
       <String, JSAny?>{
-            'apiKey': FirebaseWebConfig.apiKey,
-            'appId': FirebaseWebConfig.appId,
-            'messagingSenderId': FirebaseWebConfig.messagingSenderId,
-            'projectId': FirebaseWebConfig.projectId,
-            'authDomain': FirebaseWebConfig.authDomain,
-            'databaseURL': FirebaseWebConfig.databaseURL,
-            'storageBucket': FirebaseWebConfig.storageBucket,
-            'measurementId': FirebaseWebConfig.measurementId,
+            'apiKey': FirebaseWebConfig.apiKey.toJS,
+            'appId': FirebaseWebConfig.appId.toJS,
+            'messagingSenderId': FirebaseWebConfig.messagingSenderId.toJS,
+            'projectId': FirebaseWebConfig.projectId.toJS,
+            'authDomain': FirebaseWebConfig.authDomain.toJS,
+            'storageBucket': FirebaseWebConfig.storageBucket.toJS,
+            'measurementId': FirebaseWebConfig.measurementId.toJS,
           }.jsify()
           as JSObject;
 
-  final app = initializeApp(options);
+  initializeApp(options);
 
   //
   // Check browser support
   //
   isSupported().toDart.then((supported) {
-    if (!supported) {
+    if (!supported.toDart) {
       return;
     }
 
@@ -138,14 +127,6 @@ void main() {
     //
     final messagingInstance = messaging();
 
-    //
-    // Equivalent to:
-    //
-    // experimentalSetDeliveryMetricsExportedToBigQueryEnabled(
-    //   messaging,
-    //   true,
-    // );
-    //
     messagingInstance.setDeliveryMetricsExportedToBigQuery(true);
 
     //
@@ -159,32 +140,37 @@ void main() {
 
         final message = rawMessage as JSObject;
 
-        final notification = message.getProperty<JSObject?>(
-          'notification'.toJS,
-        );
+        final notification =
+            message.getProperty('notification'.toJS) as JSObject?;
 
         if (notification == null) {
           return;
         }
 
-        final title = notification.getProperty<JSString?>('title'.toJS);
+        final title = notification.getProperty('title'.toJS) as JSString?;
 
         if (title == null || title.toDart.isEmpty) {
           return;
         }
 
-        final body = notification.getProperty<JSString?>('body'.toJS);
+        final body = notification.getProperty('body'.toJS) as JSString?;
 
-        final image = notification.getProperty<JSString?>('image'.toJS);
+        final image = notification.getProperty('image'.toJS) as JSString?;
 
-        final icon = image?.toDart.isNotEmpty == true
-            ? image!
-            : '/icons/Icon-192.png'.toJS
+        final icon = (image != null && image.toDart.isNotEmpty)
+            ? image
+            : '/icons/Icon-192.png'.toJS;
 
         final notificationOptions =
             <String, JSAny?>{'body': body, 'icon': icon}.jsify() as JSObject;
 
-        self.registration.showNotification(title, notificationOptions);
+        final registration = self.getProperty('registration'.toJS) as JSObject?;
+
+        registration?.callMethod(
+          'showNotification'.toJS,
+          title,
+          notificationOptions,
+        );
       }).toJS,
     );
   });

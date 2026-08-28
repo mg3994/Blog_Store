@@ -1,10 +1,10 @@
+import 'dart:async';
+
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
-    show BlocSignalBuilder;
+    show BlocSignalBuilder, MultiBlocSignalProvider, BlocSignalProvider;
 import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:blogstore/app/router/router.dart' show createRouterConfig;
-
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
-
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -18,16 +18,16 @@ import 'package:material_ui/material_ui.dart'
         FlutterError;
 
 import '../core/theme/app_theme.dart';
-
 import '../generated/app_localizations.dart';
-
 import '../injection/dependency_injection.dart'
     show Dependencies, DependenciesProvider;
-import 'settings/cubit/settings.dart' show SettingsCubit, SettingsState;
+import 'settings/bloc/settings_bloc.dart' show SettingsBloc, SettingsState;
 
 class BootStrap extends StatefulWidget {
-  const BootStrap({super.key, required this.onReady});
+  const BootStrap({super.key, required this.onReady, this.settingsBloc});
+
   final VoidCallback onReady;
+  final SettingsBloc? settingsBloc;
 
   @override
   State<BootStrap> createState() => _BootStrapState();
@@ -36,8 +36,7 @@ class BootStrap extends StatefulWidget {
 class _BootStrapState extends State<BootStrap> {
   KaiselRouterConfig? _routerConfig;
   Dependencies? _dependencies;
-
-  SettingsCubit? _settingsCubit; // use provider of Bloc Signal
+  SettingsBloc? _settingsBloc;
 
   Future<void> _initAsync() async {
     final dependencies = Dependencies.create();
@@ -52,14 +51,16 @@ class _BootStrapState extends State<BootStrap> {
       };
 
       final routerConfig = createRouterConfig(dependencies);
-      final settingsCubit = SettingsCubit(dependencies.database);
-      await settingsCubit.loadSettings();
+
+      final settingsBloc = widget.settingsBloc ?? SettingsBloc(dependencies);
+
+      await settingsBloc.loadSettings(); // should i avoid this here or just do that with that dependencies or somehow 
 
       if (!mounted) return;
 
       setState(() {
         _dependencies = dependencies;
-        _settingsCubit = settingsCubit;
+        _settingsBloc = settingsBloc;
         _routerConfig = routerConfig;
       });
     } catch (error, stack) {
@@ -74,13 +75,14 @@ class _BootStrapState extends State<BootStrap> {
   @override
   void initState() {
     super.initState();
-
     _initAsync();
   }
 
   @override
   void dispose() {
-    _settingsCubit?.close();
+    if (widget.settingsBloc == null) {
+      unawaited(_settingsBloc?.close());
+    }
     _dependencies?.dispose();
     super.dispose();
   }
@@ -88,29 +90,34 @@ class _BootStrapState extends State<BootStrap> {
   @override
   Widget build(BuildContext context) {
     final dependencies = _dependencies;
-    final settingsCubit = _settingsCubit;
+    final settingsBloc = _settingsBloc;
     final routerConfig = _routerConfig;
 
-    if (dependencies == null || settingsCubit == null || routerConfig == null) {
+    if (dependencies == null || settingsBloc == null || routerConfig == null) {
       return const SizedBox.shrink();
     }
+
     return DependenciesProvider(
       dependencies: dependencies,
-      child: BlocSignalBuilder<SettingsCubit, SettingsState>(
-        bloc: _settingsCubit,
-        builder: (context, state) {
-          return MaterialApp.router(
-            routerConfig: _routerConfig,
-            onGenerateTitle: (context) => context.l10n.appName,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            themeMode: state.themeMode,
-            locale: state.locale,
-
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-          );
-        },
+      child: MultiBlocSignalProvider(
+        providers: [
+          BlocSignalProvider<SettingsBloc>.value(value: settingsBloc),
+        ],
+        child: BlocSignalBuilder<SettingsBloc, SettingsState>(
+          bloc: settingsBloc,
+          builder: (context, state) {
+            return MaterialApp.router(
+              routerConfig: _routerConfig,
+              onGenerateTitle: (context) => context.l10n.appName,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              themeMode: state.themeMode,
+              locale: state.locale,
+              theme: AppTheme.light(), // here in we can pass colors
+              darkTheme: AppTheme.dark(),
+            );
+          },
+        ),
       ),
     );
   }

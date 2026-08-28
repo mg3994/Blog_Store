@@ -420,6 +420,9 @@
   },
   A = {JS_CONST: function JS_CONST() {
     },
+    checkNotNullable(value, $name, $T) {
+      return value;
+    },
     isToStringVisiting(object) {
       var t1, i;
       for (t1 = $._toStringVisiting.length, i = 0; i < t1; ++i)
@@ -551,6 +554,21 @@
       }
       return "Instance of '" + A.Primitives_objectTypeName(object) + "'";
     },
+    Primitives_extractStackTrace(error) {
+      var jsError = error.$thrownJsError;
+      if (jsError == null)
+        return null;
+      return A.getTraceFromException(jsError);
+    },
+    Primitives_trySetStackTrace(error, stackTrace) {
+      var jsError;
+      if (error.$thrownJsError == null) {
+        jsError = new Error();
+        A.initializeExceptionWrapper(error, jsError);
+        error.$thrownJsError = jsError;
+        jsError.stack = "";
+      }
+    },
     ioore(receiver, index) {
       if (receiver == null)
         J.get$length$asx(receiver);
@@ -626,6 +644,131 @@
     throwConcurrentModificationError(collection) {
       throw A.wrapException(A.ConcurrentModificationError$(collection));
     },
+    TypeErrorDecoder_extractPattern(message) {
+      var match, $arguments, argumentsExpr, expr, method, receiver;
+      message = A.quoteStringForRegExp(message.replace(String({}), "$receiver$"));
+      match = message.match(/\\\$[a-zA-Z]+\\\$/g);
+      if (match == null)
+        match = A._setArrayType([], type$.JSArray_String);
+      $arguments = match.indexOf("\\$arguments\\$");
+      argumentsExpr = match.indexOf("\\$argumentsExpr\\$");
+      expr = match.indexOf("\\$expr\\$");
+      method = match.indexOf("\\$method\\$");
+      receiver = match.indexOf("\\$receiver\\$");
+      return new A.TypeErrorDecoder(message.replace(new RegExp("\\\\\\$arguments\\\\\\$", "g"), "((?:x|[^x])*)").replace(new RegExp("\\\\\\$argumentsExpr\\\\\\$", "g"), "((?:x|[^x])*)").replace(new RegExp("\\\\\\$expr\\\\\\$", "g"), "((?:x|[^x])*)").replace(new RegExp("\\\\\\$method\\\\\\$", "g"), "((?:x|[^x])*)").replace(new RegExp("\\\\\\$receiver\\\\\\$", "g"), "((?:x|[^x])*)"), $arguments, argumentsExpr, expr, method, receiver);
+    },
+    TypeErrorDecoder_provokeCallErrorOn(expression) {
+      return function($expr$) {
+        var $argumentsExpr$ = "$arguments$";
+        try {
+          $expr$.$method$($argumentsExpr$);
+        } catch (e) {
+          return e.message;
+        }
+      }(expression);
+    },
+    TypeErrorDecoder_provokePropertyErrorOn(expression) {
+      return function($expr$) {
+        try {
+          $expr$.$method$;
+        } catch (e) {
+          return e.message;
+        }
+      }(expression);
+    },
+    JsNoSuchMethodError$(_message, match) {
+      var t1 = match == null,
+        t2 = t1 ? null : match.method;
+      return new A.JsNoSuchMethodError(_message, t2, t1 ? null : match.receiver);
+    },
+    unwrapException(ex) {
+      if (ex == null)
+        return new A.NullThrownFromJavaScriptException(ex);
+      if (typeof ex !== "object")
+        return ex;
+      if ("dartException" in ex)
+        return A.saveStackTrace(ex, ex.dartException);
+      return A._unwrapNonDartException(ex);
+    },
+    saveStackTrace(ex, error) {
+      if (type$.Error._is(error))
+        if (error.$thrownJsError == null)
+          error.$thrownJsError = ex;
+      return error;
+    },
+    _unwrapNonDartException(ex) {
+      var message, number, ieErrorCode, nsme, notClosure, nullCall, nullLiteralCall, undefCall, undefLiteralCall, nullProperty, undefProperty, undefLiteralProperty, match;
+      if (!("message" in ex))
+        return ex;
+      message = ex.message;
+      if ("number" in ex && typeof ex.number == "number") {
+        number = ex.number;
+        ieErrorCode = number & 65535;
+        if ((B.JSInt_methods._shrOtherPositive$1(number, 16) & 8191) === 10)
+          switch (ieErrorCode) {
+            case 438:
+              return A.saveStackTrace(ex, A.JsNoSuchMethodError$(A.S(message) + " (Error " + ieErrorCode + ")", null));
+            case 445:
+            case 5007:
+              A.S(message);
+              return A.saveStackTrace(ex, new A.NullError());
+          }
+      }
+      if (ex instanceof TypeError) {
+        nsme = $.$get$TypeErrorDecoder_noSuchMethodPattern();
+        notClosure = $.$get$TypeErrorDecoder_notClosurePattern();
+        nullCall = $.$get$TypeErrorDecoder_nullCallPattern();
+        nullLiteralCall = $.$get$TypeErrorDecoder_nullLiteralCallPattern();
+        undefCall = $.$get$TypeErrorDecoder_undefinedCallPattern();
+        undefLiteralCall = $.$get$TypeErrorDecoder_undefinedLiteralCallPattern();
+        nullProperty = $.$get$TypeErrorDecoder_nullPropertyPattern();
+        $.$get$TypeErrorDecoder_nullLiteralPropertyPattern();
+        undefProperty = $.$get$TypeErrorDecoder_undefinedPropertyPattern();
+        undefLiteralProperty = $.$get$TypeErrorDecoder_undefinedLiteralPropertyPattern();
+        match = nsme.matchTypeError$1(message);
+        if (match != null)
+          return A.saveStackTrace(ex, A.JsNoSuchMethodError$(A._asString(message), match));
+        else {
+          match = notClosure.matchTypeError$1(message);
+          if (match != null) {
+            match.method = "call";
+            return A.saveStackTrace(ex, A.JsNoSuchMethodError$(A._asString(message), match));
+          } else if (nullCall.matchTypeError$1(message) != null || nullLiteralCall.matchTypeError$1(message) != null || undefCall.matchTypeError$1(message) != null || undefLiteralCall.matchTypeError$1(message) != null || nullProperty.matchTypeError$1(message) != null || nullLiteralCall.matchTypeError$1(message) != null || undefProperty.matchTypeError$1(message) != null || undefLiteralProperty.matchTypeError$1(message) != null) {
+            A._asString(message);
+            return A.saveStackTrace(ex, new A.NullError());
+          }
+        }
+        return A.saveStackTrace(ex, new A.UnknownJsTypeError(typeof message == "string" ? message : ""));
+      }
+      if (ex instanceof RangeError) {
+        if (typeof message == "string" && message.indexOf("call stack") !== -1)
+          return new A.StackOverflowError();
+        message = function(ex) {
+          try {
+            return String(ex);
+          } catch (e) {
+          }
+          return null;
+        }(ex);
+        return A.saveStackTrace(ex, new A.ArgumentError(false, null, null, typeof message == "string" ? message.replace(/^RangeError:\s*/, "") : message));
+      }
+      if (typeof InternalError == "function" && ex instanceof InternalError)
+        if (typeof message == "string" && message === "too much recursion")
+          return new A.StackOverflowError();
+      return ex;
+    },
+    getTraceFromException(exception) {
+      var trace;
+      if (exception == null)
+        return new A._StackTrace(exception);
+      trace = exception.$cachedTrace;
+      if (trace != null)
+        return trace;
+      trace = new A._StackTrace(exception);
+      if (typeof exception === "object")
+        exception.$cachedTrace = trace;
+      return trace;
+    },
     objectHashCode(object) {
       if (object == null)
         return J.get$hashCode$(object);
@@ -699,6 +842,59 @@
         }
       }
       return result;
+    },
+    _invokeClosure(closure, numberOfArguments, arg1, arg2, arg3, arg4) {
+      type$.Function._as(closure);
+      switch (A._asInt(numberOfArguments)) {
+        case 0:
+          return closure.call$0();
+        case 1:
+          return closure.call$1(arg1);
+        case 2:
+          return closure.call$2(arg1, arg2);
+        case 3:
+          return closure.call$3(arg1, arg2, arg3);
+        case 4:
+          return closure.call$4(arg1, arg2, arg3, arg4);
+      }
+      throw A.wrapException(new A._Exception("Unsupported number of arguments for wrapped closure"));
+    },
+    convertDartClosureToJS(closure, arity) {
+      var $function = closure.$identity;
+      if (!!$function)
+        return $function;
+      $function = A.convertDartClosureToJSUncached(closure, arity);
+      closure.$identity = $function;
+      return $function;
+    },
+    convertDartClosureToJSUncached(closure, arity) {
+      var entry;
+      switch (arity) {
+        case 0:
+          entry = closure.call$0;
+          break;
+        case 1:
+          entry = closure.call$1;
+          break;
+        case 2:
+          entry = closure.call$2;
+          break;
+        case 3:
+          entry = closure.call$3;
+          break;
+        case 4:
+          entry = closure.call$4;
+          break;
+        default:
+          entry = null;
+      }
+      if (entry != null)
+        return entry.bind(closure);
+      return function(closure, arity, invoke) {
+        return function(a1, a2, a3, a4) {
+          return invoke(closure, arity, a1, a2, a3, a4);
+        };
+      }(closure, arity, A._invokeClosure);
     },
     Closure_fromTearOff(parameters) {
       var $name, callName, $function, t1, $prototype, $constructor, t2, trampoline, applyTrampoline, i, stub, stub0, stubName, stubCallName,
@@ -908,7 +1104,7 @@
         if (template[$name] === fieldName)
           return $name;
       }
-      throw A.wrapException(A.ArgumentError$("Field name " + fieldName + " not found."));
+      throw A.wrapException(A.ArgumentError$("Field name " + fieldName + " not found.", null));
     },
     assertTest(condition) {
       if (true === condition)
@@ -1081,9 +1277,42 @@
       A.assertHelper(argumentCount === 1);
       return $function(fieldRtis);
     },
+    quoteStringForRegExp(string) {
+      if (/[[\]{}()*+?.\\^$|]/.test(string))
+        return string.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
+      return string;
+    },
     SafeToStringHook: function SafeToStringHook() {
     },
+    TypeErrorDecoder: function TypeErrorDecoder(t0, t1, t2, t3, t4, t5) {
+      var _ = this;
+      _._pattern = t0;
+      _._arguments = t1;
+      _._argumentsExpr = t2;
+      _._expr = t3;
+      _._method = t4;
+      _._receiver = t5;
+    },
+    NullError: function NullError() {
+    },
+    JsNoSuchMethodError: function JsNoSuchMethodError(t0, t1, t2) {
+      this.__js_helper$_message = t0;
+      this._method = t1;
+      this._receiver = t2;
+    },
+    UnknownJsTypeError: function UnknownJsTypeError(t0) {
+      this.__js_helper$_message = t0;
+    },
+    NullThrownFromJavaScriptException: function NullThrownFromJavaScriptException(t0) {
+      this._irritant = t0;
+    },
+    _StackTrace: function _StackTrace(t0) {
+      this._exception = t0;
+      this._trace = null;
+    },
     Closure: function Closure() {
+    },
+    Closure0Args: function Closure0Args() {
     },
     Closure2Args: function Closure2Args() {
     },
@@ -1133,6 +1362,10 @@
     },
     initHooks_closure1: function initHooks_closure1(t0) {
       this.prototypeForTag = t0;
+    },
+    _checkValidIndex(index, list, $length) {
+      if (index >>> 0 !== index || index >= $length)
+        throw A.wrapException(A.diagnoseIndexError(list, index));
     },
     NativeByteBuffer: function NativeByteBuffer() {
     },
@@ -2761,6 +2994,373 @@
     _TypeError: function _TypeError(t0) {
       this.__rti$_message = t0;
     },
+    _AsyncRun__initializeScheduleImmediate() {
+      var t1, div, span;
+      if (self.scheduleImmediate != null)
+        return A.async__AsyncRun__scheduleImmediateJsOverride$closure();
+      if (self.MutationObserver != null && self.document != null) {
+        t1 = {};
+        div = self.document.createElement("div");
+        span = self.document.createElement("span");
+        t1.storedCallback = null;
+        new self.MutationObserver(A.convertDartClosureToJS(new A._AsyncRun__initializeScheduleImmediate_internalCallback(t1), 1)).observe(div, {childList: true});
+        return new A._AsyncRun__initializeScheduleImmediate_closure(t1, div, span);
+      } else if (self.setImmediate != null)
+        return A.async__AsyncRun__scheduleImmediateWithSetImmediate$closure();
+      return A.async__AsyncRun__scheduleImmediateWithTimer$closure();
+    },
+    _AsyncRun__scheduleImmediateJsOverride(callback) {
+      self.scheduleImmediate(A.convertDartClosureToJS(new A._AsyncRun__scheduleImmediateJsOverride_internalCallback(type$.void_Function._as(callback)), 0));
+    },
+    _AsyncRun__scheduleImmediateWithSetImmediate(callback) {
+      self.setImmediate(A.convertDartClosureToJS(new A._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback(type$.void_Function._as(callback)), 0));
+    },
+    _AsyncRun__scheduleImmediateWithTimer(callback) {
+      type$.void_Function._as(callback);
+      A._TimerImpl$(0, callback);
+    },
+    _TimerImpl$(milliseconds, callback) {
+      var t1 = new A._TimerImpl();
+      t1._TimerImpl$2(milliseconds, callback);
+      return t1;
+    },
+    AsyncError_defaultStackTrace(error) {
+      var stackTrace;
+      if (type$.Error._is(error)) {
+        stackTrace = error.get$stackTrace();
+        if (stackTrace != null)
+          return stackTrace;
+      }
+      return B.C__StringStackTrace;
+    },
+    _interceptError(error, stackTrace) {
+      var zone = $.Zone__current;
+      if (zone === B.C_Zone)
+        return null;
+      zone._errorCallbackZoned$3(zone, error, stackTrace);
+      return null;
+    },
+    _interceptUserError(error, stackTrace) {
+      if ($.Zone__current !== B.C_Zone)
+        A._interceptError(error, stackTrace);
+      if (type$.Error._is(error)) {
+        stackTrace = error.get$stackTrace();
+        if (stackTrace == null) {
+          A.Primitives_trySetStackTrace(error, B.C__StringStackTrace);
+          stackTrace = B.C__StringStackTrace;
+        }
+      } else
+        stackTrace = B.C__StringStackTrace;
+      return new A.AsyncError(error, stackTrace);
+    },
+    _Future__chainCoreFuture(source, target, sync) {
+      var t2, t3, t4, ignoreError, listeners, targetZone, _box_0 = {},
+        t1 = _box_0.source = source;
+      A.assertHelper(target._state <= 3);
+      for (t2 = type$._Future_dynamic; t3 = t1._state, t4 = (t3 & 4) !== 0, t4; t1 = source) {
+        A.assertHelper(t4);
+        source = t2._as(t1._resultOrListeners);
+        _box_0.source = source;
+      }
+      if (t1 === target) {
+        t2 = A.StackTrace_current();
+        target._asyncCompleteErrorObject$1(new A.AsyncError(new A.ArgumentError(true, t1, null, "Cannot complete a future with itself"), t2));
+        return;
+      }
+      ignoreError = target._state & 1;
+      t2 = t1._state = t3 | ignoreError;
+      if ((t2 & 24) === 0) {
+        listeners = type$.nullable__FutureListener_dynamic_dynamic._as(target._resultOrListeners);
+        A.assertHelper(target._state <= 3);
+        target._state = target._state & 1 | 4;
+        target._resultOrListeners = t1;
+        _box_0.source._prependListeners$1(listeners);
+        return;
+      }
+      if (!sync)
+        if (target._resultOrListeners == null)
+          t1 = (t2 & 16) === 0 || ignoreError !== 0;
+        else
+          t1 = false;
+      else
+        t1 = true;
+      if (t1) {
+        listeners = target._removeListeners$0();
+        target._cloneResult$1(_box_0.source);
+        A._Future__propagateToListeners(target, listeners);
+        return;
+      }
+      target._setPendingComplete$0();
+      targetZone = target._zone;
+      targetZone._scheduleMicrotaskZoned$2(targetZone, new A._Future__chainCoreFuture_closure(_box_0, target));
+    },
+    _Future__propagateToListeners(source, listeners) {
+      var t2, t3, _box_0, t4, t5, hasError, asyncError, nextListener, nextListener0, sourceResult, zone, oldZone, result, current, _box_1 = {},
+        t1 = _box_1.source = source;
+      for (t2 = type$.AsyncError, t3 = type$.nullable__FutureListener_dynamic_dynamic;;) {
+        _box_0 = {};
+        A.assertHelper((t1._state & 24) !== 0);
+        t1 = _box_1.source;
+        t4 = t1._state;
+        t5 = (t4 & 16) === 0;
+        hasError = !t5;
+        if (listeners == null) {
+          if (hasError && (t4 & 1) === 0) {
+            A.assertHelper(hasError);
+            asyncError = t2._as(t1._resultOrListeners);
+            t1 = _box_1.source._zone;
+            t1._handleUncaughtErrorZoned$3(t1, asyncError.error, asyncError.stackTrace);
+          }
+          return;
+        }
+        _box_0.listener = listeners;
+        nextListener = listeners._nextListener;
+        for (t1 = listeners; nextListener != null; t1 = nextListener, nextListener = nextListener0) {
+          t1._nextListener = null;
+          A._Future__propagateToListeners(_box_1.source, t1);
+          _box_0.listener = nextListener;
+          nextListener0 = nextListener._nextListener;
+        }
+        sourceResult = _box_1.source._resultOrListeners;
+        _box_0.listenerHasError = hasError;
+        _box_0.listenerValueOrError = sourceResult;
+        if (t5) {
+          t4 = t1.state;
+          t4 = (t4 & 1) !== 0 || (t4 & 15) === 8;
+        } else
+          t4 = true;
+        if (t4) {
+          zone = t1.result._zone;
+          oldZone = $.Zone__current;
+          if (oldZone !== zone)
+            $.Zone__current = zone;
+          else
+            oldZone = null;
+          t1 = t1.state;
+          if ((t1 & 15) === 8)
+            new A._Future__propagateToListeners_handleWhenCompleteCallback(_box_0, _box_1, hasError).call$0();
+          else if (t5) {
+            if ((t1 & 1) !== 0)
+              new A._Future__propagateToListeners_handleValueCallback(_box_0, sourceResult).call$0();
+          } else if ((t1 & 2) !== 0)
+            new A._Future__propagateToListeners_handleError(_box_1, _box_0).call$0();
+          if (oldZone != null)
+            $.Zone__current = oldZone;
+          t1 = _box_0.listenerValueOrError;
+          if (t1 instanceof A._Future) {
+            t4 = _box_0.listener.$ti;
+            t4 = t4._eval$1("Future<2>")._is(t1) || !t4._rest[1]._is(t1);
+          } else
+            t4 = false;
+          if (t4) {
+            result = _box_0.listener.result;
+            if ((t1._state & 24) !== 0) {
+              A.assertHelper((result._state & 24) === 0);
+              current = t3._as(result._resultOrListeners);
+              result._resultOrListeners = null;
+              listeners = result._reverseListeners$1(current);
+              result._cloneResult$1(t1);
+              _box_1.source = t1;
+              continue;
+            } else
+              A._Future__chainCoreFuture(t1, result, true);
+            return;
+          }
+        }
+        result = _box_0.listener.result;
+        A.assertHelper((result._state & 24) === 0);
+        current = t3._as(result._resultOrListeners);
+        result._resultOrListeners = null;
+        listeners = result._reverseListeners$1(current);
+        t1 = _box_0.listenerHasError;
+        t4 = _box_0.listenerValueOrError;
+        t5 = result._state & 24;
+        if (!t1) {
+          result.$ti._precomputed1._as(t4);
+          A.assertHelper(t5 === 0);
+          result._state = 8;
+          result._resultOrListeners = t4;
+        } else {
+          t2._as(t4);
+          A.assertHelper(t5 === 0);
+          result._state = result._state & 1 | 16;
+          result._resultOrListeners = t4;
+        }
+        _box_1.source = result;
+        t1 = result;
+      }
+    },
+    _registerErrorHandler(errorHandler, zone) {
+      var t1 = type$.dynamic_Function_Object_StackTrace;
+      if (t1._is(errorHandler))
+        return zone._registerBinaryCallbackZoned$3$2(zone, t1._as(errorHandler), type$.dynamic, type$.Object, type$.StackTrace);
+      t1 = type$.dynamic_Function_Object;
+      if (t1._is(errorHandler))
+        return zone._registerUnaryCallbackZoned$2$2(zone, t1._as(errorHandler), type$.dynamic, type$.Object);
+      throw A.wrapException(A.ArgumentError$value(errorHandler, "onError", string$.Error_));
+    },
+    _microtaskLoop() {
+      var entry, next;
+      for (entry = $._nextCallback; entry != null; entry = $._nextCallback) {
+        $._lastPriorityCallback = null;
+        next = entry.next;
+        $._nextCallback = next;
+        if (next == null)
+          $._lastCallback = null;
+        entry.callback.call$0();
+      }
+    },
+    _startMicrotaskLoop() {
+      $._isInCallbackLoop = true;
+      try {
+        A._microtaskLoop();
+      } finally {
+        $._lastPriorityCallback = null;
+        $._isInCallbackLoop = false;
+        if ($._nextCallback != null)
+          $.$get$_AsyncRun__scheduleImmediateClosure().call$1(A.async___startMicrotaskLoop$closure());
+      }
+    },
+    _scheduleAsyncCallback(callback) {
+      var newEntry = new A._AsyncCallbackEntry(callback),
+        lastCallback = $._lastCallback;
+      if (lastCallback == null) {
+        $._nextCallback = $._lastCallback = newEntry;
+        if (!$._isInCallbackLoop)
+          $.$get$_AsyncRun__scheduleImmediateClosure().call$1(A.async___startMicrotaskLoop$closure());
+      } else
+        $._lastCallback = lastCallback.next = newEntry;
+    },
+    _schedulePriorityAsyncCallback(callback) {
+      var entry, lastPriorityCallback, next,
+        t1 = $._nextCallback;
+      if (t1 == null) {
+        A._scheduleAsyncCallback(callback);
+        $._lastPriorityCallback = $._lastCallback;
+        return;
+      }
+      entry = new A._AsyncCallbackEntry(callback);
+      lastPriorityCallback = $._lastPriorityCallback;
+      if (lastPriorityCallback == null) {
+        entry.next = t1;
+        $._nextCallback = $._lastPriorityCallback = entry;
+      } else {
+        next = lastPriorityCallback.next;
+        entry.next = next;
+        $._lastPriorityCallback = lastPriorityCallback.next = entry;
+        if (next == null)
+          $._lastCallback = entry;
+      }
+    },
+    _rootHandleUncaughtError(error, stackTrace) {
+      A._schedulePriorityAsyncCallback(new A._rootHandleUncaughtError_closure(error, stackTrace));
+    },
+    _rootScheduleMicrotask(zone, callback) {
+      if (B.C_Zone !== zone)
+        callback = zone.bindCallback$1$1(callback, type$.void);
+      A._scheduleAsyncCallback(callback);
+    },
+    _AsyncRun__initializeScheduleImmediate_internalCallback: function _AsyncRun__initializeScheduleImmediate_internalCallback(t0) {
+      this._box_0 = t0;
+    },
+    _AsyncRun__initializeScheduleImmediate_closure: function _AsyncRun__initializeScheduleImmediate_closure(t0, t1, t2) {
+      this._box_0 = t0;
+      this.div = t1;
+      this.span = t2;
+    },
+    _AsyncRun__scheduleImmediateJsOverride_internalCallback: function _AsyncRun__scheduleImmediateJsOverride_internalCallback(t0) {
+      this.callback = t0;
+    },
+    _AsyncRun__scheduleImmediateWithSetImmediate_internalCallback: function _AsyncRun__scheduleImmediateWithSetImmediate_internalCallback(t0) {
+      this.callback = t0;
+    },
+    _TimerImpl: function _TimerImpl() {
+    },
+    _TimerImpl_internalCallback: function _TimerImpl_internalCallback(t0, t1) {
+      this.$this = t0;
+      this.callback = t1;
+    },
+    AsyncError: function AsyncError(t0, t1) {
+      this.error = t0;
+      this.stackTrace = t1;
+    },
+    _Completer: function _Completer() {
+    },
+    _AsyncCompleter: function _AsyncCompleter(t0, t1) {
+      this.future = t0;
+      this.$ti = t1;
+    },
+    _FutureListener: function _FutureListener(t0, t1, t2, t3, t4) {
+      var _ = this;
+      _._nextListener = null;
+      _.result = t0;
+      _.state = t1;
+      _.callback = t2;
+      _.errorCallback = t3;
+      _.$ti = t4;
+    },
+    _Future: function _Future(t0, t1) {
+      var _ = this;
+      _._state = 0;
+      _._zone = t0;
+      _._resultOrListeners = null;
+      _.$ti = t1;
+    },
+    _Future__addListener_closure: function _Future__addListener_closure(t0, t1) {
+      this.$this = t0;
+      this.listener = t1;
+    },
+    _Future__prependListeners_closure: function _Future__prependListeners_closure(t0, t1) {
+      this._box_0 = t0;
+      this.$this = t1;
+    },
+    _Future__chainCoreFuture_closure: function _Future__chainCoreFuture_closure(t0, t1) {
+      this._box_0 = t0;
+      this.target = t1;
+    },
+    _Future__asyncCompleteWithValue_closure: function _Future__asyncCompleteWithValue_closure(t0, t1) {
+      this.$this = t0;
+      this.value = t1;
+    },
+    _Future__asyncCompleteErrorObject_closure: function _Future__asyncCompleteErrorObject_closure(t0, t1) {
+      this.$this = t0;
+      this.error = t1;
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback: function _Future__propagateToListeners_handleWhenCompleteCallback(t0, t1, t2) {
+      this._box_0 = t0;
+      this._box_1 = t1;
+      this.hasError = t2;
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback_closure: function _Future__propagateToListeners_handleWhenCompleteCallback_closure(t0, t1) {
+      this.joinedResult = t0;
+      this.originalSource = t1;
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback_closure0: function _Future__propagateToListeners_handleWhenCompleteCallback_closure0(t0) {
+      this.joinedResult = t0;
+    },
+    _Future__propagateToListeners_handleValueCallback: function _Future__propagateToListeners_handleValueCallback(t0, t1) {
+      this._box_0 = t0;
+      this.sourceResult = t1;
+    },
+    _Future__propagateToListeners_handleError: function _Future__propagateToListeners_handleError(t0, t1) {
+      this._box_1 = t0;
+      this._box_0 = t1;
+    },
+    _AsyncCallbackEntry: function _AsyncCallbackEntry(t0) {
+      this.callback = t0;
+      this.next = null;
+    },
+    Zone: function Zone() {
+    },
+    Zone_bindCallback_closure: function Zone_bindCallback_closure(t0, t1, t2) {
+      this.$this = t0;
+      this.registered = t1;
+      this.R = t2;
+    },
+    _rootHandleUncaughtError_closure: function _rootHandleUncaughtError_closure(t0, t1) {
+      this.error = t0;
+      this.stackTrace = t1;
+    },
     _HashMap__getTableEntry(table, key) {
       var entry = table[key];
       return entry === table ? null : entry;
@@ -2829,6 +3429,13 @@
       this._box_0 = t0;
       this.result = t1;
     },
+    Error__throw(error, stackTrace) {
+      error = A.initializeExceptionWrapper(error, new Error());
+      if (error == null)
+        error = A._asObject(error);
+      error.stack = stackTrace.toString$0(0);
+      throw error;
+    },
     List_List$filled($length, fill, $E) {
       var t1, result;
       if ($length > 4294967295)
@@ -2853,6 +3460,9 @@
       }
       return string;
     },
+    StackTrace_current() {
+      return A.getTraceFromException(new Error());
+    },
     Error_safeToString(object) {
       if (typeof object == "number" || A._isBool(object) || object == null)
         return J.toString$0$(object);
@@ -2860,20 +3470,39 @@
         return JSON.stringify(object);
       return A.Primitives_safeToString(object);
     },
+    Error_throwWithStackTrace(error, stackTrace) {
+      A.checkNotNullable(error, "error", type$.Object);
+      A.checkNotNullable(stackTrace, "stackTrace", type$.StackTrace);
+      A.Error__throw(error, stackTrace);
+    },
     AssertionError$(message) {
       return new A.AssertionError(message);
     },
-    ArgumentError$(message) {
-      return new A.ArgumentError(false, null, null, message);
+    ArgumentError$(message, $name) {
+      return new A.ArgumentError(false, null, $name, message);
+    },
+    ArgumentError$value(value, $name, message) {
+      return new A.ArgumentError(true, value, $name, message);
     },
     RangeError$range(invalidValue, minValue, maxValue, $name, message) {
       return new A.RangeError(minValue, maxValue, true, invalidValue, $name, "Invalid value");
     },
+    RangeError_checkNotNegative(value, $name) {
+      if (value.$lt(0, 0))
+        throw A.wrapException(A.RangeError$range(value, 0, null, $name, null));
+      return value;
+    },
     IndexError$withLength(invalidValue, $length, indexable, $name) {
       return new A.IndexError($length, true, invalidValue, $name, "Index out of range");
     },
+    UnsupportedError$(message) {
+      return new A.UnsupportedError(message);
+    },
     UnimplementedError$(message) {
       return new A.UnimplementedError(message);
+    },
+    StateError$(message) {
+      return new A.StateError(message);
     },
     ConcurrentModificationError$(modifiedObject) {
       return new A.ConcurrentModificationError(modifiedObject);
@@ -3042,14 +3671,36 @@
     ConcurrentModificationError: function ConcurrentModificationError(t0) {
       this.modifiedObject = t0;
     },
+    StackOverflowError: function StackOverflowError() {
+    },
+    _Exception: function _Exception(t0) {
+      this.message = t0;
+    },
     Iterable: function Iterable() {
     },
     Null: function Null() {
     },
     Object: function Object() {
     },
+    _StringStackTrace: function _StringStackTrace() {
+    },
     StringBuffer: function StringBuffer(t0) {
       this._contents = t0;
+    },
+    NullRejectionException: function NullRejectionException(t0) {
+      this.isUndefined = t0;
+    },
+    _functionToJS1(f) {
+      var result;
+      if (typeof f == "function")
+        throw A.wrapException(A.ArgumentError$("Attempting to rewrap a JS function.", null));
+      result = function(_call, f) {
+        return function(arg1) {
+          return _call(f, arg1, arguments.length);
+        };
+      }(A._callDartFunctionFast1, f);
+      result[$.$get$DART_CLOSURE_DART_JSINTEROP_PROPERTY_NAME()] = f;
+      return result;
     },
     _callDartFunctionFast1(callback, arg1, $length) {
       type$.Function._as(callback);
@@ -3065,35 +3716,63 @@
         return object;
       return new A.jsify__convert(new A._IdentityHashMap(type$._IdentityHashMap_of_nullable_Object_and_nullable_Object)).call$1(object);
     },
+    promiseToFuture(jsPromise, $T) {
+      var t1 = new A._Future($.Zone__current, $T._eval$1("_Future<0>")),
+        completer = new A._AsyncCompleter(t1, $T._eval$1("_AsyncCompleter<0>"));
+      jsPromise.then(A.convertDartClosureToJS(new A.promiseToFuture_closure(completer, $T), 1), A.convertDartClosureToJS(new A.promiseToFuture_closure0(completer), 1));
+      return t1;
+    },
     jsify__convert: function jsify__convert(t0) {
       this._convertedObjects = t0;
     },
+    promiseToFuture_closure: function promiseToFuture_closure(t0, t1) {
+      this.completer = t0;
+      this.T = t1;
+    },
+    promiseToFuture_closure0: function promiseToFuture_closure0(t0) {
+      this.completer = t0;
+    },
     main() {
-      var t2, options, messagingInstance, result,
+      var t2, options,
+        _s16_ = "addEventListener",
         t1 = init.G;
       t1.importScripts("https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js", "https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js");
-      t2 = type$.String;
-      options = A._asJSObject(A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["apiKey", "AIzaSyBIXxQgUPYDU2srK_UpgjiTATON5rrdMd0", "appId", "1:132381301913:web:f0d0a643bc90bed91eec08", "messagingSenderId", "132381301913", "projectId", "flutterfire-samples", "authDomain", "flutterfire-samples.firebaseapp.com", "storageBucket", "flutterfire-samples.appspot.com", "measurementId", "G-ZK5194H8VH"], t2, t2)));
-      t1.firebase.initializeApp(options);
-      messagingInstance = type$.JavaScriptObject._as(t1.firebase.messaging());
-      t1 = new A.main_closure();
-      if (typeof t1 == "function")
-        A.throwExpression(A.ArgumentError$("Attempting to rewrap a JS function."));
-      result = function(_call, f) {
-        return function(arg1) {
-          return _call(f, arg1, arguments.length);
-        };
-      }(A._callDartFunctionFast1, t1);
-      result[$.$get$DART_CLOSURE_DART_JSINTEROP_PROPERTY_NAME()] = t1;
-      messagingInstance.onBackgroundMessage(result);
+      t2 = type$.nullable_Object;
+      A.JSObjectUnsafeUtilExtension_callMethod(A._asJSObject(t1.self), _s16_, "install", A._functionToJS1(new A.main_closure()), t2);
+      A.JSObjectUnsafeUtilExtension_callMethod(A._asJSObject(t1.self), _s16_, "notificationclick", A._functionToJS1(new A.main_closure0()), t2);
+      options = A._asJSObject(A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["apiKey", "AIzaSyBIXxQgUPYDU2srK_UpgjiTATON5rrdMd0", "appId", "1:132381301913:web:f0d0a643bc90bed91eec08", "messagingSenderId", "132381301913", "projectId", "flutterfire-samples", "authDomain", "flutterfire-samples.firebaseapp.com", "storageBucket", "flutterfire-samples.appspot.com", "measurementId", "G-ZK5194H8VH"], type$.String, t2)));
+      A._asJSObject(t1.firebase.initializeApp(options));
+      A.promiseToFuture(A._asJSObject(t1.firebase.messaging.isSupported()), type$.bool).then$1$1(new A.main_closure1(), type$.Null);
     },
     main_closure: function main_closure() {
+    },
+    main_closure0: function main_closure0() {
+    },
+    main__closure0: function main__closure0() {
+    },
+    main_closure1: function main_closure1() {
+    },
+    main__closure: function main__closure() {
     },
     unmangleGlobalNameIfPreservedAnyways($name) {
       return init.mangledGlobalNames[$name];
     },
     throwLateFieldADI(fieldName) {
       throw A.initializeExceptionWrapper(new A.LateError("Field '" + fieldName + "' has been assigned during initialization."), new Error());
+    },
+    JSObjectUnsafeUtilExtension__callMethod(_this, method, arg1, arg2, arg3, arg4) {
+      var t1;
+      if (arg1 == null)
+        return _this[method]();
+      else if (arg2 == null)
+        return _this[method](arg1);
+      else {
+        t1 = _this[method](arg1, arg2);
+        return t1;
+      }
+    },
+    JSObjectUnsafeUtilExtension_callMethod(_this, method, arg1, arg2, $R) {
+      return $R._as(A.JSObjectUnsafeUtilExtension__callMethod(_this, method, arg1, arg2, null, null));
     }
   },
   B = {};
@@ -3137,7 +3816,8 @@
     get$hashCode(receiver) {
       return 0;
     },
-    $isTrustedGetRuntimeType: 1
+    $isTrustedGetRuntimeType: 1,
+    $isNull: 1
   };
   J.JavaScriptObject.prototype = {$isJSObject: 1};
   J.LegacyJavaScriptObject.prototype = {
@@ -3200,7 +3880,7 @@
       return new A.MappedListIterable(receiver, t1._bind$1($T)._eval$1("1(2)")._as(f), t1._eval$1("@<1>")._bind$1($T)._eval$1("MappedListIterable<1,2>"));
     },
     elementAt$1(receiver, index) {
-      if (!(index < receiver.length))
+      if (!(index >= 0 && index < receiver.length))
         return A.ioore(receiver, index);
       return receiver[index];
     },
@@ -3286,6 +3966,19 @@
       factor = Math.pow(2, floorLog2);
       scaled = absolute < 1 ? absolute / factor : factor / absolute;
       return ((scaled * 9007199254740992 | 0) + (scaled * 3542243181176521 | 0)) * 599197 + floorLog2 * 1259 & 536870911;
+    },
+    _shrOtherPositive$1(receiver, other) {
+      var t1;
+      if (receiver > 0)
+        t1 = this._shrBothPositive$1(receiver, other);
+      else {
+        t1 = other > 31 ? 31 : other;
+        t1 = receiver >> t1 >>> 0;
+      }
+      return t1;
+    },
+    _shrBothPositive$1(receiver, other) {
+      return other > 31 ? 0 : receiver >>> other;
     },
     get$runtimeType(receiver) {
       return A.createRuntimeType(type$.num);
@@ -3406,6 +4099,72 @@
   };
   A.FixedLengthListMixin.prototype = {};
   A.SafeToStringHook.prototype = {};
+  A.TypeErrorDecoder.prototype = {
+    matchTypeError$1(message) {
+      var result, t1, _this = this,
+        match = new RegExp(_this._pattern).exec(message);
+      if (match == null)
+        return null;
+      result = Object.create(null);
+      t1 = _this._arguments;
+      if (t1 !== -1)
+        result.arguments = match[t1 + 1];
+      t1 = _this._argumentsExpr;
+      if (t1 !== -1)
+        result.argumentsExpr = match[t1 + 1];
+      t1 = _this._expr;
+      if (t1 !== -1)
+        result.expr = match[t1 + 1];
+      t1 = _this._method;
+      if (t1 !== -1)
+        result.method = match[t1 + 1];
+      t1 = _this._receiver;
+      if (t1 !== -1)
+        result.receiver = match[t1 + 1];
+      return result;
+    }
+  };
+  A.NullError.prototype = {
+    toString$0(_) {
+      return "Null check operator used on a null value";
+    }
+  };
+  A.JsNoSuchMethodError.prototype = {
+    toString$0(_) {
+      var t2, _this = this,
+        _s38_ = "NoSuchMethodError: method not found: '",
+        t1 = _this._method;
+      if (t1 == null)
+        return "NoSuchMethodError: " + _this.__js_helper$_message;
+      t2 = _this._receiver;
+      if (t2 == null)
+        return _s38_ + t1 + "' (" + _this.__js_helper$_message + ")";
+      return _s38_ + t1 + "' on '" + t2 + "' (" + _this.__js_helper$_message + ")";
+    }
+  };
+  A.UnknownJsTypeError.prototype = {
+    toString$0(_) {
+      var t1 = this.__js_helper$_message;
+      return t1.length === 0 ? "Error" : "Error: " + t1;
+    }
+  };
+  A.NullThrownFromJavaScriptException.prototype = {
+    toString$0(_) {
+      return "Throw of null ('" + (this._irritant === null ? "null" : "undefined") + "' from JavaScript)";
+    }
+  };
+  A._StackTrace.prototype = {
+    toString$0(_) {
+      var trace,
+        t1 = this._trace;
+      if (t1 != null)
+        return t1;
+      t1 = this._exception;
+      trace = t1 !== null && typeof t1 === "object" ? t1.stack : null;
+      return this._trace = trace == null ? "" : trace;
+    },
+    $isStackTrace: 1
+  };
   A.Closure.prototype = {
     toString$0(_) {
       var $constructor = this.constructor,
@@ -3420,6 +4179,7 @@
     $requiredArgCount: 1,
     $defaultValues: null
   };
+  A.Closure0Args.prototype = {"call*": "call$0", $requiredArgCount: 0};
   A.Closure2Args.prototype = {"call*": "call$2", $requiredArgCount: 2};
   A.TearOffClosure.prototype = {};
   A.StaticClosure.prototype = {
@@ -3571,19 +4331,19 @@
     call$1(o) {
       return this.getTag(o);
     },
-    $signature: 0
+    $signature: 6
   };
   A.initHooks_closure0.prototype = {
     call$2(o, tag) {
       return this.getUnknownTag(o, tag);
     },
-    $signature: 1
+    $signature: 7
   };
   A.initHooks_closure1.prototype = {
     call$1(tag) {
       return this.prototypeForTag(A._asString(tag));
     },
-    $signature: 2
+    $signature: 8
   };
   A.NativeByteBuffer.prototype = {
     get$runtimeType(receiver) {
@@ -3606,7 +4366,15 @@
     },
     $isJavaScriptIndexingBehavior: 1
   };
-  A.NativeTypedArrayOfDouble.prototype = {$isEfficientLengthIterable: 1, $isIterable: 1, $isList: 1};
+  A.NativeTypedArrayOfDouble.prototype = {
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
+    },
+    $isEfficientLengthIterable: 1,
+    $isIterable: 1,
+    $isList: 1
+  };
   A.NativeTypedArrayOfInt.prototype = {$isEfficientLengthIterable: 1, $isIterable: 1, $isList: 1};
   A.NativeFloat32List.prototype = {
     get$runtimeType(receiver) {
@@ -3626,12 +4394,20 @@
     get$runtimeType(receiver) {
       return B.Type_Int16List_s5h;
     },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
+    },
     $isTrustedGetRuntimeType: 1,
     $isInt16List: 1
   };
   A.NativeInt32List.prototype = {
     get$runtimeType(receiver) {
       return B.Type_Int32List_O8Z;
+    },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
     },
     $isTrustedGetRuntimeType: 1,
     $isInt32List: 1
@@ -3640,6 +4416,10 @@
     get$runtimeType(receiver) {
       return B.Type_Int8List_rFV;
     },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
+    },
     $isTrustedGetRuntimeType: 1,
     $isInt8List: 1
   };
@@ -3647,12 +4427,20 @@
     get$runtimeType(receiver) {
       return B.Type_Uint16List_kmP;
     },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
+    },
     $isTrustedGetRuntimeType: 1,
     $isUint16List: 1
   };
   A.NativeUint32List.prototype = {
     get$runtimeType(receiver) {
       return B.Type_Uint32List_kmP;
+    },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
     },
     $isTrustedGetRuntimeType: 1,
     $isUint32List: 1
@@ -3664,6 +4452,10 @@
     get$length(receiver) {
       return receiver.length;
     },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
+    },
     $isTrustedGetRuntimeType: 1,
     $isUint8ClampedList: 1
   };
@@ -3673,6 +4465,10 @@
     },
     get$length(receiver) {
       return receiver.length;
+    },
+    $index(receiver, index) {
+      A._checkValidIndex(index, receiver, receiver.length);
+      return receiver[index];
     },
     $isTrustedGetRuntimeType: 1,
     $isUint8List: 1
@@ -3700,7 +4496,557 @@
       return this.__rti$_message;
     }
   };
-  A._TypeError.prototype = {};
+  A._TypeError.prototype = {$isTypeError: 1};
+  A._AsyncRun__initializeScheduleImmediate_internalCallback.prototype = {
+    call$1(__wc0_formal) {
+      var t1 = this._box_0,
+        f = t1.storedCallback;
+      t1.storedCallback = null;
+      f.call$0();
+    },
+    $signature: 2
+  };
+  A._AsyncRun__initializeScheduleImmediate_closure.prototype = {
+    call$1(callback) {
+      var t1, t2;
+      type$.void_Function._as(callback);
+      t1 = this._box_0;
+      A.assertHelper(t1.storedCallback == null);
+      t1.storedCallback = callback;
+      t1 = this.div;
+      t2 = this.span;
+      t1.firstChild ? t1.removeChild(t2) : t1.appendChild(t2);
+    },
+    $signature: 9
+  };
+  A._AsyncRun__scheduleImmediateJsOverride_internalCallback.prototype = {
+    call$0() {
+      this.callback.call$0();
+    },
+    $signature: 3
+  };
+  A._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback.prototype = {
+    call$0() {
+      this.callback.call$0();
+    },
+    $signature: 3
+  };
+  A._TimerImpl.prototype = {
+    _TimerImpl$2(milliseconds, callback) {
+      if (self.setTimeout != null)
+        self.setTimeout(A.convertDartClosureToJS(new A._TimerImpl_internalCallback(this, callback), 0), milliseconds);
+      else
+        throw A.wrapException(A.UnsupportedError$("`setTimeout()` not found."));
+    }
+  };
+  A._TimerImpl_internalCallback.prototype = {
+    call$0() {
+      this.callback.call$0();
+    },
+    $signature: 0
+  };
+  A.AsyncError.prototype = {
+    toString$0(_) {
+      return A.S(this.error);
+    },
+    $isError: 1,
+    get$stackTrace() {
+      return this.stackTrace;
+    }
+  };
+  A._Completer.prototype = {
+    completeError$1(error) {
+      var t1 = this.future;
+      if ((t1._state & 30) !== 0)
+        throw A.wrapException(A.StateError$("Future already completed"));
+      t1._asyncCompleteErrorObject$1(A._interceptUserError(error, null));
+    }
+  };
+  A._AsyncCompleter.prototype = {};
+  A._FutureListener.prototype = {
+    matchesErrorTest$1(asyncError) {
+      var t1;
+      if ((this.state & 15) !== 6)
+        return true;
+      t1 = this.result._zone;
+      return t1._runUnaryZoned$2$3(t1, type$.bool_Function_Object._as(this.callback), asyncError.error, type$.bool, type$.Object);
+    },
+    handleError$1(asyncError) {
+      var result, errorCallback, t2, t3, t4, t5, exception, _this = this,
+        t1 = _this.state;
+      A.assertHelper((t1 & 2) !== 0 && _this.errorCallback != null);
+      errorCallback = _this.errorCallback;
+      result = null;
+      t2 = type$.dynamic;
+      t3 = type$.Object;
+      t4 = asyncError.error;
+      t5 = _this.result._zone;
+      if (type$.dynamic_Function_Object_StackTrace._is(errorCallback))
+        result = t5._runBinaryZoned$3$4(t5, errorCallback, t4, asyncError.stackTrace, t2, t3, type$.StackTrace);
+      else
+        result = t5._runUnaryZoned$2$3(t5, type$.dynamic_Function_Object._as(errorCallback), t4, t2, t3);
+      try {
+        t2 = _this.$ti._eval$1("2/")._as(result);
+        return t2;
+      } catch (exception) {
+        if (type$.TypeError._is(A.unwrapException(exception))) {
+          if ((t1 & 1) !== 0)
+            throw A.wrapException(A.ArgumentError$("The error handler of Future.then must return a value of the returned future's type", "onError"));
+          throw A.wrapException(A.ArgumentError$("The error handler of Future.catchError must return a value of the future's type", "onError"));
+        } else
+          throw exception;
+      }
+    }
+  };
+  A._Future.prototype = {
+    then$1$2$onError(f, onError, $R) {
+      var currentZone, t2, result,
+        t1 = this.$ti;
+      t1._bind$1($R)._eval$1("1/(2)")._as(f);
+      currentZone = $.Zone__current;
+      if (currentZone === B.C_Zone) {
+        if (onError != null && !type$.dynamic_Function_Object_StackTrace._is(onError) && !type$.dynamic_Function_Object._is(onError))
+          throw A.wrapException(A.ArgumentError$value(onError, "onError", string$.Error_));
+      } else {
+        t2 = t1._precomputed1;
+        f = currentZone._registerUnaryCallbackZoned$2$2(currentZone, $R._eval$1("@<0/>")._bind$1(t2)._eval$1("1(2)")._as(f), $R._eval$1("0/"), t2);
+        if (onError != null)
+          onError = A._registerErrorHandler(onError, currentZone);
+      }
+      result = new A._Future(currentZone, $R._eval$1("_Future<0>"));
+      t2 = onError == null ? 1 : 3;
+      this._addListener$1(new A._FutureListener(result, t2, f, onError, t1._eval$1("@<1>")._bind$1($R)._eval$1("_FutureListener<1,2>")));
+      return result;
+    },
+    then$1$1(f, $R) {
+      return this.then$1$2$onError(f, null, $R);
+    },
+    _setPendingComplete$0() {
+      A.assertHelper((this._state & 30) === 0);
+      this._state ^= 2;
+    },
+    _setErrorObject$1(error) {
+      var _this = this;
+      A.assertHelper((_this._state & 24) === 0);
+      _this._state = _this._state & 1 | 16;
+      _this._resultOrListeners = error;
+    },
+    _cloneResult$1(source) {
+      var _this = this;
+      A.assertHelper((_this._state & 24) === 0);
+      A.assertHelper((source._state & 24) !== 0);
+      _this._state = source._state & 30 | _this._state & 1;
+      _this._resultOrListeners = source._resultOrListeners;
+    },
+    _addListener$1(listener) {
+      var t1, source, _this = this;
+      A.assertHelper(listener._nextListener == null);
+      t1 = _this._state;
+      if (t1 <= 3) {
+        listener._nextListener = type$.nullable__FutureListener_dynamic_dynamic._as(_this._resultOrListeners);
+        _this._resultOrListeners = listener;
+      } else {
+        if ((t1 & 4) !== 0) {
+          source = type$._Future_dynamic._as(_this._resultOrListeners);
+          if ((source._state & 24) === 0) {
+            source._addListener$1(listener);
+            return;
+          }
+          _this._cloneResult$1(source);
+        }
+        A.assertHelper((_this._state & 24) !== 0);
+        t1 = _this._zone;
+        t1._scheduleMicrotaskZoned$2(t1, new A._Future__addListener_closure(_this, listener));
+      }
+    },
+    _prependListeners$1(listeners) {
+      var t1, existingListeners, next, cursor, next0, source, _this = this, _box_0 = {};
+      _box_0.listeners = listeners;
+      if (listeners == null)
+        return;
+      t1 = _this._state;
+      if (t1 <= 3) {
+        existingListeners = type$.nullable__FutureListener_dynamic_dynamic._as(_this._resultOrListeners);
+        _this._resultOrListeners = listeners;
+        if (existingListeners != null) {
+          next = listeners._nextListener;
+          for (cursor = listeners; next != null; cursor = next, next = next0)
+            next0 = next._nextListener;
+          cursor._nextListener = existingListeners;
+        }
+      } else {
+        if ((t1 & 4) !== 0) {
+          source = type$._Future_dynamic._as(_this._resultOrListeners);
+          if ((source._state & 24) === 0) {
+            source._prependListeners$1(listeners);
+            return;
+          }
+          _this._cloneResult$1(source);
+        }
+        A.assertHelper((_this._state & 24) !== 0);
+        _box_0.listeners = _this._reverseListeners$1(listeners);
+        t1 = _this._zone;
+        t1._scheduleMicrotaskZoned$2(t1, new A._Future__prependListeners_closure(_box_0, _this));
+      }
+    },
+    _removeListeners$0() {
+      var current, _this = this;
+      A.assertHelper((_this._state & 24) === 0);
+      current = type$.nullable__FutureListener_dynamic_dynamic._as(_this._resultOrListeners);
+      _this._resultOrListeners = null;
+      return _this._reverseListeners$1(current);
+    },
+    _reverseListeners$1(listeners) {
+      var current, prev, next;
+      for (current = listeners, prev = null; current != null; prev = current, current = next) {
+        next = current._nextListener;
+        current._nextListener = prev;
+      }
+      return prev;
+    },
+    _completeWithValue$1(value) {
+      var listeners, _this = this;
+      _this.$ti._precomputed1._as(value);
+      A.assertHelper((_this._state & 24) === 0);
+      listeners = _this._removeListeners$0();
+      A.assertHelper((_this._state & 24) === 0);
+      _this._state = 8;
+      _this._resultOrListeners = value;
+      A._Future__propagateToListeners(_this, listeners);
+    },
+    _completeWithResultOf$1(source) {
+      var listeners;
+      A.assertHelper((source._state & 24) !== 0);
+      listeners = this._removeListeners$0();
+      this._cloneResult$1(source);
+      A._Future__propagateToListeners(this, listeners);
+    },
+    _completeErrorObject$1(error) {
+      var listeners, _this = this;
+      A.assertHelper((_this._state & 24) === 0);
+      listeners = _this._removeListeners$0();
+      _this._setErrorObject$1(error);
+      A._Future__propagateToListeners(_this, listeners);
+    },
+    _asyncComplete$1(value) {
+      var _this = this,
+        t1 = _this.$ti;
+      t1._eval$1("1/")._as(value);
+      A.assertHelper((_this._state & 24) === 0);
+      if (t1._eval$1("Future<1>")._is(value)) {
+        _this._chainFuture$1(value);
+        return;
+      }
+      _this._asyncCompleteWithValue$1(value);
+    },
+    _asyncCompleteWithValue$1(value) {
+      var t1, _this = this;
+      _this.$ti._precomputed1._as(value);
+      _this._setPendingComplete$0();
+      t1 = _this._zone;
+      t1._scheduleMicrotaskZoned$2(t1, new A._Future__asyncCompleteWithValue_closure(_this, value));
+    },
+    _chainFuture$1(value) {
+      this.$ti._eval$1("Future<1>")._as(value);
+      A.assertHelper((this._state & 30) === 0);
+      A._Future__chainCoreFuture(value, this, false);
+      return;
+    },
+    _asyncCompleteErrorObject$1(error) {
+      var t1, _this = this;
+      A.assertHelper((_this._state & 24) === 0);
+      _this._setPendingComplete$0();
+      t1 = _this._zone;
+      t1._scheduleMicrotaskZoned$2(t1, new A._Future__asyncCompleteErrorObject_closure(_this, error));
+    },
+    $isFuture: 1
+  };
+  A._Future__addListener_closure.prototype = {
+    call$0() {
+      A._Future__propagateToListeners(this.$this, this.listener);
+    },
+    $signature: 0
+  };
+  A._Future__prependListeners_closure.prototype = {
+    call$0() {
+      A._Future__propagateToListeners(this.$this, this._box_0.listeners);
+    },
+    $signature: 0
+  };
+  A._Future__chainCoreFuture_closure.prototype = {
+    call$0() {
+      A._Future__chainCoreFuture(this._box_0.source, this.target, true);
+    },
+    $signature: 0
+  };
+  A._Future__asyncCompleteWithValue_closure.prototype = {
+    call$0() {
+      this.$this._completeWithValue$1(this.value);
+    },
+    $signature: 0
+  };
+  A._Future__asyncCompleteErrorObject_closure.prototype = {
+    call$0() {
+      this.$this._completeErrorObject$1(this.error);
+    },
+    $signature: 0
+  };
+  A._Future__propagateToListeners_handleWhenCompleteCallback.prototype = {
+    call$0() {
+      var completeResult, e, s, t2, t3, t4, exception, originalSource, joinedResult, _this = this,
+        t1 = _this._box_0;
+      A.assertHelper((t1.listener.state & 1) === 0);
+      A.assertHelper((t1.listener.state & 2) === 0);
+      completeResult = null;
+      try {
+        t2 = t1.listener;
+        t3 = t2.state;
+        A.assertHelper((t3 & 2) === 0);
+        t4 = t2.result._zone;
+        A.assertHelper((t3 & 15) === 8);
+        completeResult = t4._runZoned$1$2(t4, type$.dynamic_Function._as(t2.callback), type$.dynamic);
+      } catch (exception) {
+        e = A.unwrapException(exception);
+        s = A.getTraceFromException(exception);
+        if (_this.hasError) {
+          t2 = _this._box_1.source;
+          A.assertHelper((t2._state & 16) !== 0);
+          t2 = type$.AsyncError._as(t2._resultOrListeners).error === e;
+        } else
+          t2 = false;
+        if (t2) {
+          t2 = _this._box_1.source;
+          A.assertHelper((t2._state & 16) !== 0);
+          t1.listenerValueOrError = type$.AsyncError._as(t2._resultOrListeners);
+        } else {
+          t2 = e;
+          t3 = s;
+          t1.listenerValueOrError = new A.AsyncError(t2, t3 == null ? A.AsyncError_defaultStackTrace(t2) : t3);
+        }
+        t1.listenerHasError = true;
+        return;
+      }
+      if (completeResult instanceof A._Future && (completeResult._state & 24) !== 0) {
+        if ((completeResult._state & 16) !== 0) {
+          t2 = completeResult;
+          A.assertHelper((t2._state & 16) !== 0);
+          t1.listenerValueOrError = type$.AsyncError._as(t2._resultOrListeners);
+          t1.listenerHasError = true;
+        }
+        return;
+      }
+      if (completeResult instanceof A._Future) {
+        originalSource = _this._box_1.source;
+        joinedResult = new A._Future(originalSource._zone, originalSource.$ti);
+        completeResult.then$1$2$onError(new A._Future__propagateToListeners_handleWhenCompleteCallback_closure(joinedResult, originalSource), new A._Future__propagateToListeners_handleWhenCompleteCallback_closure0(joinedResult), type$.void);
+        t1.listenerValueOrError = joinedResult;
+        t1.listenerHasError = false;
+      }
+    },
+    $signature: 0
+  };
+  A._Future__propagateToListeners_handleWhenCompleteCallback_closure.prototype = {
+    call$1(__wc0_formal) {
+      this.joinedResult._completeWithResultOf$1(this.originalSource);
+    },
+    $signature: 2
+  };
+  A._Future__propagateToListeners_handleWhenCompleteCallback_closure0.prototype = {
+    call$2(e, s) {
+      A._asObject(e);
+      type$.StackTrace._as(s);
+      this.joinedResult._completeErrorObject$1(new A.AsyncError(e, s));
+    },
+    $signature: 10
+  };
+  A._Future__propagateToListeners_handleValueCallback.prototype = {
+    call$0() {
+      var e, s, t1, t2, t3, t4, t5, t6, exception;
+      try {
+        t1 = this._box_0;
+        t2 = t1.listener;
+        t3 = t2.$ti;
+        t4 = t3._precomputed1;
+        t5 = t4._as(this.sourceResult);
+        t6 = t2.result._zone;
+        A.assertHelper((t2.state & 1) !== 0);
+        t1.listenerValueOrError = t6._runUnaryZoned$2$3(t6, t3._eval$1("2/(1)")._as(t2.callback), t5, t3._eval$1("2/"), t4);
+      } catch (exception) {
+        e = A.unwrapException(exception);
+        s = A.getTraceFromException(exception);
+        t1 = e;
+        t2 = s;
+        if (t2 == null)
+          t2 = A.AsyncError_defaultStackTrace(t1);
+        t3 = this._box_0;
+        t3.listenerValueOrError = new A.AsyncError(t1, t2);
+        t3.listenerHasError = true;
+      }
+    },
+    $signature: 0
+  };
+  A._Future__propagateToListeners_handleError.prototype = {
+    call$0() {
+      var asyncError, e, s, t1, t2, exception, t3, _this = this;
+      try {
+        t1 = _this._box_1.source;
+        A.assertHelper((t1._state & 16) !== 0);
+        asyncError = type$.AsyncError._as(t1._resultOrListeners);
+        t1 = _this._box_0;
+        if (t1.listener.matchesErrorTest$1(asyncError)) {
+          t2 = t1.listener;
+          A.assertHelper((t2.state & 2) !== 0);
+          t2 = t2.errorCallback != null;
+        } else
+          t2 = false;
+        if (t2) {
+          t1.listenerValueOrError = t1.listener.handleError$1(asyncError);
+          t1.listenerHasError = false;
+        }
+      } catch (exception) {
+        e = A.unwrapException(exception);
+        s = A.getTraceFromException(exception);
+        t1 = _this._box_1;
+        t2 = t1.source;
+        A.assertHelper((t2._state & 16) !== 0);
+        t3 = type$.AsyncError;
+        if (t3._as(t2._resultOrListeners).error === e) {
+          t1 = t1.source;
+          A.assertHelper((t1._state & 16) !== 0);
+          t2 = _this._box_0;
+          t2.listenerValueOrError = t3._as(t1._resultOrListeners);
+          t1 = t2;
+        } else {
+          t1 = e;
+          t2 = s;
+          if (t2 == null)
+            t2 = A.AsyncError_defaultStackTrace(t1);
+          t3 = _this._box_0;
+          t3.listenerValueOrError = new A.AsyncError(t1, t2);
+          t1 = t3;
+        }
+        t1.listenerHasError = true;
+      }
+    },
+    $signature: 0
+  };
+  A._AsyncCallbackEntry.prototype = {};
+  A.Zone.prototype = {
+    bindCallback$1$1(callback, $R) {
+      return new A.Zone_bindCallback_closure(this, this._registerCallbackZoned$1$2(this, $R._eval$1("0()")._as(callback), $R), $R);
+    },
+    _handleUncaughtErrorZoned$3(zone, error, stackTrace) {
+      var implementation, implZone, parentZone, currentZone, e, s, exception, t1;
+      type$.StackTrace._as(stackTrace);
+      implementation = null;
+      if (implementation == null) {
+        A._rootHandleUncaughtError(error, stackTrace);
+        return;
+      }
+      implZone = implementation.get$zone();
+      parentZone = implZone.get$_parent();
+      currentZone = $.Zone__current;
+      try {
+        $.Zone__current = parentZone;
+        implementation.function$5(implZone, implZone.get$_parentDelegate(), zone, error, stackTrace);
+        $.Zone__current = currentZone;
+      } catch (exception) {
+        e = A.unwrapException(exception);
+        s = A.getTraceFromException(exception);
+        $.Zone__current = currentZone;
+        t1 = error === e ? stackTrace : s;
+        parentZone._handleUncaughtErrorZoned$3(implZone, e, t1);
+      }
+    },
+    _runZoned$1$2(zone, callback, $R) {
+      var oldZone, t1, implZone;
+      $R._eval$1("0()")._as(callback);
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return callback.call$0();
+      oldZone = t1;
+      $.Zone__current = zone;
+      try {
+        t1 = callback.call$0();
+        return t1;
+      } finally {
+        $.Zone__current = oldZone;
+      }
+      implZone = null.get$zone();
+      return null.function$4(implZone, implZone.get$_parentDelegate(), zone, callback);
+    },
+    _runUnaryZoned$2$3(zone, callback, argument, $R, $T) {
+      var oldZone, t1, implZone;
+      $R._eval$1("@<0>")._bind$1($T)._eval$1("1(2)")._as(callback);
+      $T._as(argument);
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return callback.call$1(argument);
+      oldZone = t1;
+      $.Zone__current = zone;
+      try {
+        t1 = callback.call$1(argument);
+        return t1;
+      } finally {
+        $.Zone__current = oldZone;
+      }
+      implZone = null.get$zone();
+      return null.function$5(implZone, implZone.get$_parentDelegate(), zone, callback, argument);
+    },
+    _runBinaryZoned$3$4(zone, callback, argument1, argument2, $R, $T1, $T2) {
+      var oldZone, t1, implZone;
+      $R._eval$1("@<0>")._bind$1($T1)._bind$1($T2)._eval$1("1(2,3)")._as(callback);
+      $T1._as(argument1);
+      $T2._as(argument2);
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return callback.call$2(argument1, argument2);
+      oldZone = t1;
+      $.Zone__current = zone;
+      try {
+        t1 = callback.call$2(argument1, argument2);
+        return t1;
+      } finally {
+        $.Zone__current = oldZone;
+      }
+      implZone = null.get$zone();
+      return null.function$6(implZone, implZone.get$_parentDelegate(), zone, callback, argument1, argument2);
+    },
+    _registerCallbackZoned$1$2(zone, callback, $R) {
+      $R._eval$1("0()")._as(callback);
+      return callback;
+    },
+    _registerUnaryCallbackZoned$2$2(zone, callback, $R, $T) {
+      $R._eval$1("@<0>")._bind$1($T)._eval$1("1(2)")._as(callback);
+      return callback;
+    },
+    _registerBinaryCallbackZoned$3$2(zone, callback, $R, $T1, $T2) {
+      $R._eval$1("@<0>")._bind$1($T1)._bind$1($T2)._eval$1("1(2,3)")._as(callback);
+      return callback;
+    },
+    _errorCallbackZoned$3(zone, error, stackTrace) {
+      return null;
+    },
+    _scheduleMicrotaskZoned$2(zone, callback) {
+      A._rootScheduleMicrotask(zone, type$.void_Function._as(callback));
+      return;
+    }
+  };
+  A.Zone_bindCallback_closure.prototype = {
+    call$0() {
+      var t1 = this.$this;
+      return t1._runZoned$1$2(t1, this.registered, this.R);
+    },
+    $signature() {
+      return this.R._eval$1("0()");
+    }
+  };
+  A._rootHandleUncaughtError_closure.prototype = {
+    call$0() {
+      A.Error_throwWithStackTrace(this.error, this.stackTrace);
+    },
+    $signature: 0
+  };
   A._HashMap.prototype = {
     get$length(_) {
       return this._collection$_length;
@@ -3879,12 +5225,10 @@
   };
   A.ListBase.prototype = {
     get$iterator(receiver) {
-      return new A.ListIterator(receiver, receiver.length, A.instanceType(receiver)._eval$1("ListIterator<ListBase.E>"));
+      return new A.ListIterator(receiver, this.get$length(receiver), A.instanceType(receiver)._eval$1("ListIterator<ListBase.E>"));
     },
     elementAt$1(receiver, index) {
-      if (!(index < receiver.length))
-        return A.ioore(receiver, index);
-      return receiver[index];
+      return this.$index(receiver, index);
     },
     map$1$1(receiver, f, $T) {
       var t1 = A.instanceType(receiver);
@@ -3926,9 +5270,13 @@
       t2 = A.S(v);
       t1._contents += t2;
     },
-    $signature: 3
+    $signature: 11
   };
-  A.Error.prototype = {};
+  A.Error.prototype = {
+    get$stackTrace() {
+      return A.Primitives_extractStackTrace(this);
+    }
+  };
   A.AssertionError.prototype = {
     toString$0(_) {
       var t1 = this.message;
@@ -4026,6 +5374,20 @@
       return "Concurrent modification during iteration: " + A.Error_safeToString(t1) + ".";
     }
   };
+  A.StackOverflowError.prototype = {
+    toString$0(_) {
+      return "Stack Overflow";
+    },
+    get$stackTrace() {
+      return null;
+    },
+    $isError: 1
+  };
+  A._Exception.prototype = {
+    toString$0(_) {
+      return "Exception: " + this.message;
+    }
+  };
   A.Iterable.prototype = {
     map$1$1(_, toElement, $T) {
       var t1 = A._instanceType(this);
@@ -4038,6 +5400,9 @@
       for (count = 0; it.moveNext$0();)
         ++count;
       return count;
+    },
+    elementAt$1(_, index) {
+      A.RangeError_checkNotNegative(index, "index");
     },
     toString$0(_) {
       return A.Iterable_iterableToShortString(this, "(", ")");
@@ -4068,6 +5433,12 @@
       return this.toString$0(this);
     }
   };
+  A._StringStackTrace.prototype = {
+    toString$0(_) {
+      return "";
+    },
+    $isStackTrace: 1
+  };
   A.StringBuffer.prototype = {
     get$length(_) {
       return this._contents.length;
@@ -4075,6 +5446,11 @@
     toString$0(_) {
       var t1 = this._contents;
       return t1.charCodeAt(0) == 0 ? t1 : t1;
+    }
+  };
+  A.NullRejectionException.prototype = {
+    toString$0(_) {
+      return "Promise was rejected with a value of `" + (this.isUndefined ? "undefined" : "null") + "`.";
     }
   };
   A.jsify__convert.prototype = {
@@ -4101,40 +5477,140 @@
       } else
         return o;
     },
+    $signature: 12
+  };
+  A.promiseToFuture_closure.prototype = {
+    call$1(r) {
+      var t1 = this.completer,
+        t2 = t1.$ti;
+      r = t2._eval$1("1/?")._as(this.T._eval$1("0/?")._as(r));
+      t1 = t1.future;
+      if ((t1._state & 30) !== 0)
+        A.throwExpression(A.StateError$("Future already completed"));
+      t1._asyncComplete$1(t2._eval$1("1/")._as(r));
+      return null;
+    },
+    $signature: 4
+  };
+  A.promiseToFuture_closure0.prototype = {
+    call$1(e) {
+      if (e == null)
+        return this.completer.completeError$1(new A.NullRejectionException(e === undefined));
+      return this.completer.completeError$1(e);
+    },
     $signature: 4
   };
   A.main_closure.prototype = {
-    call$1(message) {
-      init.G.console.log(message);
+    call$1($event) {
+      var t1;
+      A._asJSObject($event);
+      t1 = init.G;
+      t1.console.log(A._asJSObject(t1.self));
+      t1.console.log($event);
     },
     $signature: 5
+  };
+  A.main_closure0.prototype = {
+    call$1($event) {
+      var notification, clients, t1, matchAll, _null = null;
+      A._asJSObject($event);
+      notification = A._asJSObjectQ($event.notification);
+      if (notification != null)
+        A.JSObjectUnsafeUtilExtension_callMethod(notification, "close", _null, _null, type$.nullable_Object);
+      clients = A._asJSObjectQ(A._asJSObject(init.G.self).clients);
+      if (clients == null)
+        return;
+      t1 = type$.nullable_Object;
+      matchAll = A._asJSObject(A.JSObjectUnsafeUtilExtension_callMethod(clients, "matchAll", A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["type", "window", "includeUncontrolled", true], type$.String, t1)), _null, t1));
+      A.JSObjectUnsafeUtilExtension_callMethod($event, "waitUntil", matchAll, _null, t1);
+      A.promiseToFuture(matchAll, type$.JSArray_nullable_Object).then$1$1(new A.main__closure0(), type$.Null);
+    },
+    $signature: 5
+  };
+  A.main__closure0.prototype = {
+    call$1(clientList) {
+      var t1, jsClient, focused, _null = null;
+      type$.JSArray_nullable_Object._as(clientList);
+      t1 = B.JSArray_methods.get$iterator(clientList);
+      while (t1.moveNext$0()) {
+        jsClient = A._asJSObject(t1.get$current());
+        focused = A._asBoolQ(jsClient.focused);
+        if ((focused == null ? _null : focused) !== true) {
+          A.JSObjectUnsafeUtilExtension__callMethod(jsClient, "focus", _null, _null, _null, _null);
+          break;
+        }
+      }
+    },
+    $signature: 13
+  };
+  A.main_closure1.prototype = {
+    call$1(supported) {
+      var messagingInstance;
+      if (!A._asBool(supported))
+        return;
+      messagingInstance = type$.JavaScriptObject._as(init.G.firebase.messaging());
+      messagingInstance.setDeliveryMetricsExportedToBigQuery(true);
+      messagingInstance.onBackgroundMessage(A._functionToJS1(new A.main__closure()));
+    },
+    $signature: 14
+  };
+  A.main__closure.prototype = {
+    call$1(rawMessage) {
+      var notification, title, body, image, icon, t1, notificationOptions, registration;
+      if (rawMessage == null)
+        return;
+      notification = A._asJSObjectQ(A._asJSObject(rawMessage).notification);
+      if (notification == null)
+        return;
+      title = A._asStringQ(notification.title);
+      if (title == null || title.length === 0)
+        return;
+      body = A._asStringQ(notification.body);
+      image = A._asStringQ(notification.image);
+      icon = image != null && image.length !== 0 ? image : "/icons/Icon-192.png";
+      t1 = type$.nullable_Object;
+      notificationOptions = A._asJSObject(A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["body", body, "icon", icon], type$.String, t1)));
+      registration = A._asJSObjectQ(A._asJSObject(init.G.self).registration);
+      if (registration != null)
+        A.JSObjectUnsafeUtilExtension_callMethod(registration, "showNotification", title, notificationOptions, t1);
+    },
+    $signature: 15
   };
   (function aliases() {
     var _ = J.LegacyJavaScriptObject.prototype;
     _.super$LegacyJavaScriptObject$toString = _.toString$0;
+  })();
+  (function installTearOffs() {
+    var _static_1 = hunkHelpers._static_1,
+      _static_0 = hunkHelpers._static_0;
+    _static_1(A, "async__AsyncRun__scheduleImmediateJsOverride$closure", "_AsyncRun__scheduleImmediateJsOverride", 1);
+    _static_1(A, "async__AsyncRun__scheduleImmediateWithSetImmediate$closure", "_AsyncRun__scheduleImmediateWithSetImmediate", 1);
+    _static_1(A, "async__AsyncRun__scheduleImmediateWithTimer$closure", "_AsyncRun__scheduleImmediateWithTimer", 1);
+    _static_0(A, "async___startMicrotaskLoop$closure", "_startMicrotaskLoop", 0);
   })();
   (function inheritance() {
     var _mixin = hunkHelpers.mixin,
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(A.Object, null);
-    _inheritMany(A.Object, [A.JS_CONST, J.Interceptor, A.SafeToStringHook, J.ArrayIterator, A.Error, A.Iterable, A.ListIterator, A.MappedIterator, A.FixedLengthListMixin, A.Closure, A.MapBase, A.LinkedHashMapCell, A.LinkedHashMapKeyIterator, A.Rti, A._FunctionParameters, A._Type, A._HashMapKeyIterator, A.ListBase, A.Null, A.StringBuffer]);
+    _inheritMany(A.Object, [A.JS_CONST, J.Interceptor, A.SafeToStringHook, J.ArrayIterator, A.Error, A.Iterable, A.ListIterator, A.MappedIterator, A.FixedLengthListMixin, A.TypeErrorDecoder, A.NullThrownFromJavaScriptException, A._StackTrace, A.Closure, A.MapBase, A.LinkedHashMapCell, A.LinkedHashMapKeyIterator, A.Rti, A._FunctionParameters, A._Type, A._TimerImpl, A.AsyncError, A._Completer, A._FutureListener, A._Future, A._AsyncCallbackEntry, A.Zone, A._HashMapKeyIterator, A.ListBase, A.StackOverflowError, A._Exception, A.Null, A._StringStackTrace, A.StringBuffer, A.NullRejectionException]);
     _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JavaScriptBigInt, J.JavaScriptSymbol, J.JSNumber, J.JSString]);
     _inheritMany(J.JavaScriptObject, [J.LegacyJavaScriptObject, J.JSArray, A.NativeByteBuffer, A.NativeTypedData]);
     _inheritMany(J.LegacyJavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSArraySafeToStringHook, A.SafeToStringHook);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
     _inheritMany(J.JSNumber, [J.JSInt, J.JSNumNotInt]);
-    _inheritMany(A.Error, [A.LateError, A.RuntimeError, A.AssertionError, A._Error, A.TypeError, A.ArgumentError, A.UnsupportedError, A.UnimplementedError, A.StateError, A.ConcurrentModificationError]);
+    _inheritMany(A.Error, [A.LateError, A.TypeError, A.JsNoSuchMethodError, A.UnknownJsTypeError, A.RuntimeError, A.AssertionError, A._Error, A.ArgumentError, A.UnsupportedError, A.UnimplementedError, A.StateError, A.ConcurrentModificationError]);
     _inheritMany(A.Iterable, [A.EfficientLengthIterable, A.MappedIterable]);
     _inheritMany(A.EfficientLengthIterable, [A.ListIterable, A.LinkedHashMapKeysIterable, A._HashMapKeyIterable]);
     _inherit(A.EfficientLengthMappedIterable, A.MappedIterable);
     _inherit(A.MappedListIterable, A.ListIterable);
-    _inheritMany(A.Closure, [A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A.jsify__convert, A.main_closure]);
+    _inherit(A.NullError, A.TypeError);
+    _inheritMany(A.Closure, [A.Closure0Args, A.Closure2Args, A.TearOffClosure, A.initHooks_closure, A.initHooks_closure1, A._AsyncRun__initializeScheduleImmediate_internalCallback, A._AsyncRun__initializeScheduleImmediate_closure, A._Future__propagateToListeners_handleWhenCompleteCallback_closure, A.jsify__convert, A.promiseToFuture_closure, A.promiseToFuture_closure0, A.main_closure, A.main_closure0, A.main__closure0, A.main_closure1, A.main__closure]);
     _inheritMany(A.TearOffClosure, [A.StaticClosure, A.BoundClosure]);
     _inherit(A._AssertionError, A.AssertionError);
     _inheritMany(A.MapBase, [A.JsLinkedHashMap, A._HashMap]);
-    _inheritMany(A.Closure2Args, [A.initHooks_closure0, A.MapBase_mapToString_closure]);
+    _inheritMany(A.Closure2Args, [A.initHooks_closure0, A._Future__propagateToListeners_handleWhenCompleteCallback_closure0, A.MapBase_mapToString_closure]);
     _inheritMany(A.NativeTypedData, [A.NativeByteData, A.NativeTypedArray]);
     _inheritMany(A.NativeTypedArray, [A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, A._NativeTypedArrayOfInt_NativeTypedArray_ListMixin]);
     _inherit(A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin, A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin);
@@ -4144,6 +5620,8 @@
     _inheritMany(A.NativeTypedArrayOfDouble, [A.NativeFloat32List, A.NativeFloat64List]);
     _inheritMany(A.NativeTypedArrayOfInt, [A.NativeInt16List, A.NativeInt32List, A.NativeInt8List, A.NativeUint16List, A.NativeUint32List, A.NativeUint8ClampedList, A.NativeUint8List]);
     _inherit(A._TypeError, A._Error);
+    _inheritMany(A.Closure0Args, [A._AsyncRun__scheduleImmediateJsOverride_internalCallback, A._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, A._TimerImpl_internalCallback, A._Future__addListener_closure, A._Future__prependListeners_closure, A._Future__chainCoreFuture_closure, A._Future__asyncCompleteWithValue_closure, A._Future__asyncCompleteErrorObject_closure, A._Future__propagateToListeners_handleWhenCompleteCallback, A._Future__propagateToListeners_handleValueCallback, A._Future__propagateToListeners_handleError, A.Zone_bindCallback_closure, A._rootHandleUncaughtError_closure]);
+    _inherit(A._AsyncCompleter, A._Completer);
     _inherit(A._IdentityHashMap, A._HashMap);
     _inheritMany(A.ArgumentError, [A.RangeError, A.IndexError]);
     _mixin(A._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, A.ListBase);
@@ -4156,19 +5634,24 @@
     typeUniverse: {eC: new Map(), tR: {}, eT: {}, tPV: {}, sEA: []},
     mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List", Object: "Object", Map: "Map", JSObject: "JSObject"},
     mangledNames: {},
-    types: ["@(@)", "@(@,String)", "@(String)", "~(Object?,Object?)", "Object?(Object?)", "Null(Object?)"],
+    types: ["~()", "~(~())", "Null(@)", "Null()", "~(@)", "Null(JSObject)", "@(@)", "@(@,String)", "@(String)", "Null(~())", "Null(Object,StackTrace)", "~(Object?,Object?)", "Object?(Object?)", "Null(JSArray<Object?>)", "Null(bool)", "Null(Object?)"],
     interceptorsByTag: null,
     leafTags: null,
     arrayRti: Symbol("$ti")
   };
-  A._Universe_addRules(init.typeUniverse, JSON.parse('{"PlainJavaScriptObject":"LegacyJavaScriptObject","UnknownJavaScriptObject":"LegacyJavaScriptObject","JavaScriptFunction":"LegacyJavaScriptObject","NativeArrayBuffer":"NativeByteBuffer","JavaScriptObject":{"JSObject":[]},"JSBool":{"bool":[],"TrustedGetRuntimeType":[]},"JSNull":{"TrustedGetRuntimeType":[]},"LegacyJavaScriptObject":{"JavaScriptObject":[],"JSObject":[]},"JSArray":{"List":["1"],"JavaScriptObject":[],"EfficientLengthIterable":["1"],"JSObject":[],"Iterable":["1"]},"JSArraySafeToStringHook":{"SafeToStringHook":[]},"JSUnmodifiableArray":{"JSArray":["1"],"List":["1"],"JavaScriptObject":[],"EfficientLengthIterable":["1"],"JSObject":[],"Iterable":["1"]},"ArrayIterator":{"Iterator":["1"]},"JSNumber":{"double":[],"num":[]},"JSInt":{"double":[],"int":[],"num":[],"TrustedGetRuntimeType":[]},"JSNumNotInt":{"double":[],"num":[],"TrustedGetRuntimeType":[]},"JSString":{"String":[],"TrustedGetRuntimeType":[]},"EfficientLengthIterable":{"Iterable":["1"]},"ListIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"]},"ListIterator":{"Iterator":["1"]},"MappedIterable":{"Iterable":["2"],"Iterable.E":"2"},"EfficientLengthMappedIterable":{"MappedIterable":["1","2"],"EfficientLengthIterable":["2"],"Iterable":["2"],"Iterable.E":"2"},"MappedIterator":{"Iterator":["2"]},"MappedListIterable":{"ListIterable":["2"],"EfficientLengthIterable":["2"],"Iterable":["2"],"Iterable.E":"2","ListIterable.E":"2"},"Closure":{"Function":[]},"Closure2Args":{"Function":[]},"TearOffClosure":{"Function":[]},"StaticClosure":{"Function":[]},"BoundClosure":{"Function":[]},"JsLinkedHashMap":{"MapBase":["1","2"],"LinkedHashMap":["1","2"]},"LinkedHashMapKeysIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"],"Iterable.E":"1"},"LinkedHashMapKeyIterator":{"Iterator":["1"]},"NativeByteBuffer":{"JavaScriptObject":[],"JSObject":[],"ByteBuffer":[],"TrustedGetRuntimeType":[]},"NativeTypedData":{"JavaScriptObject":[],"JSObject":[]},"NativeByteData":{"JavaScriptObject":[],"ByteData":[],"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedArray":{"JavaScriptIndexingBehavior":["1"],"JavaScriptObject":[],"JSObject":[]},"NativeTypedArrayOfDouble":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"]},"NativeTypedArrayOfInt":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"]},"NativeFloat32List":{"Float32List":[],"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeFloat64List":{"Float64List":[],"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeInt16List":{"Int16List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt32List":{"Int32List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt8List":{"Int8List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint16List":{"Uint16List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint32List":{"Uint32List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8ClampedList":{"Uint8ClampedList":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8List":{"Uint8List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"_HashMap":{"MapBase":["1","2"]},"_IdentityHashMap":{"_HashMap":["1","2"],"MapBase":["1","2"]},"_HashMapKeyIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"],"Iterable.E":"1"},"_HashMapKeyIterator":{"Iterator":["1"]},"double":{"num":[]},"int":{"num":[]},"Int8List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint8List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint8ClampedList":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Int16List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint16List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Int32List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint32List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Float32List":{"List":["double"],"EfficientLengthIterable":["double"],"Iterable":["double"]},"Float64List":{"List":["double"],"EfficientLengthIterable":["double"],"Iterable":["double"]}}'));
-  A._Universe_addErasedTypes(init.typeUniverse, JSON.parse('{"EfficientLengthIterable":1,"NativeTypedArray":1}'));
+  A._Universe_addRules(init.typeUniverse, JSON.parse('{"PlainJavaScriptObject":"LegacyJavaScriptObject","UnknownJavaScriptObject":"LegacyJavaScriptObject","JavaScriptFunction":"LegacyJavaScriptObject","NativeArrayBuffer":"NativeByteBuffer","JavaScriptObject":{"JSObject":[]},"JSArray":{"List":["1"],"JavaScriptObject":[],"EfficientLengthIterable":["1"],"JSObject":[],"Iterable":["1"]},"JSBool":{"bool":[],"TrustedGetRuntimeType":[]},"JSNull":{"Null":[],"TrustedGetRuntimeType":[]},"LegacyJavaScriptObject":{"JavaScriptObject":[],"JSObject":[]},"JSArraySafeToStringHook":{"SafeToStringHook":[]},"JSUnmodifiableArray":{"JSArray":["1"],"List":["1"],"JavaScriptObject":[],"EfficientLengthIterable":["1"],"JSObject":[],"Iterable":["1"]},"ArrayIterator":{"Iterator":["1"]},"JSNumber":{"double":[],"num":[]},"JSInt":{"double":[],"int":[],"num":[],"TrustedGetRuntimeType":[]},"JSNumNotInt":{"double":[],"num":[],"TrustedGetRuntimeType":[]},"JSString":{"String":[],"TrustedGetRuntimeType":[]},"LateError":{"Error":[]},"EfficientLengthIterable":{"Iterable":["1"]},"ListIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"]},"ListIterator":{"Iterator":["1"]},"MappedIterable":{"Iterable":["2"],"Iterable.E":"2"},"EfficientLengthMappedIterable":{"MappedIterable":["1","2"],"EfficientLengthIterable":["2"],"Iterable":["2"],"Iterable.E":"2"},"MappedIterator":{"Iterator":["2"]},"MappedListIterable":{"ListIterable":["2"],"EfficientLengthIterable":["2"],"Iterable":["2"],"Iterable.E":"2","ListIterable.E":"2"},"NullError":{"TypeError":[],"Error":[]},"JsNoSuchMethodError":{"Error":[]},"UnknownJsTypeError":{"Error":[]},"_StackTrace":{"StackTrace":[]},"Closure":{"Function":[]},"Closure0Args":{"Function":[]},"Closure2Args":{"Function":[]},"TearOffClosure":{"Function":[]},"StaticClosure":{"Function":[]},"BoundClosure":{"Function":[]},"RuntimeError":{"Error":[]},"_AssertionError":{"Error":[]},"JsLinkedHashMap":{"MapBase":["1","2"],"LinkedHashMap":["1","2"]},"LinkedHashMapKeysIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"],"Iterable.E":"1"},"LinkedHashMapKeyIterator":{"Iterator":["1"]},"NativeByteBuffer":{"JavaScriptObject":[],"JSObject":[],"ByteBuffer":[],"TrustedGetRuntimeType":[]},"NativeTypedData":{"JavaScriptObject":[],"JSObject":[]},"NativeByteData":{"JavaScriptObject":[],"ByteData":[],"JSObject":[],"TrustedGetRuntimeType":[]},"NativeTypedArray":{"JavaScriptIndexingBehavior":["1"],"JavaScriptObject":[],"JSObject":[]},"NativeTypedArrayOfDouble":{"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"]},"NativeTypedArrayOfInt":{"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"]},"NativeFloat32List":{"Float32List":[],"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeFloat64List":{"Float64List":[],"ListBase":["double"],"List":["double"],"JavaScriptIndexingBehavior":["double"],"JavaScriptObject":[],"EfficientLengthIterable":["double"],"JSObject":[],"Iterable":["double"],"FixedLengthListMixin":["double"],"TrustedGetRuntimeType":[],"ListBase.E":"double"},"NativeInt16List":{"Int16List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt32List":{"Int32List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeInt8List":{"Int8List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint16List":{"Uint16List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint32List":{"Uint32List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8ClampedList":{"Uint8ClampedList":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"NativeUint8List":{"Uint8List":[],"ListBase":["int"],"List":["int"],"JavaScriptIndexingBehavior":["int"],"JavaScriptObject":[],"EfficientLengthIterable":["int"],"JSObject":[],"Iterable":["int"],"FixedLengthListMixin":["int"],"TrustedGetRuntimeType":[],"ListBase.E":"int"},"_Error":{"Error":[]},"_TypeError":{"TypeError":[],"Error":[]},"AsyncError":{"Error":[]},"_AsyncCompleter":{"_Completer":["1"]},"_Future":{"Future":["1"]},"_HashMap":{"MapBase":["1","2"]},"_IdentityHashMap":{"_HashMap":["1","2"],"MapBase":["1","2"]},"_HashMapKeyIterable":{"EfficientLengthIterable":["1"],"Iterable":["1"],"Iterable.E":"1"},"_HashMapKeyIterator":{"Iterator":["1"]},"double":{"num":[]},"int":{"num":[]},"AssertionError":{"Error":[]},"TypeError":{"Error":[]},"ArgumentError":{"Error":[]},"RangeError":{"Error":[]},"IndexError":{"Error":[]},"UnsupportedError":{"Error":[]},"UnimplementedError":{"Error":[]},"StateError":{"Error":[]},"ConcurrentModificationError":{"Error":[]},"StackOverflowError":{"Error":[]},"_StringStackTrace":{"StackTrace":[]},"Int8List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint8List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint8ClampedList":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Int16List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint16List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Int32List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Uint32List":{"List":["int"],"EfficientLengthIterable":["int"],"Iterable":["int"]},"Float32List":{"List":["double"],"EfficientLengthIterable":["double"],"Iterable":["double"]},"Float64List":{"List":["double"],"EfficientLengthIterable":["double"],"Iterable":["double"]}}'));
+  A._Universe_addErasedTypes(init.typeUniverse, JSON.parse('{"NativeTypedArray":1}'));
+  var string$ = {
+    Error_: "Error handler must accept one Object or one Object and a StackTrace as arguments, and return a value of the returned future's type"
+  };
   var type$ = (function rtii() {
     var findType = A.findType;
     return {
+      AsyncError: findType("AsyncError"),
       ByteBuffer: findType("ByteBuffer"),
       ByteData: findType("ByteData"),
       EfficientLengthIterable_dynamic: findType("EfficientLengthIterable<@>"),
+      Error: findType("Error"),
       Float32List: findType("Float32List"),
       Float64List: findType("Float64List"),
       Function: findType("Function"),
@@ -4178,6 +5661,7 @@
       Iterable_dynamic: findType("Iterable<@>"),
       JSArray_String: findType("JSArray<String>"),
       JSArray_dynamic: findType("JSArray<@>"),
+      JSArray_nullable_Object: findType("JSArray<Object?>"),
       JSNull: findType("JSNull"),
       JSObject: findType("JSObject"),
       JavaScriptFunction: findType("JavaScriptFunction"),
@@ -4187,32 +5671,43 @@
       Null: findType("Null"),
       Object: findType("Object"),
       Record: findType("Record"),
+      StackTrace: findType("StackTrace"),
       String: findType("String"),
       TrustedGetRuntimeType: findType("TrustedGetRuntimeType"),
+      TypeError: findType("TypeError"),
       Uint16List: findType("Uint16List"),
       Uint32List: findType("Uint32List"),
       Uint8ClampedList: findType("Uint8ClampedList"),
       Uint8List: findType("Uint8List"),
       UnknownJavaScriptObject: findType("UnknownJavaScriptObject"),
+      _Future_dynamic: findType("_Future<@>"),
       _IdentityHashMap_of_nullable_Object_and_nullable_Object: findType("_IdentityHashMap<Object?,Object?>"),
       bool: findType("bool"),
+      bool_Function_Object: findType("bool(Object)"),
       double: findType("double"),
       dynamic: findType("@"),
+      dynamic_Function: findType("@()"),
+      dynamic_Function_Object: findType("@(Object)"),
+      dynamic_Function_Object_StackTrace: findType("@(Object,StackTrace)"),
       int: findType("int"),
       nullable_Future_Null: findType("Future<Null>?"),
       nullable_JSObject: findType("JSObject?"),
       nullable_Object: findType("Object?"),
       nullable_String: findType("String?"),
+      nullable__FutureListener_dynamic_dynamic: findType("_FutureListener<@,@>?"),
       nullable_bool: findType("bool?"),
       nullable_double: findType("double?"),
       nullable_int: findType("int?"),
       nullable_num: findType("num?"),
-      num: findType("num")
+      num: findType("num"),
+      void: findType("~"),
+      void_Function: findType("~()")
     };
   })();
   (function constants() {
     B.Interceptor_methods = J.Interceptor.prototype;
     B.JSArray_methods = J.JSArray.prototype;
+    B.JSInt_methods = J.JSInt.prototype;
     B.JavaScriptFunction_methods = J.JavaScriptFunction.prototype;
     B.JavaScriptObject_methods = J.JavaScriptObject.prototype;
     B.PlainJavaScriptObject_methods = J.PlainJavaScriptObject.prototype;
@@ -4342,6 +5837,8 @@
 };
     B.C_JS_CONST3 = function(hooks) { return hooks; }
 ;
+    B.C_Zone = new A.Zone();
+    B.C__StringStackTrace = new A._StringStackTrace();
     B.Type_ByteBuffer_rqD = A.typeLiteral("ByteBuffer");
     B.Type_ByteData_9dB = A.typeLiteral("ByteData");
     B.Type_Float32List_9Kz = A.typeLiteral("Float32List");
@@ -4366,12 +5863,62 @@
     $.dispatchRecordsForInstanceTags = null;
     $.interceptorsForUncacheableTags = null;
     $.initNativeDispatchFlag = null;
+    $._nextCallback = null;
+    $._lastCallback = null;
+    $._lastPriorityCallback = null;
+    $._isInCallbackLoop = false;
+    $.Zone__current = B.C_Zone;
   })();
   (function lazyInitializers() {
     var _lazyFinal = hunkHelpers.lazyFinal;
     _lazyFinal($, "DART_CLOSURE_PROPERTY_NAME", "$get$DART_CLOSURE_PROPERTY_NAME", () => A.getIsolateAffinityTag("_$dart_dartClosure"));
     _lazyFinal($, "DART_CLOSURE_DART_JSINTEROP_PROPERTY_NAME", "$get$DART_CLOSURE_DART_JSINTEROP_PROPERTY_NAME", () => A.getIsolateAffinityTag("_$dart_dartClosure_dartJSInterop"));
     _lazyFinal($, "_safeToStringHooks", "$get$_safeToStringHooks", () => A._setArrayType([new J.JSArraySafeToStringHook()], A.findType("JSArray<SafeToStringHook>")));
+    _lazyFinal($, "TypeErrorDecoder_noSuchMethodPattern", "$get$TypeErrorDecoder_noSuchMethodPattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokeCallErrorOn({
+      toString: function() {
+        return "$receiver$";
+      }
+    })));
+    _lazyFinal($, "TypeErrorDecoder_notClosurePattern", "$get$TypeErrorDecoder_notClosurePattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokeCallErrorOn({$method$: null,
+      toString: function() {
+        return "$receiver$";
+      }
+    })));
+    _lazyFinal($, "TypeErrorDecoder_nullCallPattern", "$get$TypeErrorDecoder_nullCallPattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokeCallErrorOn(null)));
+    _lazyFinal($, "TypeErrorDecoder_nullLiteralCallPattern", "$get$TypeErrorDecoder_nullLiteralCallPattern", () => A.TypeErrorDecoder_extractPattern(function() {
+      var $argumentsExpr$ = "$arguments$";
+      try {
+        null.$method$($argumentsExpr$);
+      } catch (e) {
+        return e.message;
+      }
+    }()));
+    _lazyFinal($, "TypeErrorDecoder_undefinedCallPattern", "$get$TypeErrorDecoder_undefinedCallPattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokeCallErrorOn(void 0)));
+    _lazyFinal($, "TypeErrorDecoder_undefinedLiteralCallPattern", "$get$TypeErrorDecoder_undefinedLiteralCallPattern", () => A.TypeErrorDecoder_extractPattern(function() {
+      var $argumentsExpr$ = "$arguments$";
+      try {
+        (void 0).$method$($argumentsExpr$);
+      } catch (e) {
+        return e.message;
+      }
+    }()));
+    _lazyFinal($, "TypeErrorDecoder_nullPropertyPattern", "$get$TypeErrorDecoder_nullPropertyPattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokePropertyErrorOn(null)));
+    _lazyFinal($, "TypeErrorDecoder_nullLiteralPropertyPattern", "$get$TypeErrorDecoder_nullLiteralPropertyPattern", () => A.TypeErrorDecoder_extractPattern(function() {
+      try {
+        null.$method$;
+      } catch (e) {
+        return e.message;
+      }
+    }()));
+    _lazyFinal($, "TypeErrorDecoder_undefinedPropertyPattern", "$get$TypeErrorDecoder_undefinedPropertyPattern", () => A.TypeErrorDecoder_extractPattern(A.TypeErrorDecoder_provokePropertyErrorOn(void 0)));
+    _lazyFinal($, "TypeErrorDecoder_undefinedLiteralPropertyPattern", "$get$TypeErrorDecoder_undefinedLiteralPropertyPattern", () => A.TypeErrorDecoder_extractPattern(function() {
+      try {
+        (void 0).$method$;
+      } catch (e) {
+        return e.message;
+      }
+    }()));
+    _lazyFinal($, "_AsyncRun__scheduleImmediateClosure", "$get$_AsyncRun__scheduleImmediateClosure", () => A._AsyncRun__initializeScheduleImmediate());
   })();
   (function nativeSupport() {
     !function() {
@@ -4406,8 +5953,8 @@
     A._NativeTypedArrayOfInt_NativeTypedArray_ListMixin_FixedLengthListMixin.$nativeSuperclassTag = "ArrayBufferView";
     A.NativeTypedArrayOfInt.$nativeSuperclassTag = "ArrayBufferView";
   })();
-  Function.prototype.call$0 = function() {
-    return this();
+  Function.prototype.call$1$1 = function(a) {
+    return this(a);
   };
   Function.prototype.call$1 = function(a) {
     return this(a);
@@ -4415,8 +5962,20 @@
   Function.prototype.call$2 = function(a, b) {
     return this(a, b);
   };
-  Function.prototype.call$1$1 = function(a) {
-    return this(a);
+  Function.prototype.call$0 = function() {
+    return this();
+  };
+  Function.prototype.call$4 = function(a, b, c, d) {
+    return this(a, b, c, d);
+  };
+  Function.prototype.call$5 = function(a, b, c, d, e) {
+    return this(a, b, c, d, e);
+  };
+  Function.prototype.call$6 = function(a, b, c, d, e, f) {
+    return this(a, b, c, d, e, f);
+  };
+  Function.prototype.call$3 = function(a, b, c) {
+    return this(a, b, c);
   };
   convertAllToFastObject(holders);
   convertToFastObject($);

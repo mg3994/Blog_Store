@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart' show Locale, ThemeMode;
 
 abstract final class AppConfig {
   static const defaultThemeMode = ThemeMode.system;
+  static const defaultThemeSeedColorHex = 0xFF3F51B5;
   static const defaultLocale = Locale.fromSubtags(languageCode: 'en');
   static const blogId = String.fromEnvironment(
     'BLOG_ID',
