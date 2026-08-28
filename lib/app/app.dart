@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
     show BlocSignalBuilder, MultiBlocSignalProvider, BlocSignalProvider;
 import 'package:blogstore/app/helpers/extensions.dart';
-import 'package:blogstore/app/router/router.dart' show createRouterConfig;
+import 'package:blogstore/app/router/router.dart'
+    show createRouterConfig, AppRouter;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart'
@@ -59,7 +60,7 @@ class _BootStrapState extends State<BootStrap> {
         return true;
       };
 
-      final routerConfig = createRouterConfig(dependencies);
+      final routerConfig = AppRouter(dependencies).createConfig();
       final settingsBloc = widget.settingsBloc ?? SettingsBloc(dependencies);
 
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
