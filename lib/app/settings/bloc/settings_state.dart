@@ -3,7 +3,7 @@
 // ==========================================
 part of 'settings_bloc.dart';
 
-class SettingsState {
+ class SettingsState {
   final ThemeMode themeMode;
   final Locale locale;
   final Color seedColor;
