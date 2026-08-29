@@ -1,14 +1,22 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
-import 'package:blogstore/app/settings/bloc/settings_bloc.dart';
+
 import 'package:blogstore/injection/dependency_injection.dart'
     show Dependencies;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/app_setting/app_setting.dart' show AppSettingScreen;
+import '../../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+    show AppSettingBloc, AppSettingUpdateSeedColorEvent;
+
 // 1. Sealed Route Hierarchy
 sealed class AppRoute extends KaiselRoute {
   const AppRoute();
+}
+
+final class AppSettingRoute extends AppRoute {
+  const AppSettingRoute();
 }
 
 final class HomeRoute extends AppRoute {
@@ -40,6 +48,7 @@ final class AppRouter {
     return switch (route) {
       HomeRoute() => const HomeScreen(),
       ProductDetailRoute(:final id) => ProductDetailScreen(id: id),
+      AppSettingRoute() => const AppSettingScreen(),
     };
   }
 }
@@ -51,12 +60,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: context.theme.colorScheme.primary),
+      appBar: AppBar(
+        backgroundColor: context.theme.colorScheme.primary,
+        actions: [
+          IconButton(
+            onPressed: () => context.push(const AppSettingRoute()),
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: Container(
         color: context.theme.colorScheme.primary,
         child: IconButton(
-          onPressed: () => context.read<SettingsBloc>().add(
-            SettingsUpdateSeedColorEvent(Colors.red),
+          onPressed: () => context.read<AppSettingBloc>().add(
+            AppSettingUpdateSeedColorEvent(Colors.red),
           ),
           icon: const Icon(Icons.color_lens),
         ),

@@ -14,6 +14,16 @@ import '../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../core/notifications/notification_gateway.dart'
     show NotificationGateway;
 
+import '../features/app_setting/data/datasources/local/app_setting_local_datasource.dart'
+    show AppSettingLocalDataSourceImpl, AppSettingLocalDataSource;
+import '../features/app_setting/data/repositories/app_setting_repository_impl.dart';
+import '../features/app_setting/domain/repositories/app_setting_repository.dart';
+import '../features/app_setting/domain/usecases/get_app_settings.dart';
+import '../features/app_setting/domain/usecases/update_locale.dart';
+import '../features/app_setting/domain/usecases/update_seed_color.dart';
+import '../features/app_setting/domain/usecases/update_theme_mode.dart';
+import '../features/app_setting/domain/usecases/watch_app_settings.dart';
+
 import '../infrastructure/auth/firebase_access_token_provider.dart';
 import '../infrastructure/database/drift/app_database.dart';
 
@@ -30,17 +40,24 @@ import '../infrastructure/location/geolocator_location_service.dart'
 
 final class Dependencies {
   factory Dependencies.create() {
+    final db = AppDatabase();
     return Dependencies._(
-      database: AppDatabase(),
+      database: db,
       firebaseInitializer: DefaultFirebaseInitializer(),
+      appSettingLocalDataSource: AppSettingLocalDataSourceImpl(db),
     );
   }
 
   // Non-const constructor allows late final fields
-  Dependencies._({required this.database, required this.firebaseInitializer});
+  Dependencies._({
+    required this.database,
+    required this.firebaseInitializer,
+    required this.appSettingLocalDataSource,
+  });
 
   final AppDatabase database;
   final FirebaseInitializer firebaseInitializer;
+  final AppSettingLocalDataSource appSettingLocalDataSource;
 
   // Lazily initialized on first access (after await firebaseInitializer.initialize())
   late final AccessTokenProvider accessTokenProvider =
@@ -58,6 +75,26 @@ final class Dependencies {
   );
 
   late final LocationService locationService = GeolocatorLocationService();
+
+  late final AppSettingRepository appSettingRepository =
+      AppSettingRepositoryImpl(
+        localDataSource: appSettingLocalDataSource,
+        analyticsGateway: analyticsGateway,
+      );
+
+  late final GetAppSettings getAppSettings = GetAppSettings(
+    appSettingRepository,
+  );
+  late final WatchAppSettings watchAppSettings = WatchAppSettings(
+    appSettingRepository,
+  );
+  late final UpdateThemeMode updateThemeMode = UpdateThemeMode(
+    appSettingRepository,
+  );
+  late final UpdateLocale updateLocale = UpdateLocale(appSettingRepository);
+  late final UpdateSeedColor updateSeedColor = UpdateSeedColor(
+    appSettingRepository,
+  );
 
   Future<void> dispose() => database.close();
 }

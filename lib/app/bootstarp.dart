@@ -5,6 +5,7 @@ import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
 import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:blogstore/app/router/router.dart' show AppRouter;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:intl/intl.dart' show Intl;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -18,19 +19,19 @@ import 'package:material_ui/material_ui.dart'
         FlutterError;
 
 import '../core/theme/app_theme.dart';
+import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+    show AppSettingBloc, AppSettingState;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
     show firebaseMessagingBackgroundHandler;
 import '../injection/dependency_injection.dart'
     show Dependencies, DependenciesProvider;
 
-import 'settings/bloc/settings_bloc.dart' show SettingsBloc, SettingsState;
-
 class BootStrap extends StatefulWidget {
-  const BootStrap({super.key, required this.onReady, this.settingsBloc});
+  const BootStrap({super.key, required this.onReady, this.appSettingsBloc});
 
   final VoidCallback onReady;
-  final SettingsBloc? settingsBloc;
+  final AppSettingBloc? appSettingsBloc;
 
   @override
   State<BootStrap> createState() => _BootStrapState();
@@ -39,7 +40,7 @@ class BootStrap extends StatefulWidget {
 class _BootStrapState extends State<BootStrap> {
   KaiselRouterConfig? _routerConfig;
   Dependencies? _dependencies;
-  SettingsBloc? _settingsBloc;
+  AppSettingBloc? _appSettingsBloc;
 
   Future<void> _initAsync() async {
     final dependencies = Dependencies.create();
@@ -60,7 +61,17 @@ class _BootStrapState extends State<BootStrap> {
       };
 
       final routerConfig = AppRouter(dependencies).createConfig();
-      final settingsBloc = widget.settingsBloc ?? SettingsBloc(dependencies);
+      Intl.defaultLocale = PlatformDispatcher.instance.locale
+          .toLanguageTag(); //usefull For Manish //! TODO: support
+      final settingsBloc =
+          widget.appSettingsBloc ??
+          AppSettingBloc(
+            getAppSettings: dependencies.getAppSettings,
+            updateThemeMode: dependencies.updateThemeMode,
+            updateLocale: dependencies.updateLocale,
+            updateSeedColor: dependencies.updateSeedColor,
+            crashReporter: dependencies.crashReporter,
+          );
 
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
       await settingsBloc.loadSettings();
@@ -69,7 +80,7 @@ class _BootStrapState extends State<BootStrap> {
 
       setState(() {
         _dependencies = dependencies;
-        _settingsBloc = settingsBloc;
+        _appSettingsBloc = settingsBloc;
         _routerConfig = routerConfig;
       });
     } catch (error, stack) {
@@ -89,8 +100,8 @@ class _BootStrapState extends State<BootStrap> {
 
   @override
   void dispose() {
-    if (widget.settingsBloc == null) {
-      unawaited(_settingsBloc?.close());
+    if (widget.appSettingsBloc == null) {
+      unawaited(_appSettingsBloc?.close());
     }
     _dependencies?.dispose();
     super.dispose();
@@ -99,7 +110,7 @@ class _BootStrapState extends State<BootStrap> {
   @override
   Widget build(BuildContext context) {
     final dependencies = _dependencies;
-    final settingsBloc = _settingsBloc;
+    final settingsBloc = _appSettingsBloc;
     final routerConfig = _routerConfig;
 
     if (dependencies == null || settingsBloc == null || routerConfig == null) {
@@ -110,9 +121,9 @@ class _BootStrapState extends State<BootStrap> {
       dependencies: dependencies,
       child: MultiBlocSignalProvider(
         providers: [
-          BlocSignalProvider<SettingsBloc>.value(value: settingsBloc),
+          BlocSignalProvider<AppSettingBloc>.value(value: settingsBloc),
         ],
-        child: BlocSignalBuilder<SettingsBloc, SettingsState>(
+        child: BlocSignalBuilder<AppSettingBloc, AppSettingState>(
           bloc: settingsBloc,
           builder: (context, state) {
             return MaterialApp.router(
