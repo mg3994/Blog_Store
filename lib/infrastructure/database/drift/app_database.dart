@@ -41,7 +41,36 @@ class CachedCatalogProducts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [AppSettings, CachedCatalogProducts])
+class OutboxEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get idempotencyKey => text()();
+  TextColumn get endpoint => text()();
+  TextColumn get httpMethod => text()();
+  TextColumn get payloadJson => text()();
+  TextColumn get status => text().withDefault(const Constant('pending'))();
+  IntColumn get retryCount => integer().withDefault(const Constant(0))();
+  TextColumn get lastError => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class SyncWatermarks extends Table {
+  TextColumn get featureTag => text()();
+  DateTimeColumn get lastSyncedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {featureTag};
+}
+
+@DriftDatabase(tables: [
+  AppSettings,
+  CachedCatalogProducts,
+  OutboxEntries,
+  SyncWatermarks,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(
@@ -59,7 +88,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   // Stream<UserSetting> watchSettings() {
   //   return (select(
