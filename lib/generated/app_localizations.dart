@@ -93,6 +93,12 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// Native display name of the language
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageName;
+
   /// The name of the application
   ///
   /// In en, this message translates to:

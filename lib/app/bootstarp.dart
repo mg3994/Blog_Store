@@ -20,7 +20,7 @@ import 'package:material_ui/material_ui.dart'
 
 import '../core/theme/app_theme.dart';
 import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
-    show AppSettingBloc, AppSettingState;
+    show AppSettingBloc, AppSettingState, GetAppSettingEvent;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
     show firebaseMessagingBackgroundHandler;
@@ -64,14 +64,7 @@ class _BootStrapState extends State<BootStrap> {
       Intl.defaultLocale = PlatformDispatcher.instance.locale
           .toLanguageTag(); //usefull For Manish //! TODO: support
       final settingsBloc =
-          widget.appSettingsBloc ??
-          AppSettingBloc(
-            getAppSettings: dependencies.getAppSettings,
-            updateThemeMode: dependencies.updateThemeMode,
-            updateLocale: dependencies.updateLocale,
-            updateSeedColor: dependencies.updateSeedColor,
-            crashReporter: dependencies.crashReporter,
-          );
+          widget.appSettingsBloc ?? dependencies.appSettingBloc;
 
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
       await settingsBloc.loadSettings();

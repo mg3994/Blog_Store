@@ -1,38 +1,46 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart'
+    show FirebaseAnalytics;
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'
+    show FirebaseCrashlytics;
 import 'package:firebase_messaging/firebase_messaging.dart'
     show FirebaseMessaging;
-
 import 'package:material_ui/material_ui.dart'
-    show BuildContext, InheritedWidget;
+    show InheritedWidget, BuildContext;
 
 import '../core/analytics/analytics_gateway.dart' show AnalyticsGateway;
-import '../core/auth/access_token_provider.dart';
+import '../core/auth/access_token_provider.dart' show AccessTokenProvider;
 import '../core/location/location_service.dart' show LocationService;
 import '../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../core/notifications/notification_gateway.dart'
     show NotificationGateway;
-
 import '../features/app_setting/data/datasources/local/app_setting_local_datasource.dart'
     show AppSettingLocalDataSourceImpl, AppSettingLocalDataSource;
-import '../features/app_setting/data/repositories/app_setting_repository_impl.dart';
-import '../features/app_setting/domain/repositories/app_setting_repository.dart';
-import '../features/app_setting/domain/usecases/get_app_settings.dart';
-import '../features/app_setting/domain/usecases/update_locale.dart';
-import '../features/app_setting/domain/usecases/update_seed_color.dart';
-import '../features/app_setting/domain/usecases/update_theme_mode.dart';
-import '../features/app_setting/domain/usecases/watch_app_settings.dart';
-
-import '../infrastructure/auth/firebase_access_token_provider.dart';
-import '../infrastructure/database/drift/app_database.dart';
-
+import '../features/app_setting/data/repositories/app_setting_repository_impl.dart'
+    show AppSettingRepositoryImpl;
+import '../features/app_setting/domain/repositories/app_setting_repository.dart'
+    show AppSettingRepository;
+import '../features/app_setting/domain/usecases/get_app_settings.dart'
+    show GetAppSettings;
+import '../features/app_setting/domain/usecases/update_locale.dart'
+    show UpdateLocale;
+import '../features/app_setting/domain/usecases/update_seed_color.dart'
+    show UpdateSeedColor;
+import '../features/app_setting/domain/usecases/update_theme_mode.dart'
+    show UpdateThemeMode;
+import '../features/app_setting/domain/usecases/watch_app_settings.dart'
+    show WatchAppSettings;
+import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+    show AppSettingBloc;
+import '../infrastructure/auth/firebase_access_token_provider.dart'
+    show FirebaseAccessTokenProvider;
+import '../infrastructure/database/drift/app_database.dart' show AppDatabase;
 import '../infrastructure/firebase/firebase_analytics_gateway.dart'
     show FirebaseAnalyticsGateway;
 import '../infrastructure/firebase/firebase_crash_reporter.dart'
     show FirebaseCrashReporter;
 import '../infrastructure/firebase/firebase_initializer.dart'
-    show FirebaseInitializer, DefaultFirebaseInitializer;
+    show DefaultFirebaseInitializer, FirebaseInitializer;
 import '../infrastructure/firebase/firebase_notification_gateway.dart'
     show FirebaseNotificationGateway;
 import '../infrastructure/location/geolocator_location_service.dart'
@@ -48,7 +56,6 @@ final class Dependencies {
     );
   }
 
-  // Non-const constructor allows late final fields
   Dependencies._({
     required this.database,
     required this.firebaseInitializer,
@@ -59,7 +66,8 @@ final class Dependencies {
   final FirebaseInitializer firebaseInitializer;
   final AppSettingLocalDataSource appSettingLocalDataSource;
 
-  // Lazily initialized on first access (after await firebaseInitializer.initialize())
+  // Lazily initialized post-Firebase setup
+  //==>
   late final AccessTokenProvider accessTokenProvider =
       FirebaseAccessTokenProvider(FirebaseAuth.instance);
 
@@ -75,7 +83,8 @@ final class Dependencies {
   );
 
   late final LocationService locationService = GeolocatorLocationService();
-
+  //<==
+  ///
   late final AppSettingRepository appSettingRepository =
       AppSettingRepositoryImpl(
         localDataSource: appSettingLocalDataSource,
@@ -96,7 +105,22 @@ final class Dependencies {
     appSettingRepository,
   );
 
-  Future<void> dispose() => database.close();
+  ///
+  // Lazy singleton - instantiated on first read in BootStrap
+  //  why we do DI like this as We want to avid multiple Factory instances
+  // for same Bloc
+  late final AppSettingBloc appSettingBloc = AppSettingBloc(
+    getAppSettings: getAppSettings,
+    updateThemeMode: updateThemeMode,
+    updateLocale: updateLocale,
+    updateSeedColor: updateSeedColor,
+    crashReporter: crashReporter,
+  );
+
+  Future<void> dispose() async {
+    await appSettingBloc.close();
+    await database.close();
+  }
 }
 
 class DependenciesProvider extends InheritedWidget {

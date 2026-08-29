@@ -15,7 +15,7 @@ import 'package:material_ui/material_ui.dart'
         BorderRadius,
         RoundedRectangleBorder,
         CrossAxisAlignment,
-        FontWeight,
+     
         Text,
         BoxShape,
         Border,
@@ -63,9 +63,7 @@ class AppSettingSeedColorWidget extends StatelessWidget {
               children: [
                 Text(
                   'Accent Color',
-                  style: context.theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  
                 ),
                 const SizedBox(height: 12),
                 Wrap(

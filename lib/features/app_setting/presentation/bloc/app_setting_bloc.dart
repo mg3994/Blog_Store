@@ -16,17 +16,12 @@ part 'app_setting_state.dart';
 
 class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
   AppSettingBloc({
-    required GetAppSettings getAppSettings,
-    required UpdateThemeMode updateThemeMode,
-    required UpdateLocale updateLocale,
-    required UpdateSeedColor updateSeedColor,
-    CrashReporter? crashReporter,
-  }) : _getAppSettings = getAppSettings,
-       _updateThemeMode = updateThemeMode,
-       _updateLocale = updateLocale,
-       _updateSeedColor = updateSeedColor,
-       _crashReporter = crashReporter,
-       super(
+    required this._getAppSettings,
+    required this._updateThemeMode,
+    required this._updateLocale,
+    required this._updateSeedColor,
+    this._crashReporter,
+  }) : super(
          initialState: const AppSettingState(
            themeMode: AppConfig.defaultThemeMode,
            locale: AppConfig.defaultLocale,

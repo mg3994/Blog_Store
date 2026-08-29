@@ -7,10 +7,9 @@ import '../datasources/local/app_setting_local_datasource.dart' show AppSettingL
 
 final class AppSettingRepositoryImpl implements AppSettingRepository {
   const AppSettingRepositoryImpl({
-    required AppSettingLocalDataSource localDataSource,
-    AnalyticsGateway? analyticsGateway,
-  }) : _localDataSource = localDataSource,
-       _analyticsGateway = analyticsGateway;
+    required this._localDataSource,
+    this._analyticsGateway,
+  });
 
   final AppSettingLocalDataSource _localDataSource;
   final AnalyticsGateway? _analyticsGateway;

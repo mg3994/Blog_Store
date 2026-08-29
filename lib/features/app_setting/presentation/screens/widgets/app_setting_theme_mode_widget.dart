@@ -1,10 +1,9 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/features/app_setting/presentation/bloc/app_setting_bloc.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../../app/helpers/extensions.dart'
-    show BuildContextLocalizationExtensions;
+
 
 class AppSettingThemeModeWidget extends StatelessWidget {
   const AppSettingThemeModeWidget({super.key});
@@ -28,9 +27,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
               children: [
                 Text(
                   'Theme Mode',
-                  style: context.theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                 
                 ),
                 const SizedBox(height: 12),
                 SegmentedButton<ThemeMode>(

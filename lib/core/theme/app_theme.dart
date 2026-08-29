@@ -1,23 +1,74 @@
 import 'package:material_ui/material_ui.dart'
-    show ThemeData, ColorScheme, Colors, Color, InkRipple;
+    show
+        CardTheme,
+        CardThemeData,
+        Color,
+        ColorScheme,
+        Colors,
+        InkRipple,
+        ThemeData,
+        EdgeInsets,
+        BorderRadius,
+        RoundedRectangleBorder,
+        Brightness;
 
 abstract final class AppTheme {
-  static ThemeData light({Color seed = Colors.indigo}) =>
-      ThemeData.light(useMaterial3: true).copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seed,
-        ), // Replaces InkSparkle GPU shaders with stable InkRipple drawing
-        splashFactory: InkRipple.splashFactory,
-      );
+  static ThemeData light({Color seed = Colors.indigo}) {
+    final base = ThemeData.light(useMaterial3: true);
+    final scheme = ColorScheme.fromSeed(seedColor: seed);
 
-  static ThemeData dark({Color seed = Colors.indigo}) =>
-      ThemeData.dark(useMaterial3: true).copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seed,
-        ), // Replaces InkSparkle GPU shaders with stable InkRipple drawing
-        // .. this will avid those
-        splashFactory: InkRipple.splashFactory,
-      );
+    return base.copyWith(
+      colorScheme: scheme,
+      
+      cardTheme: CardThemeData(
+        color: scheme.surface,
+        surfaceTintColor: scheme.surfaceTint,
+        shadowColor: Colors.black.withOpacity(0.08),
+        elevation: 1,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      textTheme: base.textTheme.apply(
+        bodyColor: scheme.onSurface,
+        displayColor: scheme.onSurface,
+        decorationColor: scheme.onSurface,
+      ),
+      primaryTextTheme: base.primaryTextTheme.apply(
+        bodyColor: scheme.onPrimary,
+        displayColor: scheme.onPrimary,
+      ),
+    );
+  }
+
+  static ThemeData dark({Color seed = Colors.indigo}) {
+    final base = ThemeData.dark(useMaterial3: true);
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seed,
+      brightness: Brightness.dark,
+    );
+
+    return base.copyWith(
+      colorScheme: scheme,
+      
+      cardTheme: CardThemeData(
+        color: scheme.surface,
+        surfaceTintColor: scheme.surfaceTint,
+        shadowColor: Colors.black.withOpacity(0.25),
+        elevation: 2,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      textTheme: base.textTheme.apply(
+        bodyColor: scheme.onSurface,
+        displayColor: scheme.onSurface,
+        decorationColor: scheme.onSurface,
+      ),
+      primaryTextTheme: base.primaryTextTheme.apply(
+        bodyColor: scheme.onPrimary,
+        displayColor: scheme.onPrimary,
+      ),
+    );
+  }
 }
 
 // Must condition is add splashFactory ==[ and it will read to WARNING: Falling back to CPU-only rendering. Reason: failed to create GrContext.
