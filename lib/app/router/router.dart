@@ -68,7 +68,8 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
-      // Wide / Foldable spanned screens: Absorbing two-pane view
+      // Wide / Foldable spanned screens:
+      // When AppSettingRoute is selected from SettingsMasterRoute, absorb into TwoPane layout
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
@@ -79,25 +80,34 @@ final class AppRouter {
             ),
           ),
         ),
+      // Spanned screens initial settings view (no selection pre-made yet)
       (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
             child: SettingsTwoPane(
               master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
+                selectedSetting: '',
                 onSelectSetting: (setting) {
                   if (setting == 'appearance') {
                     context.pushOrReplaceTop(const AppSettingRoute());
                   }
                 },
               ),
-              detail: const AppSettingScreen(),
+              detail: Center(
+                child: Text(
+                  context.l10n.settingsTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
               hinge: fold?.bounds,
             ),
           ),
         ),
 
-      // Single pane compact screens: Absorbing SettingsMaster into AppSettingScreen when selected
+      // Single pane compact screens:
+      // When moving from SettingsMasterRoute to AppSettingRoute on narrow screens, absorb SettingsMaster to show AppSetting
       (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
@@ -110,13 +120,15 @@ final class AppRouter {
             child: const AppSettingScreen(),
           ),
         ),
+      // Narrow screen settings root showing pure SettingsMasterScreen (no preselected setting)
       (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
             child: SettingsMasterScreen(
+              selectedSetting: '',
               onSelectSetting: (setting) {
                 if (setting == 'appearance') {
-                  context.pushOrReplaceTop(const AppSettingRoute());
+                  context.push(const AppSettingRoute());
                 }
               },
             ),

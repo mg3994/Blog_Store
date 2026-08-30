@@ -100,14 +100,47 @@
     }
   },
   "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title for the settings section"
+  },
   "searchSettings": "Search settings",
+  "@searchSettings": {
+    "description": "Placeholder text for searching settings"
+  },
   "noSettingsFound": "No settings found",
+  "@noSettingsFound": {
+    "description": "Message displayed when search returns no matching settings"
+  },
   "settingsGeneralTitle": "General",
+  "@settingsGeneralTitle": {
+    "description": "Title for general settings category"
+  },
   "settingsGeneralSubtitle": "Profile, preferences",
+  "@settingsGeneralSubtitle": {
+    "description": "Subtitle describing general settings content"
+  },
   "settingsAppearanceTitle": "Appearance",
+  "@settingsAppearanceTitle": {
+    "description": "Title for appearance settings category"
+  },
   "settingsAppearanceSubtitle": "Theme, colors",
+  "@settingsAppearanceSubtitle": {
+    "description": "Subtitle describing appearance settings content"
+  },
   "settingsNotificationsTitle": "Notifications",
+  "@settingsNotificationsTitle": {
+    "description": "Title for notifications settings category"
+  },
   "settingsNotificationsSubtitle": "Alerts, sounds",
+  "@settingsNotificationsSubtitle": {
+    "description": "Subtitle describing notifications settings content"
+  },
   "settingsPrivacyTitle": "Privacy & Security",
-  "settingsPrivacySubtitle": "Passwords, access"
+  "@settingsPrivacyTitle": {
+    "description": "Title for privacy & security settings category"
+  },
+  "settingsPrivacySubtitle": "Passwords, access",
+  "@settingsPrivacySubtitle": {
+    "description": "Subtitle describing privacy & security settings content"
+  }
 }
