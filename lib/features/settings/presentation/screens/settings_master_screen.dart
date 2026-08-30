@@ -50,7 +50,7 @@ class SettingsMasterScreen extends StatefulWidget {
   });
 
   final String selectedSetting;
-  final ValueChanged<String>? onSelectSetting;
+  final void Function(BuildContext context, String setting)? onSelectSetting;
 
   @override
   State<SettingsMasterScreen> createState() => _SettingsMasterScreenState();
@@ -158,7 +158,8 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
                           title: item.titleBuilder(context),
                           subtitle: item.subtitleBuilder(context),
                           isSelected: widget.selectedSetting == item.id,
-                          onTap: () => widget.onSelectSetting?.call(item.id),
+                          onTap: (tileContext) =>
+                              widget.onSelectSetting?.call(tileContext, item.id),
                         );
                       },
                     ),
@@ -183,7 +184,7 @@ class _SettingsCategoryTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isSelected;
-  final VoidCallback onTap;
+  final void Function(BuildContext context) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +222,7 @@ class _SettingsCategoryTile extends StatelessWidget {
             color: colorScheme.onSurfaceVariant,
           ),
         ),
-        onTap: onTap,
+        onTap: () => onTap(context),
       ),
     );
   }

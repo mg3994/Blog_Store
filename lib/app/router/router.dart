@@ -72,57 +72,51 @@ final class AppRouter {
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
-            child: Builder(
-              builder: (navContext) => SettingsTwoPane(
-                master: SettingsMasterScreen(
-                  selectedSetting: 'appearance',
-                  onSelectSetting: (setting) {
-                    if (setting == 'appearance') {
-                      navContext.pushOrReplaceTop(const AppSettingRoute());
-                    }
-                  },
-                ),
-                detail: const AppSettingScreen(),
-                hinge: fold?.bounds,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (tileContext, setting) {
+                  if (setting == 'appearance') {
+                    tileContext.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
               ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
             ),
           ),
         ),
       (_, AppSettingRoute(), true) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: Builder(
-              builder: (navContext) => SettingsTwoPane(
-                master: SettingsMasterScreen(
-                  selectedSetting: 'appearance',
-                  onSelectSetting: (setting) {
-                    if (setting == 'appearance') {
-                      navContext.pushOrReplaceTop(const AppSettingRoute());
-                    }
-                  },
-                ),
-                detail: const AppSettingScreen(),
-                hinge: fold?.bounds,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (tileContext, setting) {
+                  if (setting == 'appearance') {
+                    tileContext.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
               ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
             ),
           ),
         ),
       (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: Builder(
-              builder: (navContext) => SettingsTwoPane(
-                master: SettingsMasterScreen(
-                  selectedSetting: 'appearance',
-                  onSelectSetting: (setting) {
-                    if (setting == 'appearance') {
-                      navContext.pushOrReplaceTop(const AppSettingRoute());
-                    }
-                  },
-                ),
-                detail: const AppSettingScreen(),
-                hinge: fold?.bounds,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (tileContext, setting) {
+                  if (setting == 'appearance') {
+                    tileContext.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
               ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
             ),
           ),
         ),
@@ -137,15 +131,13 @@ final class AppRouter {
       (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: Builder(
-              builder: (navContext) => SettingsMasterScreen(
-                selectedSetting: '',
-                onSelectSetting: (setting) {
-                  if (setting == 'appearance') {
-                    navContext.push(const AppSettingRoute());
-                  }
-                },
-              ),
+            child: SettingsMasterScreen(
+              selectedSetting: '',
+              onSelectSetting: (tileContext, setting) {
+                if (setting == 'appearance') {
+                  tileContext.push(const AppSettingRoute());
+                }
+              },
             ),
           ),
         ),
