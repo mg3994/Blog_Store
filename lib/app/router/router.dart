@@ -68,55 +68,61 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
-      // Wide / Foldable spanned screens: Absorbing two-pane view when transitioning from Master -> Detail
+      // Wide / Foldable screens (Master -> Detail)
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
-            child: SettingsTwoPane(
-              master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
-                onSelectSetting: (setting) {
-                  if (setting == 'appearance') {
-                    context.pushOrReplaceTop(const AppSettingRoute());
-                  }
-                },
+            child: Builder(
+              builder: (navContext) => SettingsTwoPane(
+                master: SettingsMasterScreen(
+                  selectedSetting: 'appearance',
+                  onSelectSetting: (setting) {
+                    if (setting == 'appearance') {
+                      navContext.pushOrReplaceTop(const AppSettingRoute());
+                    }
+                  },
+                ),
+                detail: const AppSettingScreen(),
+                hinge: fold?.bounds,
               ),
-              detail: const AppSettingScreen(),
-              hinge: fold?.bounds,
             ),
           ),
         ),
       (_, AppSettingRoute(), true) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: SettingsTwoPane(
-              master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
-                onSelectSetting: (setting) {
-                  if (setting == 'appearance') {
-                    context.pushOrReplaceTop(const AppSettingRoute());
-                  }
-                },
+            child: Builder(
+              builder: (navContext) => SettingsTwoPane(
+                master: SettingsMasterScreen(
+                  selectedSetting: 'appearance',
+                  onSelectSetting: (setting) {
+                    if (setting == 'appearance') {
+                      navContext.pushOrReplaceTop(const AppSettingRoute());
+                    }
+                  },
+                ),
+                detail: const AppSettingScreen(),
+                hinge: fold?.bounds,
               ),
-              detail: const AppSettingScreen(),
-              hinge: fold?.bounds,
             ),
           ),
         ),
       (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: SettingsTwoPane(
-              master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
-                onSelectSetting: (setting) {
-                  if (setting == 'appearance') {
-                    context.pushOrReplaceTop(const AppSettingRoute());
-                  }
-                },
+            child: Builder(
+              builder: (navContext) => SettingsTwoPane(
+                master: SettingsMasterScreen(
+                  selectedSetting: 'appearance',
+                  onSelectSetting: (setting) {
+                    if (setting == 'appearance') {
+                      navContext.pushOrReplaceTop(const AppSettingRoute());
+                    }
+                  },
+                ),
+                detail: const AppSettingScreen(),
+                hinge: fold?.bounds,
               ),
-              detail: const AppSettingScreen(),
-              hinge: fold?.bounds,
             ),
           ),
         ),
@@ -131,13 +137,15 @@ final class AppRouter {
       (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
-            child: SettingsMasterScreen(
-              selectedSetting: '',
-              onSelectSetting: (setting) {
-                if (setting == 'appearance') {
-                  context.push(const AppSettingRoute());
-                }
-              },
+            child: Builder(
+              builder: (navContext) => SettingsMasterScreen(
+                selectedSetting: '',
+                onSelectSetting: (setting) {
+                  if (setting == 'appearance') {
+                    navContext.push(const AppSettingRoute());
+                  }
+                },
+              ),
             ),
           ),
         ),
@@ -148,10 +156,7 @@ final class AppRouter {
           ),
         ),
       _ => KaiselStandalonePage(
-          AppNavigationShell(
-            currentRoute: route,
-            child: const HomeScreen(),
-          ),
+          AppNavigationShell(currentRoute: route, child: const HomeScreen()),
         ),
     };
   }
