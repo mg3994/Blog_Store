@@ -67,56 +67,74 @@ final class AppRouter {
     final fold = _verticalFold(mq);
     final spanned = fold != null || mq.size.width >= 700;
 
-    final Widget innerWidget = switch ((ctx.previous, route, spanned)) {
-      (SettingsMasterRoute(), AppSettingRoute(), true) => SettingsTwoPane(
-          master: const SettingsMasterScreen(selectedSetting: 'appearance'),
-          detail: const AppSettingScreen(),
-          hinge: fold?.bounds,
-        ),
-      (_, SettingsMasterRoute(), true) => SettingsTwoPane(
-          master: SettingsMasterScreen(
-            selectedSetting: 'appearance',
-            onSelectSetting: (setting) {
-              if (setting == 'appearance') {
-                context.pushOrReplaceTop(const AppSettingRoute());
-              }
-            },
+    return switch ((ctx.previous, route, spanned)) {
+      // Wide / Foldable spanned screens: Absorbing two-pane view
+      (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: const SettingsMasterScreen(selectedSetting: 'appearance'),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
+            ),
           ),
-          detail: const AppSettingScreen(),
-          hinge: fold?.bounds,
         ),
-      (_, AppSettingRoute(), _) => Scaffold(
-          appBar: AppBar(title: const Text('Appearance')),
-          body: const AppSettingScreen(),
+      (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (setting) {
+                  if (setting == 'appearance') {
+                    context.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
+              ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
+            ),
+          ),
         ),
-      (_, SettingsMasterRoute(), _) => SettingsMasterScreen(
-          onSelectSetting: (setting) {
-            if (setting == 'appearance') {
-              context.push(const AppSettingRoute());
-            }
-          },
+
+      // Single pane compact screens: Absorbing SettingsMaster into AppSettingScreen when selected
+      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
         ),
-      (_, ProductDetailRoute(:final id), _) => ProductDetailScreen(id: id),
-      _ => const HomeScreen(),
+      (_, AppSettingRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
+        ),
+      (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: SettingsMasterScreen(
+              onSelectSetting: (setting) {
+                if (setting == 'appearance') {
+                  context.pushOrReplaceTop(const AppSettingRoute());
+                }
+              },
+            ),
+          ),
+        ),
+      (_, ProductDetailRoute(:final id), _) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: ProductDetailScreen(id: id),
+          ),
+        ),
+      _ => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const HomeScreen(),
+          ),
+        ),
     };
-
-    final isAbsorbing = ctx.previous is SettingsMasterRoute && route is AppSettingRoute && spanned;
-
-    if (isAbsorbing) {
-      return KaiselAbsorbingPage(
-        widget: AppNavigationShell(
-          currentRoute: route,
-          child: innerWidget,
-        ),
-      );
-    }
-
-    return KaiselStandalonePage(
-      AppNavigationShell(
-        currentRoute: route,
-        child: innerWidget,
-      ),
-    );
   }
 }
 

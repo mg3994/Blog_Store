@@ -98,5 +98,16 @@
         "format": "jm"
       }
     }
-  }
+  },
+  "settingsTitle": "الإعدادات",
+  "searchSettings": "البحث في الإعدادات",
+  "noSettingsFound": "لم يتم العثور على إعدادات",
+  "settingsGeneralTitle": "عام",
+  "settingsGeneralSubtitle": "الملف الشخصي، التفضيلات",
+  "settingsAppearanceTitle": "المظهر",
+  "settingsAppearanceSubtitle": "المظهر، الألوان",
+  "settingsNotificationsTitle": "الإشعارات",
+  "settingsNotificationsSubtitle": "التنبيهات، الأصوات",
+  "settingsPrivacyTitle": "الخصوصية والأمان",
+  "settingsPrivacySubtitle": "كلمات المرور، الوصول"
 }

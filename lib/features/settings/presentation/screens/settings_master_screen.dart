@@ -1,42 +1,43 @@
+import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:material_ui/material_ui.dart';
 
-class SettingsCategoryItem {
-  const SettingsCategoryItem({
+class SettingsCategoryItemData {
+  const SettingsCategoryItemData({
     required this.id,
-    required this.title,
-    required this.subtitle,
+    required this.titleBuilder,
+    required this.subtitleBuilder,
     required this.icon,
   });
 
   final String id;
-  final String title;
-  final String subtitle;
+  final String Function(BuildContext context) titleBuilder;
+  final String Function(BuildContext context) subtitleBuilder;
   final IconData icon;
 }
 
-const List<SettingsCategoryItem> kSettingsCategoryItems = [
-  SettingsCategoryItem(
+final List<SettingsCategoryItemData> kSettingsCategoryItems = [
+  SettingsCategoryItemData(
     id: 'general',
-    title: 'General',
-    subtitle: 'Profile, preferences',
+    titleBuilder: (context) => context.l10n.settingsGeneralTitle,
+    subtitleBuilder: (context) => context.l10n.settingsGeneralSubtitle,
     icon: Icons.person_outline,
   ),
-  SettingsCategoryItem(
+  SettingsCategoryItemData(
     id: 'appearance',
-    title: 'Appearance',
-    subtitle: 'Theme, colors',
+    titleBuilder: (context) => context.l10n.settingsAppearanceTitle,
+    subtitleBuilder: (context) => context.l10n.settingsAppearanceSubtitle,
     icon: Icons.palette_outlined,
   ),
-  SettingsCategoryItem(
+  SettingsCategoryItemData(
     id: 'notifications',
-    title: 'Notifications',
-    subtitle: 'Alerts, sounds',
+    titleBuilder: (context) => context.l10n.settingsNotificationsTitle,
+    subtitleBuilder: (context) => context.l10n.settingsNotificationsSubtitle,
     icon: Icons.notifications_none,
   ),
-  SettingsCategoryItem(
+  SettingsCategoryItemData(
     id: 'privacy',
-    title: 'Privacy & Security',
-    subtitle: 'Passwords, access',
+    titleBuilder: (context) => context.l10n.settingsPrivacyTitle,
+    subtitleBuilder: (context) => context.l10n.settingsPrivacySubtitle,
     icon: Icons.lock_outline,
   ),
 ];
@@ -78,77 +79,92 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
     super.dispose();
   }
 
-  List<SettingsCategoryItem> get _filteredItems {
+  List<SettingsCategoryItemData> _getFilteredItems(BuildContext context) {
     if (_searchQuery.isEmpty) return kSettingsCategoryItems;
     return kSettingsCategoryItems.where((item) {
-      final titleMatch = item.title.toLowerCase().contains(_searchQuery);
-      final subtitleMatch = item.subtitle.toLowerCase().contains(_searchQuery);
-      return titleMatch || subtitleMatch;
+      final title = item.titleBuilder(context).toLowerCase();
+      final subtitle = item.subtitleBuilder(context).toLowerCase();
+      return title.contains(_searchQuery) || subtitle.contains(_searchQuery);
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filtered = _filteredItems;
+    final filtered = _getFilteredItems(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        elevation: 0,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search settings',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHigh,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                context.l10n.settingsTitle,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-          ),
-          if (filtered.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Center(
-                child: Text(
-                  'No settings found',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: context.l10n.searchSettings,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHigh,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
-            )
-          else
-            for (int i = 0; i < filtered.length; i++) ...[
-              if (i > 0) const SizedBox(height: 8),
-              _SettingsCategoryTile(
-                icon: filtered[i].icon,
-                title: filtered[i].title,
-                subtitle: filtered[i].subtitle,
-                isSelected: widget.selectedSetting == filtered[i].id,
-                onTap: () => widget.onSelectSetting?.call(filtered[i].id),
-              ),
-            ],
-        ],
+            ),
+            Expanded(
+              child: filtered.isEmpty
+                  ? Center(
+                      child: Text(
+                        context.l10n.noSettingsFound,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final item = filtered[index];
+                        return _SettingsCategoryTile(
+                          icon: item.icon,
+                          title: item.titleBuilder(context),
+                          subtitle: item.subtitleBuilder(context),
+                          isSelected: widget.selectedSetting == item.id,
+                          onTap: () => widget.onSelectSetting?.call(item.id),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

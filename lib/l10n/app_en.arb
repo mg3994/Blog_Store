@@ -98,5 +98,16 @@
         "format": "jm"
       }
     }
-  }
+  },
+  "settingsTitle": "Settings",
+  "searchSettings": "Search settings",
+  "noSettingsFound": "No settings found",
+  "settingsGeneralTitle": "General",
+  "settingsGeneralSubtitle": "Profile, preferences",
+  "settingsAppearanceTitle": "Appearance",
+  "settingsAppearanceSubtitle": "Theme, colors",
+  "settingsNotificationsTitle": "Notifications",
+  "settingsNotificationsSubtitle": "Alerts, sounds",
+  "settingsPrivacyTitle": "Privacy & Security",
+  "settingsPrivacySubtitle": "Passwords, access"
 }

@@ -1,4 +1,15 @@
 {
   "@@locale": "hi",
-  "languageName": "हिन्दी"
+  "languageName": "हिन्दी",
+  "settingsTitle": "सेटिंग्स",
+  "searchSettings": "सेटिंग्स खोजें",
+  "noSettingsFound": "कोई सेटिंग्स नहीं मिलीं",
+  "settingsGeneralTitle": "सामान्य",
+  "settingsGeneralSubtitle": "प्रोफ़ाइल, प्राथमिकतियाँ",
+  "settingsAppearanceTitle": "उपस्थिति",
+  "settingsAppearanceSubtitle": "थीم, रंग",
+  "settingsNotificationsTitle": "सूचनाएं",
+  "settingsNotificationsSubtitle": "अलर्ट, ध्वनियाँ",
+  "settingsPrivacyTitle": "गोपनीयता और सुरक्षा",
+  "settingsPrivacySubtitle": "पासवर्ड, पहुंच"
 }
