@@ -27,7 +27,9 @@ import 'package:material_ui/material_ui.dart'
         TextAlign,
         Column,
         Center,
-        ColoredBox;
+        ColoredBox,
+        Directionality,
+        TextDirection;
 
 import '../core/theme/app_theme.dart';
 import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
@@ -179,6 +181,10 @@ class _BootStrapState extends State<BootStrap> {
   }
 }
 
+// You will need to add these to your material_ui/material_ui.dart exports
+// or import them directly from flutter/widgets.dart:
+// import 'package:flutter/widgets.dart' show Directionality, TextDirection;
+
 class _AppBootstrapLoading extends StatelessWidget {
   const _AppBootstrapLoading({required this.progress, required this.message});
 
@@ -189,45 +195,52 @@ class _AppBootstrapLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     final percentage = (progress * 100).round();
 
-    return ColoredBox(
-      color: const Color(0xFF0F172A),
-      child: Center(
-        child: SizedBox(
-          width: 260,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'BlogStore',
-                style: TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+    // 1. Wrap the widget tree in Directionality
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: ColoredBox(
+        color: const Color(0xFF0F172A),
+        child: Center(
+          child: SizedBox(
+            width: 260,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'BlogStore',
+                  style: TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 28),
+                const SizedBox(height: 28),
 
-              LinearProgressIndicator(value: progress),
+                LinearProgressIndicator(value: progress),
 
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              Text(
-                '$percentage%',
-                style: const TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  '$percentage%',
+                  style: const TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 6),
+                const SizedBox(height: 6),
 
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 14),
-              ),
-            ],
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFCBD5E1),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

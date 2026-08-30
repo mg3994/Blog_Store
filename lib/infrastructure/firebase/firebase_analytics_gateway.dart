@@ -6,15 +6,23 @@ import '../../core/analytics/analytics_gateway.dart';
 final class FirebaseAnalyticsGateway implements AnalyticsGateway {
   FirebaseAnalyticsGateway(this._analytics);
 
-  final FirebaseAnalytics _analytics;
+  final FirebaseAnalytics? _analytics;
 
   @override
-  Future<void> logScreenView(String screenName) {
+  Future<void> logScreenView(String screenName) async {
+    if (_analytics == null) return;
+
+    // Using the supported check provided by the underlying platform interface
+    if (!await _analytics.isSupported()) return;
+
     return _analytics.logScreenView(screenName: screenName);
   }
 
   @override
-  Future<void> logEvent(String name, {Map<String, Object>? parameters}) {
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    if (_analytics == null) return;
+    if (!await _analytics.isSupported()) return;
+
     return _analytics.logEvent(name: name, parameters: parameters);
   }
 
@@ -23,10 +31,15 @@ final class FirebaseAnalyticsGateway implements AnalyticsGateway {
     ScreenNameExtractor nameExtractor = defaultNameExtractor,
     RouteFilter routeFilter = defaultRouteFilter,
     void Function(PlatformException error)? onError,
-  }) => FirebaseAnalyticsObserver(
-    analytics: _analytics,
-    nameExtractor: nameExtractor,
-    routeFilter: routeFilter,
-    onError: onError,
-  );
+  }) {
+    // If analytics is null, you'll want to pass a valid instance or handle it.
+    // Note: FirebaseAnalyticsObserver doesn't take a future, so we rely on
+    // the initialization guard when instantiating this class.
+    return FirebaseAnalyticsObserver(
+      analytics: _analytics ?? FirebaseAnalytics.instance,
+      nameExtractor: nameExtractor,
+      routeFilter: routeFilter,
+      onError: onError,
+    );
+  }
 }

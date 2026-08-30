@@ -4,7 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart' deferred as app_localizations_ar;
 import 'app_localizations_en.dart' deferred as app_localizations_en;
+import 'app_localizations_hi.dart' deferred as app_localizations_hi;
 
 // ignore_for_file: type=lint
 
@@ -91,7 +93,11 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en'),
+    Locale('hi'),
+  ];
 
   /// Native display name of the language
   ///
@@ -177,7 +183,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['ar', 'en', 'hi'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -186,9 +192,17 @@ class _AppLocalizationsDelegate
 Future<AppLocalizations> lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar':
+      return app_localizations_ar.loadLibrary().then(
+        (dynamic _) => app_localizations_ar.AppLocalizationsAr(),
+      );
     case 'en':
       return app_localizations_en.loadLibrary().then(
         (dynamic _) => app_localizations_en.AppLocalizationsEn(),
+      );
+    case 'hi':
+      return app_localizations_hi.loadLibrary().then(
+        (dynamic _) => app_localizations_hi.AppLocalizationsHi(),
       );
   }
 

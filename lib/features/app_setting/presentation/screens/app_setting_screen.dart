@@ -1,7 +1,6 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/features/app_setting/presentation/bloc/app_setting_bloc.dart';
 import 'package:blogstore/injection/dependency_injection.dart';
-import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'widgets/app_setting_locale_widget.dart' show AppSettingLocaleWidget;

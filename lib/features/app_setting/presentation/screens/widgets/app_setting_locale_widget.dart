@@ -141,6 +141,7 @@ class AppSettingLocaleWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
+                spacing: 10.0,
                 children: [
                   for (final (index, locale)
                       in AppLocalizations.supportedLocales.indexed) ...[
