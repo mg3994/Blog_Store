@@ -108,27 +108,27 @@ final class AppRouter {
             currentRoute: route,
             child: SettingsTwoPane(
               master: SettingsMasterScreen(
-                selectedSetting: '',
+                selectedSetting: 'appearance',
                 onSelectSetting: (setting) {
                   if (setting == 'appearance') {
                     context.pushOrReplaceTop(const AppSettingRoute());
                   }
                 },
               ),
-              detail: Center(
-                child: Text(
-                  context.l10n.settingsTitle,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-              ),
+              detail: const AppSettingScreen(),
               hinge: fold?.bounds,
             ),
           ),
         ),
 
-      // Single pane compact screens: Push AppSettingRoute onto stack above SettingsMasterRoute
+      // Single pane compact screens:
+      // When transitioning from SettingsMasterRoute to AppSettingRoute on small devices, absorb SettingsMasterRoute and present AppSettingScreen directly
+      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
+        ),
       (_, AppSettingRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
