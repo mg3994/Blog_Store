@@ -32,7 +32,7 @@ import 'package:material_ui/material_ui.dart'
         TextDirection;
 
 import '../core/theme/app_theme.dart';
-import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingState;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
