@@ -32,7 +32,7 @@ import 'package:material_ui/material_ui.dart'
         TextDirection;
 
 import '../core/theme/app_theme.dart';
-import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingState;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
@@ -181,10 +181,6 @@ class _BootStrapState extends State<BootStrap> {
   }
 }
 
-// You will need to add these to your material_ui/material_ui.dart exports
-// or import them directly from flutter/widgets.dart:
-// import 'package:flutter/widgets.dart' show Directionality, TextDirection;
-
 class _AppBootstrapLoading extends StatelessWidget {
   const _AppBootstrapLoading({required this.progress, required this.message});
 
@@ -195,7 +191,6 @@ class _AppBootstrapLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     final percentage = (progress * 100).round();
 
-    // 1. Wrap the widget tree in Directionality
     return Directionality(
       textDirection: TextDirection.ltr,
       child: ColoredBox(
