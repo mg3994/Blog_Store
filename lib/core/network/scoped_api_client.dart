@@ -5,11 +5,11 @@ import 'api_client.dart';
 import 'api_scope.dart';
 
 final class ScopedApiClient implements ApiClient {
- const ScopedApiClient({
-     required Dio dio,
+  const ScopedApiClient({
+    required this._dio,
     required this.scope,
     this.accessTokenProvider,
-  }) : _dio = dio;
+  });
 
   final Dio _dio;
   final ApiScope scope;

@@ -14,13 +14,24 @@ import 'package:material_ui/material_ui.dart'
         BuildContext,
         StatefulWidget,
         State,
-        VoidCallback,
         SizedBox,
-        FlutterError;
+        FlutterError,
+        WidgetsBinding,
+        StatelessWidget,
+        Color,
+        Text,
+        TextStyle,
+        MainAxisSize,
+        FontWeight,
+        LinearProgressIndicator,
+        TextAlign,
+        Column,
+        Center,
+        ColoredBox;
 
 import '../core/theme/app_theme.dart';
 import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
-    show AppSettingBloc, AppSettingState, GetAppSettingEvent;
+    show AppSettingBloc, AppSettingState;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
     show firebaseMessagingBackgroundHandler;
@@ -28,9 +39,9 @@ import '../injection/dependency_injection.dart'
     show Dependencies, DependenciesProvider;
 
 class BootStrap extends StatefulWidget {
-  const BootStrap({super.key, required this.onReady, this.appSettingsBloc});
+  const BootStrap({super.key, required this.binding, this.appSettingsBloc});
 
-  final VoidCallback onReady;
+  final WidgetsBinding binding;
   final AppSettingBloc? appSettingsBloc;
 
   @override
@@ -38,6 +49,18 @@ class BootStrap extends StatefulWidget {
 }
 
 class _BootStrapState extends State<BootStrap> {
+  double _progress = 0;
+  String _loadingMessage = 'Starting application...';
+
+  void _setProgress(double progress, String message) {
+    if (!mounted) return;
+
+    setState(() {
+      _progress = progress;
+      _loadingMessage = message;
+    });
+  }
+
   KaiselRouterConfig? _routerConfig;
   Dependencies? _dependencies;
   AppSettingBloc? _appSettingsBloc;
@@ -46,40 +69,43 @@ class _BootStrapState extends State<BootStrap> {
     final dependencies = Dependencies.create();
 
     try {
+      _setProgress(0.0, 'Initializing Firebase...');
       // 1. Initialize Firebase Core
       await dependencies.firebaseInitializer.initialize();
+
+      _setProgress(0.25, 'Configuring notifications...');
 
       // 2. Register FCM Background Handler immediately post-Firebase initialization
       await dependencies.notificationGateway.registerBackgroundHandler(
         firebaseMessagingBackgroundHandler,
       );
-
+      _setProgress(0.45, 'Configuring application...');
       FlutterError.onError = dependencies.crashReporter.recordFlutterFatalError;
       PlatformDispatcher.instance.onError = (error, stack) {
         dependencies.crashReporter.recordError(error, stack, fatal: true);
         return true;
       };
-
+      _setProgress(0.60, 'Preparing navigation...');
       final routerConfig = AppRouter(dependencies).createConfig();
       Intl.defaultLocale = PlatformDispatcher.instance.locale
           .toLanguageTag(); //usefull For Manish //! TODO: support
-      final settingsBloc =
+      final appSettingBloc =
           widget.appSettingsBloc ?? dependencies.appSettingBloc;
-
+      _setProgress(0.75, 'Loading settings...');
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
-      await settingsBloc.loadSettings();
-
+      await appSettingBloc.loadSettings();
+      _setProgress(1.0, 'Ready');
       if (!mounted) return;
 
       setState(() {
         _dependencies = dependencies;
-        _appSettingsBloc = settingsBloc;
+        _appSettingsBloc = appSettingBloc;
         _routerConfig = routerConfig;
       });
     } catch (error, stack) {
       dependencies.crashReporter.recordError(error, stack, fatal: true);
     } finally {
-      widget.onReady();
+      allowFirstFrame();
     }
 
     await dependencies.notificationGateway.requestPermission();
@@ -101,23 +127,40 @@ class _BootStrapState extends State<BootStrap> {
   }
 
   @override
+  void didChangeDependencies() {
+    allowFirstFrame();
+    super.didChangeDependencies();
+  }
+
+  void allowFirstFrame() {
+    if (!widget.binding.sendFramesToEngine) {
+      widget.binding.allowFirstFrame();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dependencies = _dependencies;
-    final settingsBloc = _appSettingsBloc;
+    final appSettingBloc = _appSettingsBloc;
     final routerConfig = _routerConfig;
 
-    if (dependencies == null || settingsBloc == null || routerConfig == null) {
-      return const SizedBox.shrink();
+    if (dependencies == null ||
+        appSettingBloc == null ||
+        routerConfig == null) {
+      return _AppBootstrapLoading(
+        progress: _progress,
+        message: _loadingMessage,
+      );
     }
 
     return DependenciesProvider(
       dependencies: dependencies,
       child: MultiBlocSignalProvider(
         providers: [
-          BlocSignalProvider<AppSettingBloc>.value(value: settingsBloc),
+          BlocSignalProvider<AppSettingBloc>.value(value: appSettingBloc),
         ],
         child: BlocSignalBuilder<AppSettingBloc, AppSettingState>(
-          bloc: settingsBloc,
+          bloc: appSettingBloc,
           builder: (context, state) {
             return MaterialApp.router(
               routerConfig: routerConfig,
@@ -130,6 +173,62 @@ class _BootStrapState extends State<BootStrap> {
               darkTheme: AppTheme.dark(seed: state.seedColor),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _AppBootstrapLoading extends StatelessWidget {
+  const _AppBootstrapLoading({required this.progress, required this.message});
+
+  final double progress;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage = (progress * 100).round();
+
+    return ColoredBox(
+      color: const Color(0xFF0F172A),
+      child: Center(
+        child: SizedBox(
+          width: 260,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'BlogStore',
+                style: TextStyle(
+                  color: Color(0xFFFFFFFF),
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              LinearProgressIndicator(value: progress),
+
+              const SizedBox(height: 12),
+
+              Text(
+                '$percentage%',
+                style: const TextStyle(
+                  color: Color(0xFFFFFFFF),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 14),
+              ),
+            ],
+          ),
         ),
       ),
     );

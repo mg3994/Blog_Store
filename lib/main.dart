@@ -8,5 +8,5 @@ void main() {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   binding.deferFirstFrame();
 
-  return runApp(BootStrap(onReady: () => binding.allowFirstFrame()));
+  return runApp(BootStrap(binding: binding));
 }
