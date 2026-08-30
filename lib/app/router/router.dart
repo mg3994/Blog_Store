@@ -58,6 +58,14 @@ final class AppRouter {
     );
   }
 
+  // Helper to map setting string to actual route
+  AppRoute _getRouteForSetting(String settingId) {
+    return switch (settingId) {
+      'appearance' => const AppSettingRoute(),
+      _ => const AppSettingRoute(), // Fallback
+    };
+  }
+
   KaiselPageResult _buildRoute(
     BuildContext context,
     AppRoute route,
@@ -76,9 +84,7 @@ final class AppRouter {
               master: SettingsMasterScreen(
                 selectedSetting: 'appearance',
                 onSelectSetting: (tileContext, setting) {
-                  if (setting == 'appearance') {
-                    tileContext.pushOrReplaceTop(const AppSettingRoute());
-                  }
+                  tileContext.pushOrReplaceTop(_getRouteForSetting(setting));
                 },
               ),
               detail: const AppSettingScreen(),
@@ -93,9 +99,7 @@ final class AppRouter {
               master: SettingsMasterScreen(
                 selectedSetting: 'appearance',
                 onSelectSetting: (tileContext, setting) {
-                  if (setting == 'appearance') {
-                    tileContext.pushOrReplaceTop(const AppSettingRoute());
-                  }
+                  tileContext.pushOrReplaceTop(_getRouteForSetting(setting));
                 },
               ),
               detail: const AppSettingScreen(),
@@ -110,9 +114,7 @@ final class AppRouter {
               master: SettingsMasterScreen(
                 selectedSetting: 'appearance',
                 onSelectSetting: (tileContext, setting) {
-                  if (setting == 'appearance') {
-                    tileContext.pushOrReplaceTop(const AppSettingRoute());
-                  }
+                  tileContext.pushOrReplaceTop(_getRouteForSetting(setting));
                 },
               ),
               detail: const AppSettingScreen(),
@@ -134,9 +136,8 @@ final class AppRouter {
             child: SettingsMasterScreen(
               selectedSetting: '',
               onSelectSetting: (tileContext, setting) {
-                if (setting == 'appearance') {
-                  tileContext.push(const AppSettingRoute());
-                }
+                // Notice we use .push() here instead of .pushOrReplaceTop() for compact devices
+                tileContext.push(_getRouteForSetting(setting));
               },
             ),
           ),
