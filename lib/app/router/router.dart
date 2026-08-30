@@ -68,7 +68,7 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
-      // Wide / Foldable spanned screens:
+      // Wide / Foldable spanned screens: two-pane master-detail view
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
@@ -121,13 +121,7 @@ final class AppRouter {
           ),
         ),
 
-      // Single pane compact screens:
-      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
-          widget: AppNavigationShell(
-            currentRoute: route,
-            child: const AppSettingScreen(),
-          ),
-        ),
+      // Single pane compact screens: standalone page push/pop
       (_, AppSettingRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
