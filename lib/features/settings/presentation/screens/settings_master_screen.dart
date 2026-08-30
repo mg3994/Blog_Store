@@ -1,14 +1,97 @@
 import 'package:material_ui/material_ui.dart';
 
-class SettingsMasterScreen extends StatelessWidget {
-  const SettingsMasterScreen({super.key, this.selectedSetting = 'appearance', this.onSelectSetting});
+class SettingsCategoryItem {
+  const SettingsCategoryItem({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+
+  final String id;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+}
+
+const List<SettingsCategoryItem> kSettingsCategoryItems = [
+  SettingsCategoryItem(
+    id: 'general',
+    title: 'General',
+    subtitle: 'Profile, preferences',
+    icon: Icons.person_outline,
+  ),
+  SettingsCategoryItem(
+    id: 'appearance',
+    title: 'Appearance',
+    subtitle: 'Theme, colors',
+    icon: Icons.palette_outlined,
+  ),
+  SettingsCategoryItem(
+    id: 'notifications',
+    title: 'Notifications',
+    subtitle: 'Alerts, sounds',
+    icon: Icons.notifications_none,
+  ),
+  SettingsCategoryItem(
+    id: 'privacy',
+    title: 'Privacy & Security',
+    subtitle: 'Passwords, access',
+    icon: Icons.lock_outline,
+  ),
+];
+
+class SettingsMasterScreen extends StatefulWidget {
+  const SettingsMasterScreen({
+    super.key,
+    this.selectedSetting = 'appearance',
+    this.onSelectSetting,
+  });
 
   final String selectedSetting;
   final ValueChanged<String>? onSelectSetting;
 
   @override
+  State<SettingsMasterScreen> createState() => _SettingsMasterScreenState();
+}
+
+class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.trim().toLowerCase();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<SettingsCategoryItem> get _filteredItems {
+    if (_searchQuery.isEmpty) return kSettingsCategoryItems;
+    return kSettingsCategoryItems.where((item) {
+      final titleMatch = item.title.toLowerCase().contains(_searchQuery);
+      final subtitleMatch = item.subtitle.toLowerCase().contains(_searchQuery);
+      return titleMatch || subtitleMatch;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final filtered = _filteredItems;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -20,9 +103,18 @@ class SettingsMasterScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search settings',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
+                    : null,
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerHigh,
                 border: OutlineInputBorder(
@@ -33,37 +125,29 @@ class SettingsMasterScreen extends StatelessWidget {
               ),
             ),
           ),
-          _SettingsCategoryTile(
-            icon: Icons.person_outline,
-            title: 'General',
-            subtitle: 'Profile, preferences',
-            isSelected: selectedSetting == 'general',
-            onTap: () => onSelectSetting?.call('general'),
-          ),
-          const SizedBox(height: 8),
-          _SettingsCategoryTile(
-            icon: Icons.palette_outlined,
-            title: 'Appearance',
-            subtitle: 'Theme, colors',
-            isSelected: selectedSetting == 'appearance',
-            onTap: () => onSelectSetting?.call('appearance'),
-          ),
-          const SizedBox(height: 8),
-          _SettingsCategoryTile(
-            icon: Icons.notifications_none,
-            title: 'Notifications',
-            subtitle: 'Alerts, sounds',
-            isSelected: selectedSetting == 'notifications',
-            onTap: () => onSelectSetting?.call('notifications'),
-          ),
-          const SizedBox(height: 8),
-          _SettingsCategoryTile(
-            icon: Icons.lock_outline,
-            title: 'Privacy & Security',
-            subtitle: 'Passwords, access',
-            isSelected: selectedSetting == 'privacy',
-            onTap: () => onSelectSetting?.call('privacy'),
-          ),
+          if (filtered.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
+                child: Text(
+                  'No settings found',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            )
+          else
+            for (int i = 0; i < filtered.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              _SettingsCategoryTile(
+                icon: filtered[i].icon,
+                title: filtered[i].title,
+                subtitle: filtered[i].subtitle,
+                isSelected: widget.selectedSetting == filtered[i].id,
+                onTap: () => widget.onSelectSetting?.call(filtered[i].id),
+              ),
+            ],
         ],
       ),
     );
