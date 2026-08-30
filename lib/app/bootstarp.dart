@@ -90,7 +90,7 @@ class _BootStrapState extends State<BootStrap> {
       _setProgress(0.60, 'Preparing navigation...');
       final routerConfig = AppRouter(dependencies).createConfig();
       Intl.defaultLocale = PlatformDispatcher.instance.locale
-          .toLanguageTag(); //usefull For Manish //! TODO: support
+          .toLanguageTag();
       final appSettingBloc =
           widget.appSettingsBloc ?? dependencies.appSettingBloc;
       _setProgress(0.75, 'Loading settings...');
@@ -181,10 +181,6 @@ class _BootStrapState extends State<BootStrap> {
   }
 }
 
-// You will need to add these to your material_ui/material_ui.dart exports
-// or import them directly from flutter/widgets.dart:
-// import 'package:flutter/widgets.dart' show Directionality, TextDirection;
-
 class _AppBootstrapLoading extends StatelessWidget {
   const _AppBootstrapLoading({required this.progress, required this.message});
 
@@ -195,7 +191,6 @@ class _AppBootstrapLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     final percentage = (progress * 100).round();
 
-    // 1. Wrap the widget tree in Directionality
     return Directionality(
       textDirection: TextDirection.ltr,
       child: ColoredBox(
