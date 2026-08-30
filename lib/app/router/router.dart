@@ -66,58 +66,100 @@ final class AppRouter {
     final mq = MediaQuery.of(context);
     final fold = _verticalFold(mq);
     final spanned = fold != null || mq.size.width >= 700;
-    final isBottom = ctx.previous == null;
 
-    final Widget pageContent = switch ((ctx.previous, route, spanned)) {
+    return switch ((ctx.previous, route, spanned)) {
       // Wide / Foldable spanned screens:
-      (SettingsMasterRoute(), AppSettingRoute(), true) => SettingsTwoPane(
-          master: const SettingsMasterScreen(selectedSetting: 'appearance'),
-          detail: const AppSettingScreen(),
-          hinge: fold?.bounds,
-        ),
-      (_, SettingsMasterRoute(), true) => SettingsTwoPane(
-          master: SettingsMasterScreen(
-            selectedSetting: 'appearance',
-            onSelectSetting: (setting) {
-              if (setting == 'appearance') {
-                context.pushOrReplaceTop(const AppSettingRoute());
-              }
-            },
+      (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (setting) {
+                  if (setting == 'appearance') {
+                    context.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
+              ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
+            ),
           ),
-          detail: const AppSettingScreen(),
-          hinge: fold?.bounds,
+        ),
+      (_, AppSettingRoute(), true) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (setting) {
+                  if (setting == 'appearance') {
+                    context.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
+              ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
+            ),
+          ),
+        ),
+      (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'appearance',
+                onSelectSetting: (setting) {
+                  if (setting == 'appearance') {
+                    context.pushOrReplaceTop(const AppSettingRoute());
+                  }
+                },
+              ),
+              detail: const AppSettingScreen(),
+              hinge: fold?.bounds,
+            ),
+          ),
         ),
 
       // Single pane compact screens:
-      (SettingsMasterRoute(), AppSettingRoute(), false) => const AppSettingScreen(),
-      (_, AppSettingRoute(), false) => const AppSettingScreen(),
-      (_, SettingsMasterRoute(), false) => SettingsMasterScreen(
-          selectedSetting: '',
-          onSelectSetting: (setting) {
-            if (setting == 'appearance') {
-              context.push(const AppSettingRoute());
-            }
-          },
+      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
         ),
-      (_, ProductDetailRoute(:final id), _) => ProductDetailScreen(id: id),
-      _ => const HomeScreen(),
+      (_, AppSettingRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
+        ),
+      (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: SettingsMasterScreen(
+              selectedSetting: '',
+              onSelectSetting: (setting) {
+                if (setting == 'appearance') {
+                  context.push(const AppSettingRoute());
+                }
+              },
+            ),
+          ),
+        ),
+      (_, ProductDetailRoute(:final id), _) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: ProductDetailScreen(id: id),
+          ),
+        ),
+      _ => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const HomeScreen(),
+          ),
+        ),
     };
-
-    if (ctx.previous is SettingsMasterRoute && route is AppSettingRoute) {
-      return KaiselAbsorbingPage(
-        widget: AppNavigationShell(
-          currentRoute: route,
-          child: pageContent,
-        ),
-      );
-    }
-
-    return KaiselStandalonePage(
-      AppNavigationShell(
-        currentRoute: route,
-        child: pageContent,
-      ),
-    );
   }
 }
 
