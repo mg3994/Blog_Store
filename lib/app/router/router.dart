@@ -121,14 +121,7 @@ final class AppRouter {
           ),
         ),
 
-      // Single pane compact screens:
-      // When transitioning from SettingsMasterRoute to AppSettingRoute on small devices, absorb SettingsMasterRoute and present AppSettingScreen directly
-      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
-          widget: AppNavigationShell(
-            currentRoute: route,
-            child: const AppSettingScreen(),
-          ),
-        ),
+      // Single pane compact screens: Standalone page push/pop
       (_, AppSettingRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,

@@ -193,8 +193,12 @@ class _SettingsCategoryTile extends StatelessWidget {
     final backgroundColor = isSelected
         ? colorScheme.secondaryContainer
         : Colors.transparent;
-    final iconColor = isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant;
-    final textColor = isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurface;
+    final iconColor = isSelected
+        ? colorScheme.primary
+        : colorScheme.onSurfaceVariant;
+    final textColor = isSelected
+        ? colorScheme.onSecondaryContainer
+        : colorScheme.onSurface;
 
     return Container(
       decoration: BoxDecoration(
