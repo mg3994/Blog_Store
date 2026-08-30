@@ -1,6 +1,5 @@
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
-import 'package:blogstore/app/widgets/kaisel_page_scope.dart';
 import 'package:blogstore/features/settings/app_setting/presentation/bloc/app_setting_bloc.dart';
 import 'package:blogstore/injection/dependency_injection.dart';
 import 'package:kaisel/kaisel.dart';
@@ -20,7 +19,6 @@ class AppSettingScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
     final isCompact = mq.size.width < 700;
-    final isOnlyPage = KaiselPageScope.maybeOf(context)?.isBottom ?? false;
 
     return BlocSignalProvider<AppSettingBloc>.value(
       value: context.dependencies.appSettingBloc,
@@ -28,7 +26,7 @@ class AppSettingScreen extends StatelessWidget {
         backgroundColor: theme.colorScheme.surfaceContainerLowest,
         appBar: AppBar(
           title: Text(context.l10n.settingsAppearanceTitle),
-          automaticallyImplyLeading: !isOnlyPage,
+          automaticallyImplyLeading: context.canPop(),
           elevation: 0,
         ),
         body: SingleChildScrollView(

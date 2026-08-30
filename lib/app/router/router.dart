@@ -2,7 +2,6 @@ import 'dart:ui' show DisplayFeature, DisplayFeatureType;
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:blogstore/app/widgets/app_navigation_shell.dart';
-import 'package:blogstore/app/widgets/kaisel_page_scope.dart';
 import 'package:blogstore/injection/dependency_injection.dart' show Dependencies;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
@@ -104,16 +103,11 @@ final class AppRouter {
       _ => const HomeScreen(),
     };
 
-    final Widget shellChild = KaiselPageScope(
-      isBottom: isBottom,
-      child: pageContent,
-    );
-
     if (ctx.previous is SettingsMasterRoute && route is AppSettingRoute) {
       return KaiselAbsorbingPage(
         widget: AppNavigationShell(
           currentRoute: route,
-          child: shellChild,
+          child: pageContent,
         ),
       );
     }
@@ -121,7 +115,7 @@ final class AppRouter {
     return KaiselStandalonePage(
       AppNavigationShell(
         currentRoute: route,
-        child: shellChild,
+        child: pageContent,
       ),
     );
   }
