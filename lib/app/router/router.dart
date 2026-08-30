@@ -18,8 +18,20 @@ final class SettingsMasterRoute extends AppRoute {
   const SettingsMasterRoute();
 }
 
+final class GeneralSettingRoute extends AppRoute {
+  const GeneralSettingRoute();
+}
+
 final class AppSettingRoute extends AppRoute {
   const AppSettingRoute();
+}
+
+final class NotificationSettingRoute extends AppRoute {
+  const NotificationSettingRoute();
+}
+
+final class PrivacySettingRoute extends AppRoute {
+  const PrivacySettingRoute();
 }
 
 final class HomeRoute extends AppRoute {
@@ -60,8 +72,29 @@ final class AppRouter {
   // Helper to map setting string to actual route
   AppRoute _getRouteForSetting(String settingId) {
     return switch (settingId) {
+      'general' => const GeneralSettingRoute(),
       'appearance' => const AppSettingRoute(),
+      'notifications' => const NotificationSettingRoute(),
+      'privacy' => const PrivacySettingRoute(),
       _ => const AppSettingRoute(),
+    };
+  }
+
+  Widget _getDetailWidgetForRoute(AppRoute route) {
+    return switch (route) {
+      GeneralSettingRoute() => const GeneralSettingScreen(),
+      NotificationSettingRoute() => const NotificationSettingScreen(),
+      PrivacySettingRoute() => const PrivacySettingScreen(),
+      _ => const AppSettingScreen(),
+    };
+  }
+
+  String _getSettingIdForRoute(AppRoute route) {
+    return switch (route) {
+      GeneralSettingRoute() => 'general',
+      NotificationSettingRoute() => 'notifications',
+      PrivacySettingRoute() => 'privacy',
+      _ => 'appearance',
     };
   }
 
@@ -75,33 +108,49 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
-      // Wide / Foldable screens (Master -> Detail)
-      (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
+      // Wide / Foldable screens (Master -> Detail absorption for all settings routes)
+      (
+        SettingsMasterRoute(),
+        GeneralSettingRoute() |
+            AppSettingRoute() |
+            NotificationSettingRoute() |
+            PrivacySettingRoute(),
+        true
+      ) =>
+        KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
             child: SettingsTwoPane(
               master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
+                selectedSetting: _getSettingIdForRoute(route),
                 onSelectSetting: (tileContext, setting) {
                   tileContext.pushOrReplaceTop(_getRouteForSetting(setting));
                 },
               ),
-              detail: const AppSettingScreen(),
+              detail: _getDetailWidgetForRoute(route),
               hinge: fold?.bounds,
             ),
           ),
         ),
-      (_, AppSettingRoute(), true) => KaiselStandalonePage(
+      (
+        _,
+        GeneralSettingRoute() |
+            AppSettingRoute() |
+            NotificationSettingRoute() |
+            PrivacySettingRoute(),
+        true
+      ) =>
+        KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
             child: SettingsTwoPane(
               master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
+                selectedSetting: _getSettingIdForRoute(route),
                 onSelectSetting: (tileContext, setting) {
                   tileContext.pushOrReplaceTop(_getRouteForSetting(setting));
                 },
               ),
-              detail: const AppSettingScreen(),
+              detail: _getDetailWidgetForRoute(route),
               hinge: fold?.bounds,
             ),
           ),
@@ -123,10 +172,28 @@ final class AppRouter {
         ),
 
       // Single pane compact screens: Standalone page push/pop
+      (_, GeneralSettingRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const GeneralSettingScreen(),
+          ),
+        ),
       (_, AppSettingRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
             child: const AppSettingScreen(),
+          ),
+        ),
+      (_, NotificationSettingRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const NotificationSettingScreen(),
+          ),
+        ),
+      (_, PrivacySettingRoute(), false) => KaiselStandalonePage(
+          AppNavigationShell(
+            currentRoute: route,
+            child: const PrivacySettingScreen(),
           ),
         ),
       (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
@@ -211,8 +278,12 @@ class AppNavigationShell extends StatelessWidget {
   int _calculateSelectedIndex() {
     return switch (currentRoute) {
       HomeRoute() => 0,
-      SettingsMasterRoute() => 3,
-      AppSettingRoute() => 3,
+      SettingsMasterRoute() ||
+      GeneralSettingRoute() ||
+      AppSettingRoute() ||
+      NotificationSettingRoute() ||
+      PrivacySettingRoute() =>
+        3,
       _ => 0,
     };
   }
