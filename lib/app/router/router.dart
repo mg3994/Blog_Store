@@ -1,6 +1,7 @@
 import 'dart:ui' show DisplayFeature, DisplayFeatureType;
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
+import 'package:blogstore/app/widgets/app_navigation_shell.dart';
 import 'package:blogstore/injection/dependency_injection.dart' show Dependencies;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
@@ -66,50 +67,56 @@ final class AppRouter {
     final fold = _verticalFold(mq);
     final spanned = fold != null || mq.size.width >= 700;
 
-    return switch ((ctx.previous, route, spanned)) {
-      (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
-          widget: SettingsTwoPane(
-            master: const SettingsMasterScreen(selectedSetting: 'appearance'),
-            detail: const AppSettingScreen(),
-            hinge: fold?.bounds,
-          ),
+    final Widget innerWidget = switch ((ctx.previous, route, spanned)) {
+      (SettingsMasterRoute(), AppSettingRoute(), true) => SettingsTwoPane(
+          master: const SettingsMasterScreen(selectedSetting: 'appearance'),
+          detail: const AppSettingScreen(),
+          hinge: fold?.bounds,
         ),
-      (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
-          SettingsTwoPane(
-            master: SettingsMasterScreen(
-              selectedSetting: 'appearance',
-              onSelectSetting: (setting) {
-                if (setting == 'appearance') {
-                  context.pushOrReplaceTop(const AppSettingRoute());
-                }
-              },
-            ),
-            detail: const AppSettingScreen(),
-            hinge: fold?.bounds,
-          ),
-        ),
-      (_, AppSettingRoute(), _) => KaiselStandalonePage(
-          Scaffold(
-            appBar: AppBar(title: const Text('Appearance')),
-            body: const AppSettingScreen(),
-          ),
-        ),
-      (_, SettingsMasterRoute(), _) => KaiselStandalonePage(
-          SettingsMasterScreen(
+      (_, SettingsMasterRoute(), true) => SettingsTwoPane(
+          master: SettingsMasterScreen(
+            selectedSetting: 'appearance',
             onSelectSetting: (setting) {
               if (setting == 'appearance') {
-                context.push(const AppSettingRoute());
+                context.pushOrReplaceTop(const AppSettingRoute());
               }
             },
           ),
+          detail: const AppSettingScreen(),
+          hinge: fold?.bounds,
         ),
-      (_, ProductDetailRoute(:final id), _) => KaiselStandalonePage(
-          ProductDetailScreen(id: id),
+      (_, AppSettingRoute(), _) => Scaffold(
+          appBar: AppBar(title: const Text('Appearance')),
+          body: const AppSettingScreen(),
         ),
-      _ => const KaiselStandalonePage(
-          HomeScreen(),
+      (_, SettingsMasterRoute(), _) => SettingsMasterScreen(
+          onSelectSetting: (setting) {
+            if (setting == 'appearance') {
+              context.push(const AppSettingRoute());
+            }
+          },
         ),
+      (_, ProductDetailRoute(:final id), _) => ProductDetailScreen(id: id),
+      _ => const HomeScreen(),
     };
+
+    final isAbsorbing = ctx.previous is SettingsMasterRoute && route is AppSettingRoute && spanned;
+
+    if (isAbsorbing) {
+      return KaiselAbsorbingPage(
+        widget: AppNavigationShell(
+          currentRoute: route,
+          child: innerWidget,
+        ),
+      );
+    }
+
+    return KaiselStandalonePage(
+      AppNavigationShell(
+        currentRoute: route,
+        child: innerWidget,
+      ),
+    );
   }
 }
 
