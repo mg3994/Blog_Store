@@ -68,7 +68,7 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
-      // Wide / Foldable spanned screens: two-pane master-detail view
+      // Wide / Foldable spanned screens: Absorbing two-pane view when transitioning from Master -> Detail
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
           widget: AppNavigationShell(
             currentRoute: route,
@@ -108,20 +108,34 @@ final class AppRouter {
             currentRoute: route,
             child: SettingsTwoPane(
               master: SettingsMasterScreen(
-                selectedSetting: 'appearance',
+                selectedSetting: '',
                 onSelectSetting: (setting) {
                   if (setting == 'appearance') {
                     context.pushOrReplaceTop(const AppSettingRoute());
                   }
                 },
               ),
-              detail: const AppSettingScreen(),
+              detail: Center(
+                child: Text(
+                  context.l10n.settingsTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
               hinge: fold?.bounds,
             ),
           ),
         ),
 
-      // Single pane compact screens: standalone page push/pop
+      // Single pane compact screens:
+      // When transitioning from SettingsMasterRoute to AppSettingRoute, absorb SettingsMaster screen and render AppSettingScreen
+      (SettingsMasterRoute(), AppSettingRoute(), false) => KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: const AppSettingScreen(),
+          ),
+        ),
       (_, AppSettingRoute(), false) => KaiselStandalonePage(
           AppNavigationShell(
             currentRoute: route,
@@ -135,7 +149,7 @@ final class AppRouter {
               selectedSetting: '',
               onSelectSetting: (setting) {
                 if (setting == 'appearance') {
-                  context.push(const AppSettingRoute());
+                  context.pushOrReplaceTop(const AppSettingRoute());
                 }
               },
             ),
