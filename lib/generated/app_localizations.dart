@@ -170,6 +170,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Published at {time}'**
   String publishedTime(DateTime time);
+
+  /// Title for the settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Placeholder text for searching settings
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get searchSettings;
+
+  /// Message displayed when search returns no matching settings
+  ///
+  /// In en, this message translates to:
+  /// **'No settings found'**
+  String get noSettingsFound;
+
+  /// Title for general settings category
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneralTitle;
+
+  /// Subtitle describing general settings content
+  ///
+  /// In en, this message translates to:
+  /// **'Profile, preferences'**
+  String get settingsGeneralSubtitle;
+
+  /// Title for appearance settings category
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearanceTitle;
+
+  /// Subtitle describing appearance settings content
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, colors, language'**
+  String get settingsAppearanceSubtitle;
+
+  /// Title for notifications settings category
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsTitle;
+
+  /// Subtitle describing notifications settings content
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts, sounds'**
+  String get settingsNotificationsSubtitle;
+
+  /// Title for privacy & security settings category
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get settingsPrivacyTitle;
+
+  /// Subtitle describing privacy & security settings content
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords, access'**
+  String get settingsPrivacySubtitle;
 }
 
 class _AppLocalizationsDelegate

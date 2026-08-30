@@ -1,11 +1,9 @@
 import 'package:material_ui/material_ui.dart'
     show
-        CardTheme,
         CardThemeData,
         Color,
         ColorScheme,
         Colors,
-        InkRipple,
         ThemeData,
         EdgeInsets,
         BorderRadius,
@@ -19,7 +17,7 @@ abstract final class AppTheme {
 
     return base.copyWith(
       colorScheme: scheme,
-      
+
       cardTheme: CardThemeData(
         color: scheme.surface,
         surfaceTintColor: scheme.surfaceTint,
@@ -49,7 +47,7 @@ abstract final class AppTheme {
 
     return base.copyWith(
       colorScheme: scheme,
-      
+
       cardTheme: CardThemeData(
         color: scheme.surface,
         surfaceTintColor: scheme.surfaceTint,

@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:material_ui/material_ui.dart' show Color, ThemeMode;
 
-import '../../../../../config/app_config.dart' show AppConfig;
-import '../../../../../infrastructure/database/drift/app_database.dart'
+import '../../../../../../config/app_config.dart' show AppConfig;
+import '../../../../../../infrastructure/database/drift/app_database.dart'
     show AppDatabase, AppSettingsCompanion;
 import '../../../domain/entities/app_setting.dart' show AppSetting;
 

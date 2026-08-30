@@ -1,18 +1,24 @@
+import 'dart:ui' show DisplayFeature, DisplayFeatureType;
+
 import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:blogstore/app/helpers/extensions.dart';
-
+import 'package:blogstore/app/widgets/app_navigation_shell.dart';
 import 'package:blogstore/injection/dependency_injection.dart'
     show Dependencies;
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../features/app_setting/app_setting.dart' show AppSettingScreen;
-import '../../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+import '../../features/settings/settings.dart';
+import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingUpdateSeedColorEvent;
 
 // 1. Sealed Route Hierarchy
 sealed class AppRoute extends KaiselRoute {
   const AppRoute();
+}
+
+final class SettingsMasterRoute extends AppRoute {
+  const SettingsMasterRoute();
 }
 
 final class AppSettingRoute extends AppRoute {
@@ -28,6 +34,18 @@ final class ProductDetailRoute extends AppRoute {
   const ProductDetailRoute(this.id);
 }
 
+/// Helper function to detect a vertical fold / hinge
+DisplayFeature? _verticalFold(MediaQueryData mq) {
+  for (final f in mq.displayFeatures) {
+    final vertical =
+        f.bounds.left > 0 && f.bounds.height >= mq.size.height * 0.9;
+    final isFold =
+        f.type == DisplayFeatureType.fold || f.type == DisplayFeatureType.hinge;
+    if (vertical && isFold) return f;
+  }
+  return null;
+}
+
 // 2. Class-Based Router accepting Dependencies
 final class AppRouter {
   const AppRouter(this._dependencies);
@@ -35,7 +53,7 @@ final class AppRouter {
   final Dependencies _dependencies;
 
   KaiselRouterConfig<AppRoute> createConfig() {
-    return KaiselRouterConfig<AppRoute>(
+    return KaiselRouterConfig<AppRoute>.adaptive(
       initial: const HomeRoute(),
       observers: () => [_dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) =>
@@ -44,12 +62,134 @@ final class AppRouter {
     );
   }
 
-  Widget _buildRoute(BuildContext context, AppRoute route) {
-    return switch (route) {
-      HomeRoute() => const HomeScreen(),
-      ProductDetailRoute(:final id) => ProductDetailScreen(id: id),
-      AppSettingRoute() => const AppSettingScreen(),
+  KaiselPageResult _buildRoute(
+    BuildContext context,
+    AppRoute route,
+    KaiselStackContext<AppRoute> ctx,
+  ) {
+    final mq = MediaQuery.of(context);
+    final fold = _verticalFold(mq);
+    final spanned = fold != null || mq.size.width >= 700;
+
+    return switch ((ctx.previous, route, spanned)) {
+      // Wide / Foldable screens (Master -> Detail)
+      (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
+        widget: AppNavigationShell(
+          currentRoute: route,
+          child: SettingsTwoPane(
+            master: SettingsMasterScreen(
+              selectedSetting: 'appearance',
+              onSelectSetting: (tileContext, setting) {
+                if (setting == 'appearance') {
+                  tileContext.pushOrReplaceTop(const AppSettingRoute());
+                }
+              },
+            ),
+            detail: const AppSettingScreen(),
+            hinge: fold?.bounds,
+          ),
+        ),
+      ),
+      (_, AppSettingRoute(), true) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: SettingsTwoPane(
+            master: SettingsMasterScreen(
+              selectedSetting: 'appearance',
+              onSelectSetting: (tileContext, setting) {
+                if (setting == 'appearance') {
+                  tileContext.pushOrReplaceTop(const AppSettingRoute());
+                }
+              },
+            ),
+            detail: const AppSettingScreen(),
+            hinge: fold?.bounds,
+          ),
+        ),
+      ),
+      (_, SettingsMasterRoute(), true) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: SettingsTwoPane(
+            master: SettingsMasterScreen(
+              selectedSetting: 'appearance',
+              onSelectSetting: (tileContext, setting) {
+                if (setting == 'appearance') {
+                  tileContext.pushOrReplaceTop(const AppSettingRoute());
+                }
+              },
+            ),
+            detail: const AppSettingScreen(),
+            hinge: fold?.bounds,
+          ),
+        ),
+      ),
+
+      // Single pane compact screens: Standalone page push/pop
+      (_, AppSettingRoute(), false) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: const AppSettingScreen(),
+        ),
+      ),
+      (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: SettingsMasterScreen(
+            selectedSetting: '',
+            onSelectSetting: (tileContext, setting) {
+              if (setting == 'appearance') {
+                tileContext.push(const AppSettingRoute());
+              }
+            },
+          ),
+        ),
+      ),
+      (_, ProductDetailRoute(:final id), _) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: ProductDetailScreen(id: id),
+        ),
+      ),
+      _ => KaiselStandalonePage(
+        AppNavigationShell(currentRoute: route, child: const HomeScreen()),
+      ),
     };
+  }
+}
+
+/// Two-pane layout for foldable devices / wide screens
+class SettingsTwoPane extends StatelessWidget {
+  const SettingsTwoPane({
+    super.key,
+    required this.master,
+    required this.detail,
+    this.hinge,
+  });
+
+  final Widget master;
+  final Widget detail;
+  final Rect? hinge;
+
+  @override
+  Widget build(BuildContext context) {
+    final h = hinge;
+    if (h == null) {
+      return Row(
+        children: [
+          SizedBox(width: 320, child: master),
+          const VerticalDivider(width: 1),
+          Expanded(child: detail),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        SizedBox(width: h.left, child: master),
+        SizedBox(width: h.width),
+        Expanded(child: detail),
+      ],
+    );
   }
 }
 
@@ -61,21 +201,24 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Home'),
         backgroundColor: context.theme.colorScheme.primary,
         actions: [
           IconButton(
-            onPressed: () => context.push(const AppSettingRoute()),
+            onPressed: () => context.push(const SettingsMasterRoute()),
             icon: const Icon(Icons.settings),
           ),
         ],
       ),
       body: Container(
-        color: context.theme.colorScheme.primary,
-        child: IconButton(
-          onPressed: () => context.read<AppSettingBloc>().add(
-            AppSettingUpdateSeedColorEvent(Colors.red),
+        color: context.theme.colorScheme.primaryContainer,
+        child: Center(
+          child: IconButton(
+            onPressed: () => context.read<AppSettingBloc>().add(
+              AppSettingUpdateSeedColorEvent(Colors.purple),
+            ),
+            icon: const Icon(Icons.color_lens),
           ),
-          icon: const Icon(Icons.color_lens),
         ),
       ),
     );

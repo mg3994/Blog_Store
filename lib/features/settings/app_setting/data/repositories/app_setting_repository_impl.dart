@@ -1,9 +1,11 @@
 import 'package:material_ui/material_ui.dart' show Color, Locale, ThemeMode;
 
-import '../../../../core/analytics/analytics_gateway.dart';
+import '../../../../../core/analytics/analytics_gateway.dart';
 import '../../domain/entities/app_setting.dart' show AppSetting;
-import '../../domain/repositories/app_setting_repository.dart' show AppSettingRepository;
-import '../datasources/local/app_setting_local_datasource.dart' show AppSettingLocalDataSource;
+import '../../domain/repositories/app_setting_repository.dart'
+    show AppSettingRepository;
+import '../datasources/local/app_setting_local_datasource.dart'
+    show AppSettingLocalDataSource;
 
 final class AppSettingRepositoryImpl implements AppSettingRepository {
   const AppSettingRepositoryImpl({

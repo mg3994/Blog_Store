@@ -13,24 +13,24 @@ class AppLocalizationsHi extends AppLocalizations {
   String get languageName => 'हिन्दी';
 
   @override
-  String get appName => 'BlogStore';
+  String get appName => 'ब्लॉगस्टोर';
 
   @override
-  String get helloWorld => 'Hello World!';
+  String get helloWorld => 'नमस्ते दुनिया!';
 
   @override
   String pronoun(String gender) {
     String _temp0 = intl.Intl.selectLogic(gender, {
-      'male': 'he',
-      'female': 'she',
-      'other': 'they',
+      'male': 'वह',
+      'female': 'वह',
+      'other': 'वे',
     });
     return '$_temp0';
   }
 
   @override
   String welcomeUser(String userName) {
-    return 'Welcome back, $userName!';
+    return 'पुनः स्वागत है, $userName!';
   }
 
   @override
@@ -38,9 +38,9 @@ class AppLocalizationsHi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# posts',
-      one: '1 post',
-      zero: 'No posts yet',
+      other: '# पोस्ट',
+      one: '1 पोस्ट',
+      zero: 'कोई पोस्ट नहीं',
     );
     return '$_temp0';
   }
@@ -50,9 +50,9 @@ class AppLocalizationsHi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
       locale: localeName,
-      other: '# minutes read',
-      one: '1 minute read',
-      zero: 'Less than a minute',
+      other: '# मिनट की पठन अवधि',
+      one: '1 मिनट की पठन अवधि',
+      zero: 'एक मिनट से भी कम',
     );
     return '$_temp0';
   }
@@ -62,9 +62,9 @@ class AppLocalizationsHi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# results for \"$query\"',
-      one: '1 result for \"$query\"',
-      zero: 'No results for \"$query\"',
+      other: '\"$query\" के लिए # परिणाम',
+      one: '\"$query\" के लिए 1 परिणाम',
+      zero: '\"$query\" के लिए कोई परिणाम नहीं',
     );
     return '$_temp0';
   }
@@ -72,10 +72,10 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String authorRole(String role) {
     String _temp0 = intl.Intl.selectLogic(role, {
-      'author': 'Author',
-      'editor': 'Editor',
-      'admin': 'Administrator',
-      'other': 'Member',
+      'author': 'लेखक',
+      'editor': 'संपादक',
+      'admin': 'प्रशासक',
+      'other': 'सदस्य',
     });
     return '$_temp0';
   }
@@ -86,7 +86,7 @@ class AppLocalizationsHi extends AppLocalizations {
         intl.NumberFormat.compactCurrency(locale: localeName);
     final String amountString = amountNumberFormat.format(amount);
 
-    return 'Price: $amountString';
+    return 'मूल्य: $amountString';
   }
 
   @override
@@ -94,7 +94,7 @@ class AppLocalizationsHi extends AppLocalizations {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
     final String dateString = dateDateFormat.format(date);
 
-    return 'Published $dateString';
+    return 'प्रकाशित $dateString';
   }
 
   @override
@@ -102,6 +102,39 @@ class AppLocalizationsHi extends AppLocalizations {
     final intl.DateFormat timeDateFormat = intl.DateFormat.jm(localeName);
     final String timeString = timeDateFormat.format(time);
 
-    return 'Published at $timeString';
+    return 'प्रकाशित समय $timeString';
   }
+
+  @override
+  String get settingsTitle => 'सेटिंग्स';
+
+  @override
+  String get searchSettings => 'सेटिंग्स खोजें';
+
+  @override
+  String get noSettingsFound => 'कोई सेटिंग्स नहीं मिलीं';
+
+  @override
+  String get settingsGeneralTitle => 'सामान्य';
+
+  @override
+  String get settingsGeneralSubtitle => 'प्रोफ़ाइल, प्राथमिकतियाँ';
+
+  @override
+  String get settingsAppearanceTitle => 'उपस्थिति';
+
+  @override
+  String get settingsAppearanceSubtitle => 'थीम, रंग, भाषा';
+
+  @override
+  String get settingsNotificationsTitle => 'सूचनाएं';
+
+  @override
+  String get settingsNotificationsSubtitle => 'अलर्ट, ध्वनियाँ';
+
+  @override
+  String get settingsPrivacyTitle => 'गोपनीयता और सुरक्षा';
+
+  @override
+  String get settingsPrivacySubtitle => 'पासवर्ड, पहुंच';
 }

@@ -14,23 +14,24 @@ import '../core/location/location_service.dart' show LocationService;
 import '../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../core/notifications/notification_gateway.dart'
     show NotificationGateway;
-import '../features/app_setting/data/datasources/local/app_setting_local_datasource.dart'
+
+import '../features/settings/app_setting/data/datasources/local/app_setting_local_datasource.dart'
     show AppSettingLocalDataSourceImpl, AppSettingLocalDataSource;
-import '../features/app_setting/data/repositories/app_setting_repository_impl.dart'
+import '../features/settings/app_setting/data/repositories/app_setting_repository_impl.dart'
     show AppSettingRepositoryImpl;
-import '../features/app_setting/domain/repositories/app_setting_repository.dart'
+import '../features/settings/app_setting/domain/repositories/app_setting_repository.dart'
     show AppSettingRepository;
-import '../features/app_setting/domain/usecases/get_app_settings.dart'
+import '../features/settings/app_setting/domain/usecases/get_app_settings.dart'
     show GetAppSettings;
-import '../features/app_setting/domain/usecases/update_locale.dart'
+import '../features/settings/app_setting/domain/usecases/update_locale.dart'
     show UpdateLocale;
-import '../features/app_setting/domain/usecases/update_seed_color.dart'
+import '../features/settings/app_setting/domain/usecases/update_seed_color.dart'
     show UpdateSeedColor;
-import '../features/app_setting/domain/usecases/update_theme_mode.dart'
+import '../features/settings/app_setting/domain/usecases/update_theme_mode.dart'
     show UpdateThemeMode;
-import '../features/app_setting/domain/usecases/watch_app_settings.dart'
+import '../features/settings/app_setting/domain/usecases/watch_app_settings.dart'
     show WatchAppSettings;
-import '../features/app_setting/presentation/bloc/app_setting_bloc.dart'
+import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc;
 import '../infrastructure/auth/firebase_access_token_provider.dart'
     show FirebaseAccessTokenProvider;

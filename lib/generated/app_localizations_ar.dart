@@ -110,4 +110,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
     return 'نُشر في تمام الساعة $timeString';
   }
+
+  @override
+  String get settingsTitle => 'الإعدادات';
+
+  @override
+  String get searchSettings => 'البحث في الإعدادات';
+
+  @override
+  String get noSettingsFound => 'لم يتم العثور على إعدادات';
+
+  @override
+  String get settingsGeneralTitle => 'عام';
+
+  @override
+  String get settingsGeneralSubtitle => 'الملف الشخصي، التفضيلات';
+
+  @override
+  String get settingsAppearanceTitle => 'المظهر';
+
+  @override
+  String get settingsAppearanceSubtitle => 'المظهر، الألوان، اللغة';
+
+  @override
+  String get settingsNotificationsTitle => 'الإشعارات';
+
+  @override
+  String get settingsNotificationsSubtitle => 'التنبيهات، الأصوات';
+
+  @override
+  String get settingsPrivacyTitle => 'الخصوصية والأمان';
+
+  @override
+  String get settingsPrivacySubtitle => 'كلمات المرور، الوصول';
 }

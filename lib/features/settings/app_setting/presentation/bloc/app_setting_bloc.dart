@@ -4,8 +4,8 @@ import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
 import 'package:material_ui/material_ui.dart'
     show Color, Colors, Locale, ThemeMode;
 
-import '../../../../config/app_config.dart' show AppConfig;
-import '../../../../core/monitoring/crash_reporter.dart' show CrashReporter;
+import '../../../../../config/app_config.dart' show AppConfig;
+import '../../../../../core/monitoring/crash_reporter.dart' show CrashReporter;
 import '../../domain/usecases/get_app_settings.dart';
 import '../../domain/usecases/update_locale.dart';
 import '../../domain/usecases/update_seed_color.dart';

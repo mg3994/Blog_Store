@@ -1,5 +1,5 @@
 
-export '../../../../infrastructure/database/drift/app_database.dart'
+export '../../../../../infrastructure/database/drift/app_database.dart'
     show AppSetting;
 
 // class AppSetting {

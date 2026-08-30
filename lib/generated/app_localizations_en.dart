@@ -104,4 +104,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
     return 'Published at $timeString';
   }
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get searchSettings => 'Search settings';
+
+  @override
+  String get noSettingsFound => 'No settings found';
+
+  @override
+  String get settingsGeneralTitle => 'General';
+
+  @override
+  String get settingsGeneralSubtitle => 'Profile, preferences';
+
+  @override
+  String get settingsAppearanceTitle => 'Appearance';
+
+  @override
+  String get settingsAppearanceSubtitle => 'Theme, colors, language';
+
+  @override
+  String get settingsNotificationsTitle => 'Notifications';
+
+  @override
+  String get settingsNotificationsSubtitle => 'Alerts, sounds';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy & Security';
+
+  @override
+  String get settingsPrivacySubtitle => 'Passwords, access';
 }

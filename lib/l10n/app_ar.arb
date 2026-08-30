@@ -98,5 +98,49 @@
         "format": "jm"
       }
     }
+  },
+  "settingsTitle": "الإعدادات",
+  "@settingsTitle": {
+    "description": "Title for the settings section"
+  },
+  "searchSettings": "البحث في الإعدادات",
+  "@searchSettings": {
+    "description": "Placeholder text for searching settings"
+  },
+  "noSettingsFound": "لم يتم العثور على إعدادات",
+  "@noSettingsFound": {
+    "description": "Message displayed when search returns no matching settings"
+  },
+  "settingsGeneralTitle": "عام",
+  "@settingsGeneralTitle": {
+    "description": "Title for general settings category"
+  },
+  "settingsGeneralSubtitle": "الملف الشخصي، التفضيلات",
+  "@settingsGeneralSubtitle": {
+    "description": "Subtitle describing general settings content"
+  },
+  "settingsAppearanceTitle": "المظهر",
+  "@settingsAppearanceTitle": {
+    "description": "Title for appearance settings category"
+  },
+  "settingsAppearanceSubtitle": "المظهر، الألوان، اللغة",
+  "@settingsAppearanceSubtitle": {
+    "description": "Subtitle describing appearance settings content"
+  },
+  "settingsNotificationsTitle": "الإشعارات",
+  "@settingsNotificationsTitle": {
+    "description": "Title for notifications settings category"
+  },
+  "settingsNotificationsSubtitle": "التنبيهات، الأصوات",
+  "@settingsNotificationsSubtitle": {
+    "description": "Subtitle describing notifications settings content"
+  },
+  "settingsPrivacyTitle": "الخصوصية والأمان",
+  "@settingsPrivacyTitle": {
+    "description": "Title for privacy & security settings category"
+  },
+  "settingsPrivacySubtitle": "كلمات المرور، الوصول",
+  "@settingsPrivacySubtitle": {
+    "description": "Subtitle describing privacy & security settings content"
   }
 }
