@@ -90,7 +90,7 @@ class _BootStrapState extends State<BootStrap> {
       _setProgress(0.60, 'Preparing navigation...');
       final routerConfig = AppRouter(dependencies).createConfig();
       Intl.defaultLocale = PlatformDispatcher.instance.locale
-          .toLanguageTag();
+          .toLanguageTag(); //usefull For Manish //! TODO: support
       final appSettingBloc =
           widget.appSettingsBloc ?? dependencies.appSettingBloc;
       _setProgress(0.75, 'Loading settings...');
