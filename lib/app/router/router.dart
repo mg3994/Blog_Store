@@ -56,8 +56,9 @@ final class AppRouter {
     return KaiselRouterConfig<AppRoute>.adaptive(
       initial: const HomeRoute(),
       observers: () => [_dependencies.analyticsGateway.observer()],
-      onScreenChanged: (route) =>
-          _dependencies.analyticsGateway.logScreenView(route.routeName),
+      onScreenChanged: (route) => _dependencies.analyticsGateway.logScreenView(
+        screenName: route.routeName,
+      ),
       builder: _buildRoute,
     );
   }

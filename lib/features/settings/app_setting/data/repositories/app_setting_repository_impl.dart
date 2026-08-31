@@ -26,7 +26,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Future<void> updateThemeMode(ThemeMode themeMode) async {
     await _localDataSource.updateSettings(themeMode: themeMode);
     await _analyticsGateway?.logEvent(
-      'theme_mode_changed',
+      name: 'theme_mode_changed',
       parameters: {'theme_mode': themeMode.name, 'is_temporary': 'false'},
     );
   }
@@ -35,7 +35,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Future<void> updateLocale(Locale locale) async {
     await _localDataSource.updateSettings(languageCode: locale.languageCode);
     await _analyticsGateway?.logEvent(
-      'locale_changed',
+      name: 'locale_changed',
       parameters: {
         'language_code': locale.languageCode,
         'is_temporary': 'false',
@@ -47,7 +47,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Future<void> updateSeedColor(Color seedColor) async {
     await _localDataSource.updateSettings(seedColor: seedColor);
     await _analyticsGateway?.logEvent(
-      'seed_color_changed',
+      name: 'seed_color_changed',
       parameters: {
         'seed_color': seedColor.toARGB32().toRadixString(16),
         'is_temporary': 'false',
@@ -58,7 +58,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   @override
   Future<void> temporarilyChangeLocale(Locale locale) async {
     await _analyticsGateway?.logEvent(
-      'locale_changed',
+      name: 'locale_changed',
       parameters: {
         'language_code': locale.languageCode,
         'is_temporary': 'true',
@@ -69,7 +69,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   @override
   Future<void> temporarilyChangeSeedColor(Color seedColor) async {
     await _analyticsGateway?.logEvent(
-      'seed_color_changed',
+      name: 'seed_color_changed',
       parameters: {
         'seed_color': seedColor.toARGB32().toRadixString(16),
         'is_temporary': 'true',
@@ -80,7 +80,7 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   @override
   Future<void> temporarilyChangeThemeMode(ThemeMode themeMode) async {
     await _analyticsGateway?.logEvent(
-      'theme_mode_changed',
+      name: 'theme_mode_changed',
       parameters: {'theme_mode': themeMode.name, 'is_temporary': 'true'},
     );
   }

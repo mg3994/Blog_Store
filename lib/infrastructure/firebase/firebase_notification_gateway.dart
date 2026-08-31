@@ -4,7 +4,7 @@ import '../../core/notifications/notification_gateway.dart'
     show NotificationGateway;
 
 final class FirebaseNotificationGateway implements NotificationGateway {
-  FirebaseNotificationGateway(
+  const FirebaseNotificationGateway(
     this._messaging, {
     this.vapidKey,
     this.serviceWorkerScriptPath,
@@ -18,32 +18,66 @@ final class FirebaseNotificationGateway implements NotificationGateway {
   Future<bool> isSupported() => _messaging.isSupported();
 
   @override
-  Future<bool> requestPermission() async {
-    if (!await isSupported()) return false;
+  Future<NotificationSettings> requestPermission({
+    bool alert = true,
+    bool announcement = false,
+    bool badge = true,
+    bool carPlay = false,
+    bool criticalAlert = false,
+    bool provisional = false,
+    bool sound = true,
+    bool providesAppNotificationSettings = false,
+  }) async {
+    if (!await isSupported()) {
+      throw UnsupportedError(
+        'Firebase Messaging is not supported on this platform.',
+      );
+    }
 
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
+    return _messaging.requestPermission(
+      alert: alert,
+      announcement: announcement,
+      badge: badge,
+      carPlay: carPlay,
+      criticalAlert: criticalAlert,
+      provisional: provisional,
+      sound: sound,
+      providesAppNotificationSettings: providesAppNotificationSettings,
     );
-
-    return settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
   @override
-  Future<String?> getToken() async {
+  Future<NotificationSettings> getNotificationSettings() async {
+    if (!await isSupported()) {
+      throw UnsupportedError(
+        'Firebase Messaging is not supported on this platform.',
+      );
+    }
+    return _messaging.getNotificationSettings();
+  }
+
+  @override
+  Future<String?> getToken({
+    String? vapidKey,
+    String? serviceWorkerScriptPath,
+  }) async {
     if (!await isSupported()) return null;
 
     try {
       return await _messaging.getToken(
-        vapidKey: vapidKey,
-        serviceWorkerScriptPath: serviceWorkerScriptPath,
+        vapidKey: vapidKey ?? this.vapidKey,
+        serviceWorkerScriptPath:
+            serviceWorkerScriptPath ?? this.serviceWorkerScriptPath,
       );
     } catch (_) {
-      // Handles APNs delay on iOS or missing browser permissions on web
       return null;
     }
+  }
+
+  @override
+  Future<String?> getAPNSToken() async {
+    if (!await isSupported()) return null;
+    return _messaging.getAPNSToken();
   }
 
   @override
@@ -76,22 +110,39 @@ final class FirebaseNotificationGateway implements NotificationGateway {
   }
 
   @override
+  bool get isAutoInitEnabled => _messaging.isAutoInitEnabled;
+
+  @override
+  Future<void> setAutoInitEnabled(bool enabled) async {
+    if (!await isSupported()) return;
+    await _messaging.setAutoInitEnabled(enabled);
+  }
+
+  @override
+  Future<void> setDeliveryMetricsExportToBigQuery(bool enabled) async {
+    if (!await isSupported()) return;
+    await _messaging.setDeliveryMetricsExportToBigQuery(enabled);
+  }
+
+  @override
   Future<void> subscribeToTopic(String topic) async {
     if (!await isSupported()) return;
+    // _assertTopicName(topic);
     await _messaging.subscribeToTopic(topic);
   }
 
   @override
   Future<void> unsubscribeFromTopic(String topic) async {
     if (!await isSupported()) return;
+    // _assertTopicName(topic);
     await _messaging.unsubscribeFromTopic(topic);
   }
 
   @override
   Future<void> setForegroundPresentationOptions({
-    bool alert = true,
-    bool badge = true,
-    bool sound = true,
+    bool alert = false,
+    bool badge = false,
+    bool sound = false,
   }) async {
     if (!await isSupported()) return;
 
@@ -110,3 +161,9 @@ final class FirebaseNotificationGateway implements NotificationGateway {
     FirebaseMessaging.onBackgroundMessage(handler);
   }
 }
+
+// void _assertTopicName(String topic) {
+//   // todo make if valid or not
+//   bool isValidTopic = RegExp(r'^[a-zA-Z0-9-_.~%]{1,900}$').hasMatch(topic);
+//   assert(isValidTopic);
+// }
