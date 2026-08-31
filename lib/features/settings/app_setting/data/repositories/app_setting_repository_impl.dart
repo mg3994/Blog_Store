@@ -26,8 +26,8 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Future<void> updateThemeMode(ThemeMode themeMode) async {
     await _localDataSource.updateSettings(themeMode: themeMode);
     await _analyticsGateway?.logEvent(
-      'theme_changed',
-      parameters: {'theme_mode': themeMode.name},
+      'theme_mode_changed',
+      parameters: {'theme_mode': themeMode.name, 'is_temporary': 'false'},
     );
   }
 
@@ -36,7 +36,10 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
     await _localDataSource.updateSettings(languageCode: locale.languageCode);
     await _analyticsGateway?.logEvent(
       'locale_changed',
-      parameters: {'language_code': locale.languageCode},
+      parameters: {
+        'language_code': locale.languageCode,
+        'is_temporary': 'false',
+      },
     );
   }
 
@@ -45,7 +48,40 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
     await _localDataSource.updateSettings(seedColor: seedColor);
     await _analyticsGateway?.logEvent(
       'seed_color_changed',
-      parameters: {'seed_color': seedColor.toARGB32().toRadixString(16)},
+      parameters: {
+        'seed_color': seedColor.toARGB32().toRadixString(16),
+        'is_temporary': 'false',
+      },
+    );
+  }
+
+  @override
+  Future<void> temporarilyChangeLocale(Locale locale) async {
+    await _analyticsGateway?.logEvent(
+      'locale_changed',
+      parameters: {
+        'language_code': locale.languageCode,
+        'is_temporary': 'true',
+      },
+    );
+  }
+
+  @override
+  Future<void> temporarilyChangeSeedColor(Color seedColor) async {
+    await _analyticsGateway?.logEvent(
+      'seed_color_changed',
+      parameters: {
+        'seed_color': seedColor.toARGB32().toRadixString(16),
+        'is_temporary': 'true',
+      },
+    );
+  }
+
+  @override
+  Future<void> temporarilyChangeThemeMode(ThemeMode themeMode) async {
+    await _analyticsGateway?.logEvent(
+      'theme_mode_changed',
+      parameters: {'theme_mode': themeMode.name, 'is_temporary': 'true'},
     );
   }
 }

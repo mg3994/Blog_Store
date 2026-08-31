@@ -13,11 +13,11 @@
 // lib/firebase_web_config.dart
 // put all those firebase config web stuff one by one here
 abstract final class FirebaseWebConfig {
-  static const String apiKey = 'AIzaSyBIXxQgUPYDU2srK_UpgjiTATON5rrdMd0';
-  static const String appId = '1:132381301913:web:f0d0a643bc90bed91eec08';
-  static const String messagingSenderId = '132381301913';
-  static const String projectId = 'flutterfire-samples';
-  static const String authDomain = 'flutterfire-samples.firebaseapp.com';
-  static const String storageBucket = 'flutterfire-samples.appspot.com';
-  static const String measurementId = 'G-ZK5194H8VH';
+  static const String apiKey = 'AIzaSyAUtirDdNPTmQz0Ze4lZ_r6du48HdpJIxQ';
+  static const String authDomain = 'rotiride.firebaseapp.com';
+  static const String projectId = 'rotiride';
+  static const String storageBucket = 'rotiride.firebasestorage.app';
+  static const String messagingSenderId = '318526800636';
+  static const String appId = '1:318526800636:web:3388facad20b50c3abcd79';
+  static const String measurementId = "G-EX30SN5FR5";
 }

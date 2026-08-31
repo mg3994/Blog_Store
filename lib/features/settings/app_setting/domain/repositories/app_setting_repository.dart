@@ -8,4 +8,8 @@ abstract interface class AppSettingRepository {
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateLocale(Locale locale);
   Future<void> updateSeedColor(Color seedColor);
+  //TODO: Remove beow
+  Future<void> temporarilyChangeThemeMode(ThemeMode themeMode);
+  Future<void> temporarilyChangeLocale(Locale locale);
+  Future<void> temporarilyChangeSeedColor(Color seedColor);
 }

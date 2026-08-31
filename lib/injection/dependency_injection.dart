@@ -23,6 +23,12 @@ import '../features/settings/app_setting/domain/repositories/app_setting_reposit
     show AppSettingRepository;
 import '../features/settings/app_setting/domain/usecases/get_app_settings.dart'
     show GetAppSettings;
+import '../features/settings/app_setting/domain/usecases/temp_change_locale.dart'
+    show TemporarilyChangeLocale;
+import '../features/settings/app_setting/domain/usecases/temp_change_seed_color.dart'
+    show TemporarilyChangeSeedColor;
+import '../features/settings/app_setting/domain/usecases/temp_change_theme_mode.dart'
+    show TemporarilyChangeThemeMode;
 import '../features/settings/app_setting/domain/usecases/update_locale.dart'
     show UpdateLocale;
 import '../features/settings/app_setting/domain/usecases/update_seed_color.dart'
@@ -105,6 +111,15 @@ final class Dependencies {
   late final UpdateSeedColor updateSeedColor = UpdateSeedColor(
     appSettingRepository,
   );
+  //temp
+  late final TemporarilyChangeThemeMode tempChangeThemeMode =
+      TemporarilyChangeThemeMode(appSettingRepository);
+  late final TemporarilyChangeLocale tempChangeLocale = TemporarilyChangeLocale(
+    appSettingRepository,
+  );
+  late final TemporarilyChangeSeedColor tempChangeSeedColor =
+      TemporarilyChangeSeedColor(appSettingRepository);
+  //\temp
 
   ///
   // Lazy singleton - instantiated on first read in BootStrap
@@ -115,6 +130,9 @@ final class Dependencies {
     updateThemeMode: updateThemeMode,
     updateLocale: updateLocale,
     updateSeedColor: updateSeedColor,
+    tempChangeThemeMode: tempChangeThemeMode,
+    tempChangeLocale: tempChangeLocale,
+    tempChangeSeedColor: tempChangeSeedColor,
     crashReporter: crashReporter,
   );
 
