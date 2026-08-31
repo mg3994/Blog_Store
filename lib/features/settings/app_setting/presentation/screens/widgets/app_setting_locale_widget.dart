@@ -1,13 +1,10 @@
-import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
-import 'package:blogstore/generated/app_localizations.dart';
-import 'package:flutter/widgets.dart';
-import 'package:material_ui/material_ui.dart'
-    show Container, Divider, ListTile, Icons, Theme, Column, Padding, CrossAxisAlignment, Text, FontWeight, BorderRadius, EdgeInsets, BoxShadow, Offset, BoxDecoration, Icon, VoidCallback, StatefulWidget, State, FutureBuilder, Colors;
+import 'package:blogstore/app/helpers/extensions.dart';
+import 'package:material_ui/material_ui.dart';
 
-import '../../bloc/app_setting_bloc.dart'
-    show AppSettingBloc, AppSettingState, AppSettingUpdateLocaleEvent;
-import '../../../../../app/helpers/extensions.dart'
-    show BuildContextLocalizationExtensions;
+import '../../../../domain/entities/app_setting.dart';
+import '../../bloc/app_setting_bloc.dart';
+import '../../bloc/app_setting_event.dart';
+import '../../bloc/app_setting_state.dart';
 
 class AppSettingLocaleWidget extends StatelessWidget {
   const AppSettingLocaleWidget({super.key});
@@ -16,117 +13,53 @@ class AppSettingLocaleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocSignalSelector<AppSettingBloc, AppSettingState, Locale>(
-      selector: (state) => state.locale,
-      builder: (context, selectedLocale) {
-        final bloc = context.read<AppSettingBloc>();
+    return BlocBuilder<AppSettingBloc, AppSettingState>(
+      builder: (context, state) {
+        final currentLocale = state.locale;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Language',
+              context.l10n.languageSettingTitle,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12.0),
             Container(
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(16),
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              clipBehavior: Clip.antiAlias,
               child: Column(
-                children: [
-                  for (final (index, locale)
-                      in AppLocalizations.supportedLocales.indexed) ...[
-                    _LocaleTile(
-                      locale: locale,
-                      selectedLocale: selectedLocale,
-                      onTap: () {
-                        bloc.add(AppSettingUpdateLocaleEvent(locale));
-                      },
+                children: AppLocale.supported.map((appLocale) {
+                  final isSelected =
+                      currentLocale.languageCode == appLocale.languageCode;
+
+                  return RadioListTile<AppLocale>(
+                    title: Text(appLocale.displayName),
+                    subtitle: Text(appLocale.nativeName),
+                    value: appLocale,
+                    groupValue: AppLocale.fromLocale(currentLocale),
+                    onChanged: (value) {
+                      if (value != null) {
+                        context.read<AppSettingBloc>().add(
+                          AppSettingUpdateLocaleEvent(value.toLocale()),
+                        );
+                      }
+                    },
+                    selected: isSelected,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
-                    if (index < AppLocalizations.supportedLocales.length - 1)
-                      Divider(
-                        height: 1,
-                        indent: 16,
-                        color: theme.colorScheme.outlineVariant.withOpacity(0.3),
-                      ),
-                  ],
-                ],
+                  );
+                }).toList(),
               ),
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class _LocaleTile extends StatefulWidget {
-  const _LocaleTile({
-    required this.locale,
-    required this.selectedLocale,
-    required this.onTap,
-  });
-
-  final Locale locale;
-  final Locale selectedLocale;
-  final VoidCallback onTap;
-
-  @override
-  State<_LocaleTile> createState() => _LocaleTileState();
-}
-
-class _LocaleTileState extends State<_LocaleTile> {
-  String? _languageName;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLanguageName();
-  }
-
-  @override
-  void didUpdateWidget(covariant _LocaleTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.locale != widget.locale) {
-      _loadLanguageName();
-    }
-  }
-
-  Future<void> _loadLanguageName() async {
-    final localizations = await lookupAppLocalizations(widget.locale);
-
-    if (!mounted) return;
-
-    setState(() {
-      _languageName = localizations.languageName;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isSelected = widget.locale.languageCode == widget.selectedLocale.languageCode;
-
-    return ListTile(
-      minTileHeight: 56,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      title: Text(
-        _languageName ?? widget.locale.languageCode.toUpperCase(),
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-      trailing: isSelected
-          ? Icon(Icons.check, size: 20, color: theme.colorScheme.primary)
-          : null,
-      onTap: widget.onTap,
     );
   }
 }

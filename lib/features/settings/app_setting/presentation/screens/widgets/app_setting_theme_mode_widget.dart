@@ -1,6 +1,9 @@
-import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
-import 'package:blogstore/features/settings/app_setting/presentation/bloc/app_setting_bloc.dart';
+import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:material_ui/material_ui.dart';
+
+import '../../bloc/app_setting_bloc.dart';
+import '../../bloc/app_setting_event.dart';
+import '../../bloc/app_setting_state.dart';
 
 class AppSettingThemeModeWidget extends StatelessWidget {
   const AppSettingThemeModeWidget({super.key});
@@ -9,125 +12,63 @@ class AppSettingThemeModeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocSignalSelector<AppSettingBloc, AppSettingState, ThemeMode>(
-      selector: (state) => state.themeMode,
-      builder: (context, currentMode) {
-        final appSettingBloc = context.read<AppSettingBloc>();
+    return BlocBuilder<AppSettingBloc, AppSettingState>(
+      builder: (context, state) {
+        final currentThemeMode = state.themeMode;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Theme Mode',
+              context.l10n.themeModeTitle,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12.0),
             Container(
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(16),
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              padding: const EdgeInsets.all(12),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+              child: SegmentedButton<ThemeMode>(
+                segments: [
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.system,
+                    label: Text(context.l10n.themeModeSystem),
+                    icon: const Icon(Icons.settings_brightness),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    _ThemeOptionButton(
-                      mode: ThemeMode.light,
-                      label: 'Light',
-                      icon: Icons.light_mode_outlined,
-                      isSelected: currentMode == ThemeMode.light,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.light),
-                      ),
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.light,
+                    label: Text(context.l10n.themeModeLight),
+                    icon: const Icon(Icons.light_mode),
+                  ),
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.dark,
+                    label: Text(context.l10n.themeModeDark),
+                    icon: const Icon(Icons.dark_mode),
+                  ),
+                ],
+                selected: {currentThemeMode},
+                onSelectionChanged: (newSelection) {
+                  if (newSelection.isNotEmpty) {
+                    context.read<AppSettingBloc>().add(
+                      AppSettingUpdateThemeModeEvent(newSelection.first),
+                    );
+                  }
+                },
+                style: SegmentedButtonStyle(
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
-                    _ThemeOptionButton(
-                      mode: ThemeMode.dark,
-                      label: 'Dark',
-                      icon: Icons.dark_mode_outlined,
-                      isSelected: currentMode == ThemeMode.dark,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.dark),
-                      ),
-                    ),
-                    _ThemeOptionButton(
-                      mode: ThemeMode.system,
-                      label: 'System',
-                      icon: Icons.settings_suggest_outlined,
-                      isSelected: currentMode == ThemeMode.system,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.system),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class _ThemeOptionButton extends StatelessWidget {
-  const _ThemeOptionButton({
-    required this.mode,
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final ThemeMode mode;
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final backgroundColor = isSelected ? colorScheme.primary : Colors.transparent;
-    final textColor = isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
-    final iconColor = isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
-
-    return Expanded(
-      child: Material(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 20, color: iconColor),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

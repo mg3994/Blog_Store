@@ -1,83 +1,80 @@
-import 'package:bloc_signals_flutter/bloc_signals_flutter.dart';
-import 'package:blogstore/features/settings/app_setting/presentation/bloc/app_setting_bloc.dart';
+import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:material_ui/material_ui.dart';
+
+import '../../bloc/app_setting_bloc.dart';
+import '../../bloc/app_setting_event.dart';
+import '../../bloc/app_setting_state.dart';
 
 class AppSettingSeedColorWidget extends StatelessWidget {
   const AppSettingSeedColorWidget({super.key});
 
   static const List<Color> seedColors = [
-    Color(0xFF4F378A), // Design primary purple
-    Color(0xFF3B82F6), // Blue
-    Color(0xFF10B981), // Emerald/Green
-    Color(0xFFF59E0B), // Amber/Yellow
-    Color(0xFFEF4444), // Red
-    Color(0xFFEC4899), // Pink
+    Colors.deepPurple,
+    Colors.blue,
+    Colors.teal,
+    Colors.green,
+    Colors.amber,
+    Colors.deepOrange,
+    Colors.pink,
   ];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocSignalSelector<AppSettingBloc, AppSettingState, Color>(
-      selector: (state) => state.seedColor,
-      builder: (context, activeColor) {
-        final appSettingBloc = context.read<AppSettingBloc>();
+    return BlocBuilder<AppSettingBloc, AppSettingState>(
+      builder: (context, state) {
+        final currentSeedColor = state.seedColor;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Accent Color',
+              context.l10n.themeColorTitle,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12.0),
             Container(
+              padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(16),
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              padding: const EdgeInsets.all(20),
               child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
+                spacing: 12.0,
+                runSpacing: 12.0,
                 children: seedColors.map((color) {
-                  final isSelected = activeColor.toARGB32() == color.toARGB32();
-                  return GestureDetector(
+                  final isSelected = currentSeedColor.value == color.value;
+
+                  return InkWell(
                     onTap: () {
-                      appSettingBloc.add(
+                      context.read<AppSettingBloc>().add(
                         AppSettingUpdateSeedColorEvent(color),
                       );
                     },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isSelected)
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: color,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                          ),
-                          child: isSelected
-                              ? const Icon(Icons.check, color: Colors.white, size: 22)
-                              : null,
-                        ),
-                      ],
+                    borderRadius: BorderRadius.circular(24.0),
+                    child: Container(
+                      width: 48.0,
+                      height: 48.0,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: isSelected
+                            ? Border.all(
+                                color: theme.colorScheme.onSurface,
+                                width: 3.0,
+                              )
+                            : null,
+                      ),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 24.0,
+                            )
+                          : null,
                     ),
                   );
                 }).toList(),
