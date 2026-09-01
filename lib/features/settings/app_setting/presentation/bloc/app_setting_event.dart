@@ -37,3 +37,34 @@ final class AppSettingTemporarilyChangeSeedColorEvent extends AppSettingEvent {
   const AppSettingTemporarilyChangeSeedColorEvent(this.seedColor);
   final Color seedColor;
 }
+
+final class AppSettingResetToDefaultEvent extends AppSettingEvent {
+  const AppSettingResetToDefaultEvent();
+}
+
+final class AppSettingOnboardingEvent extends AppSettingEvent {
+  final bool isCompleted;
+  const AppSettingOnboardingEvent({required this.isCompleted});
+}
+
+final class AppSettingUpdateConsentEvent extends AppSettingEvent {
+  const AppSettingUpdateConsentEvent({
+    required this.hasGivenConsent,
+    required this.analyticsStorageConsentGranted,
+    required this.adStorageConsentGranted,
+    required this.adUserDataConsentGranted,
+    required this.adPersonalizationSignalsConsentGranted,
+    required this.functionalityStorageConsentGranted,
+    required this.personalizationStorageConsentGranted,
+    required this.securityStorageConsentGranted,
+  });
+
+  final bool hasGivenConsent;
+  final bool analyticsStorageConsentGranted;
+  final bool adStorageConsentGranted;
+  final bool adUserDataConsentGranted;
+  final bool adPersonalizationSignalsConsentGranted;
+  final bool functionalityStorageConsentGranted;
+  final bool personalizationStorageConsentGranted;
+  final bool securityStorageConsentGranted;
+}

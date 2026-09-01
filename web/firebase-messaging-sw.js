@@ -3740,7 +3740,7 @@
       t2 = type$.nullable_Object;
       A.JSObjectUnsafeUtilExtension_callMethod(A._asJSObject(t1.self), _s16_, "install", A._functionToJS1(new A.main_closure()), t2);
       A.JSObjectUnsafeUtilExtension_callMethod(A._asJSObject(t1.self), _s16_, "notificationclick", A._functionToJS1(new A.main_closure0()), t2);
-      options = A._asJSObject(A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["apiKey", "AIzaSyBIXxQgUPYDU2srK_UpgjiTATON5rrdMd0", "appId", "1:132381301913:web:f0d0a643bc90bed91eec08", "messagingSenderId", "132381301913", "projectId", "flutterfire-samples", "authDomain", "flutterfire-samples.firebaseapp.com", "storageBucket", "flutterfire-samples.appspot.com", "measurementId", "G-ZK5194H8VH"], type$.String, t2)));
+      options = A._asJSObject(A.jsify(A.LinkedHashMap_LinkedHashMap$_literal(["apiKey", "AIzaSyAUtirDdNPTmQz0Ze4lZ_r6du48HdpJIxQ", "appId", "1:318526800636:web:3388facad20b50c3abcd79", "messagingSenderId", "318526800636", "projectId", "rotiride", "authDomain", "rotiride.firebaseapp.com", "storageBucket", "rotiride.firebasestorage.app", "measurementId", "G-EX30SN5FR5"], type$.String, t2)));
       A._asJSObject(t1.firebase.initializeApp(options));
       A.promiseToFuture(A._asJSObject(t1.firebase.messaging.isSupported()), type$.bool).then$1$1(new A.main_closure1(), type$.Null);
     },

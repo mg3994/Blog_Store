@@ -23,6 +23,15 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Stream<AppSetting> watchSettings() => _localDataSource.watchSettings();
 
   @override
+  Future<void> resetToDefaultSettings() async {
+    await _localDataSource.resetToDefaultSettings();
+    await _analyticsGateway?.logEvent(
+      name: 'settings_reset_to_default',
+      parameters: {'is_default': 'true'},
+    );
+  }
+
+  @override
   Future<void> updateThemeMode(ThemeMode themeMode) async {
     await _localDataSource.updateSettings(themeMode: themeMode);
     await _analyticsGateway?.logEvent(
@@ -56,6 +65,61 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   }
 
   @override
+  Future<void> updateConsent({
+    required bool hasGivenConsent,
+    required bool analyticsStorageConsentGranted,
+    required bool adStorageConsentGranted,
+    required bool adUserDataConsentGranted,
+    required bool adPersonalizationSignalsConsentGranted,
+    required bool functionalityStorageConsentGranted,
+    required bool personalizationStorageConsentGranted,
+    required bool securityStorageConsentGranted,
+  }) async {
+    await _localDataSource.updateSettings(
+      hasGivenConsent: hasGivenConsent,
+      analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+      adStorageConsentGranted: adStorageConsentGranted,
+      adUserDataConsentGranted: adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted: functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted,
+      securityStorageConsentGranted: securityStorageConsentGranted,
+    );
+    await _analyticsGateway?.setConsent(
+      analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+      adStorageConsentGranted: adStorageConsentGranted,
+      adUserDataConsentGranted: adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted: functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted,
+      securityStorageConsentGranted: securityStorageConsentGranted,
+    );
+    // in place of this
+    await _analyticsGateway?.logEvent(
+      name: 'consent_updated',
+      parameters: {
+        'analytics': analyticsStorageConsentGranted.toString(),
+        'ad_storage': adStorageConsentGranted.toString(),
+      },
+    );
+  }
+
+  @override
+  Future<void> updateOnboardingCompleted(bool completed) async {
+    await _localDataSource.updateSettings(hasCompletedOnboarding: completed);
+    if (completed) {
+      await _analyticsGateway?.logTutorialComplete();
+    } else {
+      await _analyticsGateway?.logTutorialBegin();
+    }
+  }
+
+  ////
+  @override
   Future<void> temporarilyChangeLocale(Locale locale) async {
     await _analyticsGateway?.logEvent(
       name: 'locale_changed',
@@ -84,4 +148,6 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
       parameters: {'theme_mode': themeMode.name, 'is_temporary': 'true'},
     );
   }
+
+  ///
 }

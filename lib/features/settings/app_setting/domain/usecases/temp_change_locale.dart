@@ -2,8 +2,8 @@ import 'package:material_ui/material_ui.dart' show Locale;
 
 import '../repositories/app_setting_repository.dart';
 
-final class TemporarilyChangeLocale {
-  const TemporarilyChangeLocale(this._repository);
+final class TemporarilyChangeLocaleUseCase {
+  const TemporarilyChangeLocaleUseCase(this._repository);
 
   final AppSettingRepository _repository;
 

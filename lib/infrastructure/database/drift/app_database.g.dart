@@ -52,12 +52,156 @@ class $AppSettingsTable extends AppSettings
     requiredDuringInsert: false,
     defaultValue: Constant(AppConfig.defaultThemeSeedColorHex),
   );
+  static const VerificationMeta _hasCompletedOnboardingMeta =
+      const VerificationMeta('hasCompletedOnboarding');
+  @override
+  late final GeneratedColumn<bool> hasCompletedOnboarding =
+      GeneratedColumn<bool>(
+        'has_completed_onboarding',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_completed_onboarding" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _hasGivenConsentMeta = const VerificationMeta(
+    'hasGivenConsent',
+  );
+  @override
+  late final GeneratedColumn<bool> hasGivenConsent = GeneratedColumn<bool>(
+    'has_given_consent',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_given_consent" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _analyticsStorageConsentGrantedMeta =
+      const VerificationMeta('analyticsStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> analyticsStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'analytics_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("analytics_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _adStorageConsentGrantedMeta =
+      const VerificationMeta('adStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> adStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'ad_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("ad_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _adUserDataConsentGrantedMeta =
+      const VerificationMeta('adUserDataConsentGranted');
+  @override
+  late final GeneratedColumn<bool> adUserDataConsentGranted =
+      GeneratedColumn<bool>(
+        'ad_user_data_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("ad_user_data_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _adPersonalizationSignalsConsentGrantedMeta =
+      const VerificationMeta('adPersonalizationSignalsConsentGranted');
+  @override
+  late final GeneratedColumn<bool> adPersonalizationSignalsConsentGranted =
+      GeneratedColumn<bool>(
+        'ad_personalization_signals_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("ad_personalization_signals_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _functionalityStorageConsentGrantedMeta =
+      const VerificationMeta('functionalityStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> functionalityStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'functionality_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("functionality_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
+  static const VerificationMeta _personalizationStorageConsentGrantedMeta =
+      const VerificationMeta('personalizationStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> personalizationStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'personalization_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("personalization_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _securityStorageConsentGrantedMeta =
+      const VerificationMeta('securityStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> securityStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'security_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("security_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     themeMode,
     languageCode,
     seedColor,
+    hasCompletedOnboarding,
+    hasGivenConsent,
+    analyticsStorageConsentGranted,
+    adStorageConsentGranted,
+    adUserDataConsentGranted,
+    adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted,
+    securityStorageConsentGranted,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -89,6 +233,87 @@ class $AppSettingsTable extends AppSettings
         seedColor.isAcceptableOrUnknown(data['seed_color']!, _seedColorMeta),
       );
     }
+    if (data.containsKey('has_completed_onboarding')) {
+      context.handle(
+        _hasCompletedOnboardingMeta,
+        hasCompletedOnboarding.isAcceptableOrUnknown(
+          data['has_completed_onboarding']!,
+          _hasCompletedOnboardingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('has_given_consent')) {
+      context.handle(
+        _hasGivenConsentMeta,
+        hasGivenConsent.isAcceptableOrUnknown(
+          data['has_given_consent']!,
+          _hasGivenConsentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('analytics_storage_consent_granted')) {
+      context.handle(
+        _analyticsStorageConsentGrantedMeta,
+        analyticsStorageConsentGranted.isAcceptableOrUnknown(
+          data['analytics_storage_consent_granted']!,
+          _analyticsStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ad_storage_consent_granted')) {
+      context.handle(
+        _adStorageConsentGrantedMeta,
+        adStorageConsentGranted.isAcceptableOrUnknown(
+          data['ad_storage_consent_granted']!,
+          _adStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ad_user_data_consent_granted')) {
+      context.handle(
+        _adUserDataConsentGrantedMeta,
+        adUserDataConsentGranted.isAcceptableOrUnknown(
+          data['ad_user_data_consent_granted']!,
+          _adUserDataConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ad_personalization_signals_consent_granted')) {
+      context.handle(
+        _adPersonalizationSignalsConsentGrantedMeta,
+        adPersonalizationSignalsConsentGranted.isAcceptableOrUnknown(
+          data['ad_personalization_signals_consent_granted']!,
+          _adPersonalizationSignalsConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('functionality_storage_consent_granted')) {
+      context.handle(
+        _functionalityStorageConsentGrantedMeta,
+        functionalityStorageConsentGranted.isAcceptableOrUnknown(
+          data['functionality_storage_consent_granted']!,
+          _functionalityStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('personalization_storage_consent_granted')) {
+      context.handle(
+        _personalizationStorageConsentGrantedMeta,
+        personalizationStorageConsentGranted.isAcceptableOrUnknown(
+          data['personalization_storage_consent_granted']!,
+          _personalizationStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('security_storage_consent_granted')) {
+      context.handle(
+        _securityStorageConsentGrantedMeta,
+        securityStorageConsentGranted.isAcceptableOrUnknown(
+          data['security_storage_consent_granted']!,
+          _securityStorageConsentGrantedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -116,6 +341,42 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.int,
         data['${effectivePrefix}seed_color'],
       )!,
+      hasCompletedOnboarding: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_completed_onboarding'],
+      )!,
+      hasGivenConsent: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_given_consent'],
+      )!,
+      analyticsStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}analytics_storage_consent_granted'],
+      )!,
+      adStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}ad_storage_consent_granted'],
+      )!,
+      adUserDataConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}ad_user_data_consent_granted'],
+      )!,
+      adPersonalizationSignalsConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}ad_personalization_signals_consent_granted'],
+      )!,
+      functionalityStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}functionality_storage_consent_granted'],
+      )!,
+      personalizationStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}personalization_storage_consent_granted'],
+      )!,
+      securityStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}security_storage_consent_granted'],
+      )!,
     );
   }
 
@@ -135,11 +396,29 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
 
   /// Stores ARGB color value as an INTEGER in SQLite
   final int seedColor;
+  final bool hasCompletedOnboarding;
+  final bool hasGivenConsent;
+  final bool analyticsStorageConsentGranted;
+  final bool adStorageConsentGranted;
+  final bool adUserDataConsentGranted;
+  final bool adPersonalizationSignalsConsentGranted;
+  final bool functionalityStorageConsentGranted;
+  final bool personalizationStorageConsentGranted;
+  final bool securityStorageConsentGranted;
   const AppSetting({
     required this.id,
     required this.themeMode,
     required this.languageCode,
     required this.seedColor,
+    required this.hasCompletedOnboarding,
+    required this.hasGivenConsent,
+    required this.analyticsStorageConsentGranted,
+    required this.adStorageConsentGranted,
+    required this.adUserDataConsentGranted,
+    required this.adPersonalizationSignalsConsentGranted,
+    required this.functionalityStorageConsentGranted,
+    required this.personalizationStorageConsentGranted,
+    required this.securityStorageConsentGranted,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -152,6 +431,27 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     }
     map['language_code'] = Variable<String>(languageCode);
     map['seed_color'] = Variable<int>(seedColor);
+    map['has_completed_onboarding'] = Variable<bool>(hasCompletedOnboarding);
+    map['has_given_consent'] = Variable<bool>(hasGivenConsent);
+    map['analytics_storage_consent_granted'] = Variable<bool>(
+      analyticsStorageConsentGranted,
+    );
+    map['ad_storage_consent_granted'] = Variable<bool>(adStorageConsentGranted);
+    map['ad_user_data_consent_granted'] = Variable<bool>(
+      adUserDataConsentGranted,
+    );
+    map['ad_personalization_signals_consent_granted'] = Variable<bool>(
+      adPersonalizationSignalsConsentGranted,
+    );
+    map['functionality_storage_consent_granted'] = Variable<bool>(
+      functionalityStorageConsentGranted,
+    );
+    map['personalization_storage_consent_granted'] = Variable<bool>(
+      personalizationStorageConsentGranted,
+    );
+    map['security_storage_consent_granted'] = Variable<bool>(
+      securityStorageConsentGranted,
+    );
     return map;
   }
 
@@ -161,6 +461,21 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       themeMode: Value(themeMode),
       languageCode: Value(languageCode),
       seedColor: Value(seedColor),
+      hasCompletedOnboarding: Value(hasCompletedOnboarding),
+      hasGivenConsent: Value(hasGivenConsent),
+      analyticsStorageConsentGranted: Value(analyticsStorageConsentGranted),
+      adStorageConsentGranted: Value(adStorageConsentGranted),
+      adUserDataConsentGranted: Value(adUserDataConsentGranted),
+      adPersonalizationSignalsConsentGranted: Value(
+        adPersonalizationSignalsConsentGranted,
+      ),
+      functionalityStorageConsentGranted: Value(
+        functionalityStorageConsentGranted,
+      ),
+      personalizationStorageConsentGranted: Value(
+        personalizationStorageConsentGranted,
+      ),
+      securityStorageConsentGranted: Value(securityStorageConsentGranted),
     );
   }
 
@@ -176,6 +491,31 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       ),
       languageCode: serializer.fromJson<String>(json['languageCode']),
       seedColor: serializer.fromJson<int>(json['seedColor']),
+      hasCompletedOnboarding: serializer.fromJson<bool>(
+        json['hasCompletedOnboarding'],
+      ),
+      hasGivenConsent: serializer.fromJson<bool>(json['hasGivenConsent']),
+      analyticsStorageConsentGranted: serializer.fromJson<bool>(
+        json['analyticsStorageConsentGranted'],
+      ),
+      adStorageConsentGranted: serializer.fromJson<bool>(
+        json['adStorageConsentGranted'],
+      ),
+      adUserDataConsentGranted: serializer.fromJson<bool>(
+        json['adUserDataConsentGranted'],
+      ),
+      adPersonalizationSignalsConsentGranted: serializer.fromJson<bool>(
+        json['adPersonalizationSignalsConsentGranted'],
+      ),
+      functionalityStorageConsentGranted: serializer.fromJson<bool>(
+        json['functionalityStorageConsentGranted'],
+      ),
+      personalizationStorageConsentGranted: serializer.fromJson<bool>(
+        json['personalizationStorageConsentGranted'],
+      ),
+      securityStorageConsentGranted: serializer.fromJson<bool>(
+        json['securityStorageConsentGranted'],
+      ),
     );
   }
   @override
@@ -188,6 +528,29 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       ),
       'languageCode': serializer.toJson<String>(languageCode),
       'seedColor': serializer.toJson<int>(seedColor),
+      'hasCompletedOnboarding': serializer.toJson<bool>(hasCompletedOnboarding),
+      'hasGivenConsent': serializer.toJson<bool>(hasGivenConsent),
+      'analyticsStorageConsentGranted': serializer.toJson<bool>(
+        analyticsStorageConsentGranted,
+      ),
+      'adStorageConsentGranted': serializer.toJson<bool>(
+        adStorageConsentGranted,
+      ),
+      'adUserDataConsentGranted': serializer.toJson<bool>(
+        adUserDataConsentGranted,
+      ),
+      'adPersonalizationSignalsConsentGranted': serializer.toJson<bool>(
+        adPersonalizationSignalsConsentGranted,
+      ),
+      'functionalityStorageConsentGranted': serializer.toJson<bool>(
+        functionalityStorageConsentGranted,
+      ),
+      'personalizationStorageConsentGranted': serializer.toJson<bool>(
+        personalizationStorageConsentGranted,
+      ),
+      'securityStorageConsentGranted': serializer.toJson<bool>(
+        securityStorageConsentGranted,
+      ),
     };
   }
 
@@ -196,11 +559,40 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     ThemeMode? themeMode,
     String? languageCode,
     int? seedColor,
+    bool? hasCompletedOnboarding,
+    bool? hasGivenConsent,
+    bool? analyticsStorageConsentGranted,
+    bool? adStorageConsentGranted,
+    bool? adUserDataConsentGranted,
+    bool? adPersonalizationSignalsConsentGranted,
+    bool? functionalityStorageConsentGranted,
+    bool? personalizationStorageConsentGranted,
+    bool? securityStorageConsentGranted,
   }) => AppSetting(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode ?? this.languageCode,
     seedColor: seedColor ?? this.seedColor,
+    hasCompletedOnboarding:
+        hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+    hasGivenConsent: hasGivenConsent ?? this.hasGivenConsent,
+    analyticsStorageConsentGranted:
+        analyticsStorageConsentGranted ?? this.analyticsStorageConsentGranted,
+    adStorageConsentGranted:
+        adStorageConsentGranted ?? this.adStorageConsentGranted,
+    adUserDataConsentGranted:
+        adUserDataConsentGranted ?? this.adUserDataConsentGranted,
+    adPersonalizationSignalsConsentGranted:
+        adPersonalizationSignalsConsentGranted ??
+        this.adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted:
+        functionalityStorageConsentGranted ??
+        this.functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted:
+        personalizationStorageConsentGranted ??
+        this.personalizationStorageConsentGranted,
+    securityStorageConsentGranted:
+        securityStorageConsentGranted ?? this.securityStorageConsentGranted,
   );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
@@ -210,6 +602,37 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ? data.languageCode.value
           : this.languageCode,
       seedColor: data.seedColor.present ? data.seedColor.value : this.seedColor,
+      hasCompletedOnboarding: data.hasCompletedOnboarding.present
+          ? data.hasCompletedOnboarding.value
+          : this.hasCompletedOnboarding,
+      hasGivenConsent: data.hasGivenConsent.present
+          ? data.hasGivenConsent.value
+          : this.hasGivenConsent,
+      analyticsStorageConsentGranted:
+          data.analyticsStorageConsentGranted.present
+          ? data.analyticsStorageConsentGranted.value
+          : this.analyticsStorageConsentGranted,
+      adStorageConsentGranted: data.adStorageConsentGranted.present
+          ? data.adStorageConsentGranted.value
+          : this.adStorageConsentGranted,
+      adUserDataConsentGranted: data.adUserDataConsentGranted.present
+          ? data.adUserDataConsentGranted.value
+          : this.adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          data.adPersonalizationSignalsConsentGranted.present
+          ? data.adPersonalizationSignalsConsentGranted.value
+          : this.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          data.functionalityStorageConsentGranted.present
+          ? data.functionalityStorageConsentGranted.value
+          : this.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          data.personalizationStorageConsentGranted.present
+          ? data.personalizationStorageConsentGranted.value
+          : this.personalizationStorageConsentGranted,
+      securityStorageConsentGranted: data.securityStorageConsentGranted.present
+          ? data.securityStorageConsentGranted.value
+          : this.securityStorageConsentGranted,
     );
   }
 
@@ -219,13 +642,46 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('languageCode: $languageCode, ')
-          ..write('seedColor: $seedColor')
+          ..write('seedColor: $seedColor, ')
+          ..write('hasCompletedOnboarding: $hasCompletedOnboarding, ')
+          ..write('hasGivenConsent: $hasGivenConsent, ')
+          ..write(
+            'analyticsStorageConsentGranted: $analyticsStorageConsentGranted, ',
+          )
+          ..write('adStorageConsentGranted: $adStorageConsentGranted, ')
+          ..write('adUserDataConsentGranted: $adUserDataConsentGranted, ')
+          ..write(
+            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted, ',
+          )
+          ..write(
+            'functionalityStorageConsentGranted: $functionalityStorageConsentGranted, ',
+          )
+          ..write(
+            'personalizationStorageConsentGranted: $personalizationStorageConsentGranted, ',
+          )
+          ..write(
+            'securityStorageConsentGranted: $securityStorageConsentGranted',
+          )
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, themeMode, languageCode, seedColor);
+  int get hashCode => Object.hash(
+    id,
+    themeMode,
+    languageCode,
+    seedColor,
+    hasCompletedOnboarding,
+    hasGivenConsent,
+    analyticsStorageConsentGranted,
+    adStorageConsentGranted,
+    adUserDataConsentGranted,
+    adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted,
+    securityStorageConsentGranted,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -233,7 +689,21 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           other.id == this.id &&
           other.themeMode == this.themeMode &&
           other.languageCode == this.languageCode &&
-          other.seedColor == this.seedColor);
+          other.seedColor == this.seedColor &&
+          other.hasCompletedOnboarding == this.hasCompletedOnboarding &&
+          other.hasGivenConsent == this.hasGivenConsent &&
+          other.analyticsStorageConsentGranted ==
+              this.analyticsStorageConsentGranted &&
+          other.adStorageConsentGranted == this.adStorageConsentGranted &&
+          other.adUserDataConsentGranted == this.adUserDataConsentGranted &&
+          other.adPersonalizationSignalsConsentGranted ==
+              this.adPersonalizationSignalsConsentGranted &&
+          other.functionalityStorageConsentGranted ==
+              this.functionalityStorageConsentGranted &&
+          other.personalizationStorageConsentGranted ==
+              this.personalizationStorageConsentGranted &&
+          other.securityStorageConsentGranted ==
+              this.securityStorageConsentGranted);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
@@ -241,29 +711,85 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<ThemeMode> themeMode;
   final Value<String> languageCode;
   final Value<int> seedColor;
+  final Value<bool> hasCompletedOnboarding;
+  final Value<bool> hasGivenConsent;
+  final Value<bool> analyticsStorageConsentGranted;
+  final Value<bool> adStorageConsentGranted;
+  final Value<bool> adUserDataConsentGranted;
+  final Value<bool> adPersonalizationSignalsConsentGranted;
+  final Value<bool> functionalityStorageConsentGranted;
+  final Value<bool> personalizationStorageConsentGranted;
+  final Value<bool> securityStorageConsentGranted;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.languageCode = const Value.absent(),
     this.seedColor = const Value.absent(),
+    this.hasCompletedOnboarding = const Value.absent(),
+    this.hasGivenConsent = const Value.absent(),
+    this.analyticsStorageConsentGranted = const Value.absent(),
+    this.adStorageConsentGranted = const Value.absent(),
+    this.adUserDataConsentGranted = const Value.absent(),
+    this.adPersonalizationSignalsConsentGranted = const Value.absent(),
+    this.functionalityStorageConsentGranted = const Value.absent(),
+    this.personalizationStorageConsentGranted = const Value.absent(),
+    this.securityStorageConsentGranted = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.languageCode = const Value.absent(),
     this.seedColor = const Value.absent(),
+    this.hasCompletedOnboarding = const Value.absent(),
+    this.hasGivenConsent = const Value.absent(),
+    this.analyticsStorageConsentGranted = const Value.absent(),
+    this.adStorageConsentGranted = const Value.absent(),
+    this.adUserDataConsentGranted = const Value.absent(),
+    this.adPersonalizationSignalsConsentGranted = const Value.absent(),
+    this.functionalityStorageConsentGranted = const Value.absent(),
+    this.personalizationStorageConsentGranted = const Value.absent(),
+    this.securityStorageConsentGranted = const Value.absent(),
   });
   static Insertable<AppSetting> custom({
     Expression<int>? id,
     Expression<int>? themeMode,
     Expression<String>? languageCode,
     Expression<int>? seedColor,
+    Expression<bool>? hasCompletedOnboarding,
+    Expression<bool>? hasGivenConsent,
+    Expression<bool>? analyticsStorageConsentGranted,
+    Expression<bool>? adStorageConsentGranted,
+    Expression<bool>? adUserDataConsentGranted,
+    Expression<bool>? adPersonalizationSignalsConsentGranted,
+    Expression<bool>? functionalityStorageConsentGranted,
+    Expression<bool>? personalizationStorageConsentGranted,
+    Expression<bool>? securityStorageConsentGranted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (themeMode != null) 'theme_mode': themeMode,
       if (languageCode != null) 'language_code': languageCode,
       if (seedColor != null) 'seed_color': seedColor,
+      if (hasCompletedOnboarding != null)
+        'has_completed_onboarding': hasCompletedOnboarding,
+      if (hasGivenConsent != null) 'has_given_consent': hasGivenConsent,
+      if (analyticsStorageConsentGranted != null)
+        'analytics_storage_consent_granted': analyticsStorageConsentGranted,
+      if (adStorageConsentGranted != null)
+        'ad_storage_consent_granted': adStorageConsentGranted,
+      if (adUserDataConsentGranted != null)
+        'ad_user_data_consent_granted': adUserDataConsentGranted,
+      if (adPersonalizationSignalsConsentGranted != null)
+        'ad_personalization_signals_consent_granted':
+            adPersonalizationSignalsConsentGranted,
+      if (functionalityStorageConsentGranted != null)
+        'functionality_storage_consent_granted':
+            functionalityStorageConsentGranted,
+      if (personalizationStorageConsentGranted != null)
+        'personalization_storage_consent_granted':
+            personalizationStorageConsentGranted,
+      if (securityStorageConsentGranted != null)
+        'security_storage_consent_granted': securityStorageConsentGranted,
     });
   }
 
@@ -272,12 +798,41 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Value<ThemeMode>? themeMode,
     Value<String>? languageCode,
     Value<int>? seedColor,
+    Value<bool>? hasCompletedOnboarding,
+    Value<bool>? hasGivenConsent,
+    Value<bool>? analyticsStorageConsentGranted,
+    Value<bool>? adStorageConsentGranted,
+    Value<bool>? adUserDataConsentGranted,
+    Value<bool>? adPersonalizationSignalsConsentGranted,
+    Value<bool>? functionalityStorageConsentGranted,
+    Value<bool>? personalizationStorageConsentGranted,
+    Value<bool>? securityStorageConsentGranted,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
       themeMode: themeMode ?? this.themeMode,
       languageCode: languageCode ?? this.languageCode,
       seedColor: seedColor ?? this.seedColor,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      hasGivenConsent: hasGivenConsent ?? this.hasGivenConsent,
+      analyticsStorageConsentGranted:
+          analyticsStorageConsentGranted ?? this.analyticsStorageConsentGranted,
+      adStorageConsentGranted:
+          adStorageConsentGranted ?? this.adStorageConsentGranted,
+      adUserDataConsentGranted:
+          adUserDataConsentGranted ?? this.adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          adPersonalizationSignalsConsentGranted ??
+          this.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          functionalityStorageConsentGranted ??
+          this.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted ??
+          this.personalizationStorageConsentGranted,
+      securityStorageConsentGranted:
+          securityStorageConsentGranted ?? this.securityStorageConsentGranted,
     );
   }
 
@@ -298,6 +853,49 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     if (seedColor.present) {
       map['seed_color'] = Variable<int>(seedColor.value);
     }
+    if (hasCompletedOnboarding.present) {
+      map['has_completed_onboarding'] = Variable<bool>(
+        hasCompletedOnboarding.value,
+      );
+    }
+    if (hasGivenConsent.present) {
+      map['has_given_consent'] = Variable<bool>(hasGivenConsent.value);
+    }
+    if (analyticsStorageConsentGranted.present) {
+      map['analytics_storage_consent_granted'] = Variable<bool>(
+        analyticsStorageConsentGranted.value,
+      );
+    }
+    if (adStorageConsentGranted.present) {
+      map['ad_storage_consent_granted'] = Variable<bool>(
+        adStorageConsentGranted.value,
+      );
+    }
+    if (adUserDataConsentGranted.present) {
+      map['ad_user_data_consent_granted'] = Variable<bool>(
+        adUserDataConsentGranted.value,
+      );
+    }
+    if (adPersonalizationSignalsConsentGranted.present) {
+      map['ad_personalization_signals_consent_granted'] = Variable<bool>(
+        adPersonalizationSignalsConsentGranted.value,
+      );
+    }
+    if (functionalityStorageConsentGranted.present) {
+      map['functionality_storage_consent_granted'] = Variable<bool>(
+        functionalityStorageConsentGranted.value,
+      );
+    }
+    if (personalizationStorageConsentGranted.present) {
+      map['personalization_storage_consent_granted'] = Variable<bool>(
+        personalizationStorageConsentGranted.value,
+      );
+    }
+    if (securityStorageConsentGranted.present) {
+      map['security_storage_consent_granted'] = Variable<bool>(
+        securityStorageConsentGranted.value,
+      );
+    }
     return map;
   }
 
@@ -307,7 +905,26 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('languageCode: $languageCode, ')
-          ..write('seedColor: $seedColor')
+          ..write('seedColor: $seedColor, ')
+          ..write('hasCompletedOnboarding: $hasCompletedOnboarding, ')
+          ..write('hasGivenConsent: $hasGivenConsent, ')
+          ..write(
+            'analyticsStorageConsentGranted: $analyticsStorageConsentGranted, ',
+          )
+          ..write('adStorageConsentGranted: $adStorageConsentGranted, ')
+          ..write('adUserDataConsentGranted: $adUserDataConsentGranted, ')
+          ..write(
+            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted, ',
+          )
+          ..write(
+            'functionalityStorageConsentGranted: $functionalityStorageConsentGranted, ',
+          )
+          ..write(
+            'personalizationStorageConsentGranted: $personalizationStorageConsentGranted, ',
+          )
+          ..write(
+            'securityStorageConsentGranted: $securityStorageConsentGranted',
+          )
           ..write(')'))
         .toString();
   }
@@ -912,6 +1529,15 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<ThemeMode> themeMode,
       Value<String> languageCode,
       Value<int> seedColor,
+      Value<bool> hasCompletedOnboarding,
+      Value<bool> hasGivenConsent,
+      Value<bool> analyticsStorageConsentGranted,
+      Value<bool> adStorageConsentGranted,
+      Value<bool> adUserDataConsentGranted,
+      Value<bool> adPersonalizationSignalsConsentGranted,
+      Value<bool> functionalityStorageConsentGranted,
+      Value<bool> personalizationStorageConsentGranted,
+      Value<bool> securityStorageConsentGranted,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -919,6 +1545,15 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<ThemeMode> themeMode,
       Value<String> languageCode,
       Value<int> seedColor,
+      Value<bool> hasCompletedOnboarding,
+      Value<bool> hasGivenConsent,
+      Value<bool> analyticsStorageConsentGranted,
+      Value<bool> adStorageConsentGranted,
+      Value<bool> adUserDataConsentGranted,
+      Value<bool> adPersonalizationSignalsConsentGranted,
+      Value<bool> functionalityStorageConsentGranted,
+      Value<bool> personalizationStorageConsentGranted,
+      Value<bool> securityStorageConsentGranted,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -948,6 +1583,54 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<int> get seedColor => $composableBuilder(
     column: $table.seedColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasCompletedOnboarding => $composableBuilder(
+    column: $table.hasCompletedOnboarding,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasGivenConsent => $composableBuilder(
+    column: $table.hasGivenConsent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get analyticsStorageConsentGranted => $composableBuilder(
+    column: $table.analyticsStorageConsentGranted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get adStorageConsentGranted => $composableBuilder(
+    column: $table.adStorageConsentGranted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get adUserDataConsentGranted => $composableBuilder(
+    column: $table.adUserDataConsentGranted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get adPersonalizationSignalsConsentGranted =>
+      $composableBuilder(
+        column: $table.adPersonalizationSignalsConsentGranted,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -980,6 +1663,55 @@ class $$AppSettingsTableOrderingComposer
     column: $table.seedColor,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get hasCompletedOnboarding => $composableBuilder(
+    column: $table.hasCompletedOnboarding,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasGivenConsent => $composableBuilder(
+    column: $table.hasGivenConsent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get analyticsStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.analyticsStorageConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get adStorageConsentGranted => $composableBuilder(
+    column: $table.adStorageConsentGranted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get adUserDataConsentGranted => $composableBuilder(
+    column: $table.adUserDataConsentGranted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get adPersonalizationSignalsConsentGranted =>
+      $composableBuilder(
+        column: $table.adPersonalizationSignalsConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -1004,6 +1736,55 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<int> get seedColor =>
       $composableBuilder(column: $table.seedColor, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasCompletedOnboarding => $composableBuilder(
+    column: $table.hasCompletedOnboarding,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hasGivenConsent => $composableBuilder(
+    column: $table.hasGivenConsent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get analyticsStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.analyticsStorageConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get adStorageConsentGranted => $composableBuilder(
+    column: $table.adStorageConsentGranted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get adUserDataConsentGranted => $composableBuilder(
+    column: $table.adUserDataConsentGranted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get adPersonalizationSignalsConsentGranted =>
+      $composableBuilder(
+        column: $table.adPersonalizationSignalsConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
+    builder: (column) => column,
+  );
 }
 
 class $$AppSettingsTableTableManager
@@ -1041,11 +1822,37 @@ class $$AppSettingsTableTableManager
                 Value<ThemeMode> themeMode = const Value.absent(),
                 Value<String> languageCode = const Value.absent(),
                 Value<int> seedColor = const Value.absent(),
+                Value<bool> hasCompletedOnboarding = const Value.absent(),
+                Value<bool> hasGivenConsent = const Value.absent(),
+                Value<bool> analyticsStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> adStorageConsentGranted = const Value.absent(),
+                Value<bool> adUserDataConsentGranted = const Value.absent(),
+                Value<bool> adPersonalizationSignalsConsentGranted =
+                    const Value.absent(),
+                Value<bool> functionalityStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> personalizationStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> securityStorageConsentGranted =
+                    const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 themeMode: themeMode,
                 languageCode: languageCode,
                 seedColor: seedColor,
+                hasCompletedOnboarding: hasCompletedOnboarding,
+                hasGivenConsent: hasGivenConsent,
+                analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+                adStorageConsentGranted: adStorageConsentGranted,
+                adUserDataConsentGranted: adUserDataConsentGranted,
+                adPersonalizationSignalsConsentGranted:
+                    adPersonalizationSignalsConsentGranted,
+                functionalityStorageConsentGranted:
+                    functionalityStorageConsentGranted,
+                personalizationStorageConsentGranted:
+                    personalizationStorageConsentGranted,
+                securityStorageConsentGranted: securityStorageConsentGranted,
               ),
           createCompanionCallback:
               ({
@@ -1053,11 +1860,37 @@ class $$AppSettingsTableTableManager
                 Value<ThemeMode> themeMode = const Value.absent(),
                 Value<String> languageCode = const Value.absent(),
                 Value<int> seedColor = const Value.absent(),
+                Value<bool> hasCompletedOnboarding = const Value.absent(),
+                Value<bool> hasGivenConsent = const Value.absent(),
+                Value<bool> analyticsStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> adStorageConsentGranted = const Value.absent(),
+                Value<bool> adUserDataConsentGranted = const Value.absent(),
+                Value<bool> adPersonalizationSignalsConsentGranted =
+                    const Value.absent(),
+                Value<bool> functionalityStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> personalizationStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> securityStorageConsentGranted =
+                    const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
                 languageCode: languageCode,
                 seedColor: seedColor,
+                hasCompletedOnboarding: hasCompletedOnboarding,
+                hasGivenConsent: hasGivenConsent,
+                analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+                adStorageConsentGranted: adStorageConsentGranted,
+                adUserDataConsentGranted: adUserDataConsentGranted,
+                adPersonalizationSignalsConsentGranted:
+                    adPersonalizationSignalsConsentGranted,
+                functionalityStorageConsentGranted:
+                    functionalityStorageConsentGranted,
+                personalizationStorageConsentGranted:
+                    personalizationStorageConsentGranted,
+                securityStorageConsentGranted: securityStorageConsentGranted,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

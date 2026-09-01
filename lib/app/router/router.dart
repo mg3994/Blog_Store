@@ -8,11 +8,14 @@ import 'package:blogstore/injection/dependency_injection.dart'
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/onboarding/onboarding.dart' show OnboardingScreen;
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show
         AppSettingBloc,
         AppSettingUpdateSeedColorEvent,
         AppSettingTemporarilyChangeLocaleEvent;
+import '../../features/settings/privacy_setting/presentation/screens/widgets/analytics_consent_modal.dart'
+    show AnalyticsConsentModal;
 import '../../features/settings/settings.dart';
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingUpdateSeedColorEvent;
@@ -23,6 +26,11 @@ part 'app_stack_codec.dart';
 // 1. Sealed Route Hierarchy
 sealed class AppRoute extends KaiselRoute {
   const AppRoute();
+}
+// OnboardingScreen
+
+final class OnboardingRoute extends AppRoute {
+  const OnboardingRoute();
 }
 
 final class SettingsMasterRoute extends AppRoute {
@@ -68,8 +76,12 @@ final class AppRouter {
       );
 
   KaiselRouterConfig<AppRoute> get routerConfig {
+    final initialRoute =
+        (_appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
+        ? const HomeRoute()
+        : const OnboardingRoute();
     return KaiselRouterConfig<AppRoute>.adaptive(
-      initial: const HomeRoute(),
+      initial: initialRoute,
       observers: () => [_dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) => _dependencies.analyticsGateway.logScreenView(
         screenName: route.routeName,
@@ -168,7 +180,10 @@ final class AppRouter {
         ),
       ),
       _ => KaiselStandalonePage(
-        AppNavigationShell(currentRoute: route, child: const HomeScreen()),
+        AppNavigationShell(
+          currentRoute: route,
+          child: const OnboardingScreen(), // const HomeScreen()
+        ),
       ),
     };
   }
@@ -210,8 +225,28 @@ class SettingsTwoPane extends StatelessWidget {
 }
 
 // 3. Decoupled Screen Views
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // bool _hasCheckedConsent = false;
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+
+  //   if (!_hasCheckedConsent) {
+  //     _hasCheckedConsent = true;
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       if (mounted) {
+  //         AnalyticsConsentModal.showIfNeeded(context);
+  //       }
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

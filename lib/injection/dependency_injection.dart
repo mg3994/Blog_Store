@@ -1,3 +1,4 @@
+import 'package:blogstore/features/settings/app_setting/domain/usecases/reset_app_settings.dart';
 import 'package:firebase_analytics/firebase_analytics.dart'
     show FirebaseAnalytics;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
@@ -22,22 +23,16 @@ import '../features/settings/app_setting/data/repositories/app_setting_repositor
     show AppSettingRepositoryImpl;
 import '../features/settings/app_setting/domain/repositories/app_setting_repository.dart'
     show AppSettingRepository;
-import '../features/settings/app_setting/domain/usecases/get_app_settings.dart'
-    show GetAppSettings;
-import '../features/settings/app_setting/domain/usecases/temp_change_locale.dart'
-    show TemporarilyChangeLocale;
-import '../features/settings/app_setting/domain/usecases/temp_change_seed_color.dart'
-    show TemporarilyChangeSeedColor;
-import '../features/settings/app_setting/domain/usecases/temp_change_theme_mode.dart'
-    show TemporarilyChangeThemeMode;
-import '../features/settings/app_setting/domain/usecases/update_locale.dart'
-    show UpdateLocale;
-import '../features/settings/app_setting/domain/usecases/update_seed_color.dart'
-    show UpdateSeedColor;
-import '../features/settings/app_setting/domain/usecases/update_theme_mode.dart'
-    show UpdateThemeMode;
-import '../features/settings/app_setting/domain/usecases/watch_app_settings.dart'
-    show WatchAppSettings;
+import '../features/settings/app_setting/domain/usecases/get_app_settings.dart';
+import '../features/settings/app_setting/domain/usecases/temp_change_locale.dart';
+import '../features/settings/app_setting/domain/usecases/temp_change_seed_color.dart';
+import '../features/settings/app_setting/domain/usecases/temp_change_theme_mode.dart';
+import '../features/settings/app_setting/domain/usecases/update_consent.dart';
+import '../features/settings/app_setting/domain/usecases/update_locale.dart';
+import '../features/settings/app_setting/domain/usecases/update_onboarding_completed.dart';
+import '../features/settings/app_setting/domain/usecases/update_seed_color.dart';
+import '../features/settings/app_setting/domain/usecases/update_theme_mode.dart';
+import '../features/settings/app_setting/domain/usecases/watch_app_settings.dart';
 import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc;
 import '../firebase_web_config.dart' show FirebaseWebConfig;
@@ -106,27 +101,36 @@ final class Dependencies {
         analyticsGateway: analyticsGateway,
       );
 
-  late final GetAppSettings getAppSettings = GetAppSettings(
+  late final GetAppSettingsUseCase getAppSettings = GetAppSettingsUseCase(
     appSettingRepository,
   );
-  late final WatchAppSettings watchAppSettings = WatchAppSettings(
+  late final WatchAppSettingsUseCase watchAppSettings = WatchAppSettingsUseCase(
     appSettingRepository,
   );
-  late final UpdateThemeMode updateThemeMode = UpdateThemeMode(
+  late final ResetAppSettingsUseCase resetAppSettings = ResetAppSettingsUseCase(
     appSettingRepository,
   );
-  late final UpdateLocale updateLocale = UpdateLocale(appSettingRepository);
-  late final UpdateSeedColor updateSeedColor = UpdateSeedColor(
+  late final UpdateThemeModeUseCase updateThemeMode = UpdateThemeModeUseCase(
+    appSettingRepository,
+  );
+  late final UpdateLocaleUseCase updateLocale = UpdateLocaleUseCase(
+    appSettingRepository,
+  );
+  late final UpdateSeedColorUseCase updateSeedColor = UpdateSeedColorUseCase(
+    appSettingRepository,
+  );
+  late final UpdateOnboardingCompletedUseCase updateOnboardingCompleted =
+      UpdateOnboardingCompletedUseCase(appSettingRepository);
+  late final UpdateConsentUseCase updateConsent = UpdateConsentUseCase(
     appSettingRepository,
   );
   //temp
-  late final TemporarilyChangeThemeMode tempChangeThemeMode =
-      TemporarilyChangeThemeMode(appSettingRepository);
-  late final TemporarilyChangeLocale tempChangeLocale = TemporarilyChangeLocale(
-    appSettingRepository,
-  );
-  late final TemporarilyChangeSeedColor tempChangeSeedColor =
-      TemporarilyChangeSeedColor(appSettingRepository);
+  late final TemporarilyChangeThemeModeUseCase tempChangeThemeMode =
+      TemporarilyChangeThemeModeUseCase(appSettingRepository);
+  late final TemporarilyChangeLocaleUseCase tempChangeLocale =
+      TemporarilyChangeLocaleUseCase(appSettingRepository);
+  late final TemporarilyChangeSeedColorUseCase tempChangeSeedColor =
+      TemporarilyChangeSeedColorUseCase(appSettingRepository);
   //\temp
 
   ///
@@ -135,9 +139,12 @@ final class Dependencies {
   // for same Bloc
   late final AppSettingBloc appSettingBloc = AppSettingBloc(
     getAppSettings: getAppSettings,
+    resetAppSettings: resetAppSettings,
     updateThemeMode: updateThemeMode,
     updateLocale: updateLocale,
     updateSeedColor: updateSeedColor,
+    updateOnboardingCompleted: updateOnboardingCompleted,
+    updateConsent: updateConsent,
     tempChangeThemeMode: tempChangeThemeMode,
     tempChangeLocale: tempChangeLocale,
     tempChangeSeedColor: tempChangeSeedColor,

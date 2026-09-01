@@ -2,8 +2,8 @@ import 'package:material_ui/material_ui.dart' show Color;
 
 import '../repositories/app_setting_repository.dart';
 
-final class TemporarilyChangeSeedColor {
-  const TemporarilyChangeSeedColor(this._repository);
+final class TemporarilyChangeSeedColorUseCase {
+  const TemporarilyChangeSeedColorUseCase(this._repository);
 
   final AppSettingRepository _repository;
 

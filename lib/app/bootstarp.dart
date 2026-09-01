@@ -73,7 +73,7 @@ class _BootStrapState extends State<BootStrap> {
   }
 
   AppRouter? _appRouter;
- 
+
   Dependencies? _dependencies;
   AppSettingBloc? _appSettingsBloc;
 
@@ -108,10 +108,7 @@ class _BootStrapState extends State<BootStrap> {
       await appSettingBloc.loadSettings();
 
       _setProgress(0.75, 'Preparing navigation...');
-      final appRouter = AppRouter(
-        dependencies,
-        appSettingBloc: appSettingBloc,
-      );
+      final appRouter = AppRouter(dependencies, appSettingBloc: appSettingBloc);
       _setProgress(1.0, 'Ready');
       if (!mounted) return;
 
@@ -120,13 +117,12 @@ class _BootStrapState extends State<BootStrap> {
         _appSettingsBloc = appSettingBloc;
         _appRouter = appRouter;
       });
+      await dependencies.notificationGateway.requestPermission();
     } catch (error, stack) {
       dependencies.crashReporter.recordError(error, stack, fatal: true);
     } finally {
       allowFirstFrame();
     }
-
-    await dependencies.notificationGateway.requestPermission();
   }
 
   @override
@@ -162,9 +158,7 @@ class _BootStrapState extends State<BootStrap> {
     final appSettingBloc = _appSettingsBloc;
     final appRouter = _appRouter;
 
-    if (dependencies == null ||
-        appSettingBloc == null ||
-        appRouter == null) {
+    if (dependencies == null || appSettingBloc == null || appRouter == null) {
       return _AppBootstrapLoading(
         progress: _progress,
         message: _loadingMessage,
@@ -185,9 +179,8 @@ class _BootStrapState extends State<BootStrap> {
                 return MaterialUiCompatibilityBridge(child: child!);
               },
               routerConfig: appRouter.routerConfig,
-              routeInformationParser: appRouter.routeInformationParser,
-                
-                  
+              // routeInformationParser: appRouter.routeInformationParser,
+
               onGenerateTitle: (context) => context.l10n.appName,
               supportedLocales: AppLocalizations.supportedLocales,
               localizationsDelegates: [
