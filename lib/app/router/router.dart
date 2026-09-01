@@ -8,14 +8,15 @@ import 'package:blogstore/injection/dependency_injection.dart'
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/consent/presentation/widgets/analytics_consent_modal.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show
         AppSettingBloc,
         AppSettingUpdateSeedColorEvent,
         AppSettingTemporarilyChangeLocaleEvent;
+import '../../features/settings/presentation/screens/privacy_setting_screen.dart';
 import '../../features/settings/settings.dart';
-import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
-    show AppSettingBloc, AppSettingUpdateSeedColorEvent;
 import '../../generated/app_localizations.dart' show AppLocalizations;
 
 part 'app_stack_codec.dart';
@@ -25,12 +26,20 @@ sealed class AppRoute extends KaiselRoute {
   const AppRoute();
 }
 
+final class OnboardingRoute extends AppRoute {
+  const OnboardingRoute();
+}
+
 final class SettingsMasterRoute extends AppRoute {
   const SettingsMasterRoute();
 }
 
 final class AppSettingRoute extends AppRoute {
   const AppSettingRoute();
+}
+
+final class PrivacySettingRoute extends AppRoute {
+  const PrivacySettingRoute();
 }
 
 final class HomeRoute extends AppRoute {
@@ -56,7 +65,8 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 
 // 2. Class-Based Router accepting Dependencies
 final class AppRouter {
-  const AppRouter(this._dependencies, {this._appSettingBloc});
+  const AppRouter(this._dependencies, {AppSettingBloc? appSettingBloc})
+      : _appSettingBloc = appSettingBloc;
 
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
@@ -68,8 +78,13 @@ final class AppRouter {
       );
 
   KaiselRouterConfig<AppRoute> get routerConfig {
+    final initialRoute =
+        (_appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
+            ? const HomeRoute()
+            : const OnboardingRoute();
+
     return KaiselRouterConfig<AppRoute>.adaptive(
-      initial: const HomeRoute(),
+      initial: initialRoute,
       observers: () => [_dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) => _dependencies.analyticsGateway.logScreenView(
         screenName: route.routeName,
@@ -88,6 +103,10 @@ final class AppRouter {
     final spanned = fold != null || mq.size.width >= 700;
 
     return switch ((ctx.previous, route, spanned)) {
+      (_, OnboardingRoute(), _) => const KaiselStandalonePage(
+        OnboardingScreen(),
+      ),
+
       // Wide / Foldable screens (Master -> Detail)
       (SettingsMasterRoute(), AppSettingRoute(), true) => KaiselAbsorbingPage(
         widget: AppNavigationShell(
@@ -98,6 +117,8 @@ final class AppRouter {
               onSelectSetting: (tileContext, setting) {
                 if (setting == 'appearance') {
                   tileContext.pushOrReplaceTop(const AppSettingRoute());
+                } else if (setting == 'privacy') {
+                  tileContext.pushOrReplaceTop(const PrivacySettingRoute());
                 }
               },
             ),
@@ -106,6 +127,26 @@ final class AppRouter {
           ),
         ),
       ),
+      (SettingsMasterRoute(), PrivacySettingRoute(), true) =>
+        KaiselAbsorbingPage(
+          widget: AppNavigationShell(
+            currentRoute: route,
+            child: SettingsTwoPane(
+              master: SettingsMasterScreen(
+                selectedSetting: 'privacy',
+                onSelectSetting: (tileContext, setting) {
+                  if (setting == 'appearance') {
+                    tileContext.pushOrReplaceTop(const AppSettingRoute());
+                  } else if (setting == 'privacy') {
+                    tileContext.pushOrReplaceTop(const PrivacySettingRoute());
+                  }
+                },
+              ),
+              detail: const PrivacySettingScreen(),
+              hinge: fold?.bounds,
+            ),
+          ),
+        ),
       (_, AppSettingRoute(), true) => KaiselStandalonePage(
         AppNavigationShell(
           currentRoute: route,
@@ -115,10 +156,31 @@ final class AppRouter {
               onSelectSetting: (tileContext, setting) {
                 if (setting == 'appearance') {
                   tileContext.pushOrReplaceTop(const AppSettingRoute());
+                } else if (setting == 'privacy') {
+                  tileContext.pushOrReplaceTop(const PrivacySettingRoute());
                 }
               },
             ),
             detail: const AppSettingScreen(),
+            hinge: fold?.bounds,
+          ),
+        ),
+      ),
+      (_, PrivacySettingRoute(), true) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: SettingsTwoPane(
+            master: SettingsMasterScreen(
+              selectedSetting: 'privacy',
+              onSelectSetting: (tileContext, setting) {
+                if (setting == 'appearance') {
+                  tileContext.pushOrReplaceTop(const AppSettingRoute());
+                } else if (setting == 'privacy') {
+                  tileContext.pushOrReplaceTop(const PrivacySettingRoute());
+                }
+              },
+            ),
+            detail: const PrivacySettingScreen(),
             hinge: fold?.bounds,
           ),
         ),
@@ -132,6 +194,8 @@ final class AppRouter {
               onSelectSetting: (tileContext, setting) {
                 if (setting == 'appearance') {
                   tileContext.pushOrReplaceTop(const AppSettingRoute());
+                } else if (setting == 'privacy') {
+                  tileContext.pushOrReplaceTop(const PrivacySettingRoute());
                 }
               },
             ),
@@ -148,6 +212,12 @@ final class AppRouter {
           child: const AppSettingScreen(),
         ),
       ),
+      (_, PrivacySettingRoute(), false) => KaiselStandalonePage(
+        AppNavigationShell(
+          currentRoute: route,
+          child: const PrivacySettingScreen(),
+        ),
+      ),
       (_, SettingsMasterRoute(), false) => KaiselStandalonePage(
         AppNavigationShell(
           currentRoute: route,
@@ -156,6 +226,8 @@ final class AppRouter {
             onSelectSetting: (tileContext, setting) {
               if (setting == 'appearance') {
                 tileContext.push(const AppSettingRoute());
+              } else if (setting == 'privacy') {
+                tileContext.push(const PrivacySettingRoute());
               }
             },
           ),
@@ -210,8 +282,23 @@ class SettingsTwoPane extends StatelessWidget {
 }
 
 // 3. Decoupled Screen Views
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        AnalyticsConsentModal.showIfNeeded(context);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

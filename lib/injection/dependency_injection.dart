@@ -141,6 +141,7 @@ final class Dependencies {
     tempChangeThemeMode: tempChangeThemeMode,
     tempChangeLocale: tempChangeLocale,
     tempChangeSeedColor: tempChangeSeedColor,
+    repository: appSettingRepository,
     crashReporter: crashReporter,
   );
 

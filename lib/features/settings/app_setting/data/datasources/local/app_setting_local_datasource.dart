@@ -13,6 +13,12 @@ abstract interface class AppSettingLocalDataSource {
     ThemeMode? themeMode,
     String? languageCode,
     Color? seedColor,
+    bool? hasCompletedOnboarding,
+    bool? hasGivenConsent,
+    bool? analyticsStorageConsentGranted,
+    bool? adStorageConsentGranted,
+    bool? adUserDataConsentGranted,
+    bool? adPersonalizationSignalsConsentGranted,
   });
 }
 
@@ -33,14 +39,27 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
         themeMode: AppConfig.defaultThemeMode,
         languageCode: AppConfig.defaultLocale.languageCode,
         seedColor: AppConfig.defaultThemeSeedColorHex,
+        hasCompletedOnboarding: false,
+        hasGivenConsent: false,
+        analyticsStorageConsentGranted: false,
+        adStorageConsentGranted: false,
+        adUserDataConsentGranted: false,
+        adPersonalizationSignalsConsentGranted: false,
       );
     }
 
     return AppSetting(
       id: setting.id,
       themeMode: setting.themeMode,
-      languageCode: AppConfig.defaultLocale.languageCode,
+      languageCode: setting.languageCode,
       seedColor: setting.seedColor,
+      hasCompletedOnboarding: setting.hasCompletedOnboarding,
+      hasGivenConsent: setting.hasGivenConsent,
+      analyticsStorageConsentGranted: setting.analyticsStorageConsentGranted,
+      adStorageConsentGranted: setting.adStorageConsentGranted,
+      adUserDataConsentGranted: setting.adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          setting.adPersonalizationSignalsConsentGranted,
     );
   }
 
@@ -55,6 +74,12 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
           themeMode: AppConfig.defaultThemeMode,
           languageCode: AppConfig.defaultLocale.languageCode,
           seedColor: AppConfig.defaultThemeSeedColorHex,
+          hasCompletedOnboarding: false,
+          hasGivenConsent: false,
+          analyticsStorageConsentGranted: false,
+          adStorageConsentGranted: false,
+          adUserDataConsentGranted: false,
+          adPersonalizationSignalsConsentGranted: false,
         );
       }
       return AppSetting(
@@ -62,6 +87,13 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
         themeMode: setting.themeMode,
         languageCode: setting.languageCode,
         seedColor: setting.seedColor,
+        hasCompletedOnboarding: setting.hasCompletedOnboarding,
+        hasGivenConsent: setting.hasGivenConsent,
+        analyticsStorageConsentGranted: setting.analyticsStorageConsentGranted,
+        adStorageConsentGranted: setting.adStorageConsentGranted,
+        adUserDataConsentGranted: setting.adUserDataConsentGranted,
+        adPersonalizationSignalsConsentGranted:
+            setting.adPersonalizationSignalsConsentGranted,
       );
     });
   }
@@ -71,6 +103,12 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
     ThemeMode? themeMode,
     String? languageCode,
     Color? seedColor,
+    bool? hasCompletedOnboarding,
+    bool? hasGivenConsent,
+    bool? analyticsStorageConsentGranted,
+    bool? adStorageConsentGranted,
+    bool? adUserDataConsentGranted,
+    bool? adPersonalizationSignalsConsentGranted,
   }) async {
     await _db
         .into(_db.appSettings)
@@ -86,6 +124,26 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
             seedColor: seedColor != null
                 ? Value(seedColor.toARGB32())
                 : const Value.absent(),
+            hasCompletedOnboarding: hasCompletedOnboarding != null
+                ? Value(hasCompletedOnboarding)
+                : const Value.absent(),
+            hasGivenConsent: hasGivenConsent != null
+                ? Value(hasGivenConsent)
+                : const Value.absent(),
+            analyticsStorageConsentGranted:
+                analyticsStorageConsentGranted != null
+                    ? Value(analyticsStorageConsentGranted)
+                    : const Value.absent(),
+            adStorageConsentGranted: adStorageConsentGranted != null
+                ? Value(adStorageConsentGranted)
+                : const Value.absent(),
+            adUserDataConsentGranted: adUserDataConsentGranted != null
+                ? Value(adUserDataConsentGranted)
+                : const Value.absent(),
+            adPersonalizationSignalsConsentGranted:
+                adPersonalizationSignalsConsentGranted != null
+                    ? Value(adPersonalizationSignalsConsentGranted)
+                    : const Value.absent(),
           ),
         );
   }

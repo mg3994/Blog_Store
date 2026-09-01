@@ -6,6 +6,8 @@ import 'package:material_ui/material_ui.dart'
 
 import '../../../../../config/app_config.dart' show AppConfig;
 import '../../../../../core/monitoring/crash_reporter.dart' show CrashReporter;
+import '../../domain/repositories/app_setting_repository.dart'
+    show AppSettingRepository;
 import '../../domain/usecases/get_app_settings.dart';
 import '../../domain/usecases/temp_change_locale.dart'
     show TemporarilyChangeLocale;
@@ -22,15 +24,25 @@ part 'app_setting_state.dart';
 
 class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
   AppSettingBloc({
-    required this._getAppSettings,
-    required this._updateThemeMode,
-    required this._updateLocale,
-    required this._updateSeedColor,
-    required this._tempChangeThemeMode,
-    required this._tempChangeLocale,
-    required this._tempChangeSeedColor,
-    this._crashReporter,
-  }) : super(
+    required GetAppSettings getAppSettings,
+    required UpdateThemeMode updateThemeMode,
+    required UpdateLocale updateLocale,
+    required UpdateSeedColor updateSeedColor,
+    required TemporarilyChangeThemeMode tempChangeThemeMode,
+    required TemporarilyChangeLocale tempChangeLocale,
+    required TemporarilyChangeSeedColor tempChangeSeedColor,
+    required AppSettingRepository repository,
+    CrashReporter? crashReporter,
+  })  : _getAppSettings = getAppSettings,
+        _updateThemeMode = updateThemeMode,
+        _updateLocale = updateLocale,
+        _updateSeedColor = updateSeedColor,
+        _tempChangeThemeMode = tempChangeThemeMode,
+        _tempChangeLocale = tempChangeLocale,
+        _tempChangeSeedColor = tempChangeSeedColor,
+        _repository = repository,
+        _crashReporter = crashReporter,
+        super(
          initialState: const AppSettingState(
            themeMode: AppConfig.defaultThemeMode,
            locale: AppConfig.defaultLocale,
@@ -42,6 +54,7 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
   final UpdateThemeMode _updateThemeMode;
   final UpdateLocale _updateLocale;
   final UpdateSeedColor _updateSeedColor;
+  final AppSettingRepository _repository;
   final CrashReporter? _crashReporter;
   //
   final TemporarilyChangeThemeMode _tempChangeThemeMode;
@@ -58,6 +71,14 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
           themeMode: setting.themeMode,
           locale: Locale.fromSubtags(languageCode: setting.languageCode),
           seedColor: Color(setting.seedColor),
+          hasCompletedOnboarding: setting.hasCompletedOnboarding,
+          hasGivenConsent: setting.hasGivenConsent,
+          analyticsStorageConsentGranted:
+              setting.analyticsStorageConsentGranted,
+          adStorageConsentGranted: setting.adStorageConsentGranted,
+          adUserDataConsentGranted: setting.adUserDataConsentGranted,
+          adPersonalizationSignalsConsentGranted:
+              setting.adPersonalizationSignalsConsentGranted,
         ),
       );
     } catch (error, stack) {
@@ -105,6 +126,37 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
         await _tempChangeSeedColor(
           seedColor,
         ); // all those _temp_ are just for analytics
+
+      case AppSettingCompleteOnboardingEvent():
+        emit(stateValue.copyWith(hasCompletedOnboarding: true));
+        await _repository.updateOnboardingCompleted(true);
+
+      case AppSettingUpdateConsentEvent(
+        hasGivenConsent: final hasGivenConsent,
+        analyticsStorageConsentGranted: final analyticsStorageConsentGranted,
+        adStorageConsentGranted: final adStorageConsentGranted,
+        adUserDataConsentGranted: final adUserDataConsentGranted,
+        adPersonalizationSignalsConsentGranted:
+            final adPersonalizationSignalsConsentGranted,
+      ):
+        emit(
+          stateValue.copyWith(
+            hasGivenConsent: hasGivenConsent,
+            analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+            adStorageConsentGranted: adStorageConsentGranted,
+            adUserDataConsentGranted: adUserDataConsentGranted,
+            adPersonalizationSignalsConsentGranted:
+                adPersonalizationSignalsConsentGranted,
+          ),
+        );
+        await _repository.updateConsent(
+          hasGivenConsent: hasGivenConsent,
+          analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+          adStorageConsentGranted: adStorageConsentGranted,
+          adUserDataConsentGranted: adUserDataConsentGranted,
+          adPersonalizationSignalsConsentGranted:
+              adPersonalizationSignalsConsentGranted,
+        );
     }
   }
 }

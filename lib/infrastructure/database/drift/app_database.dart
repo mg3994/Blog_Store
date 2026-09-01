@@ -22,6 +22,25 @@ class AppSettings extends Table {
   IntColumn get seedColor => integer().withDefault(
     Constant(AppConfig.defaultThemeSeedColorHex),
   )(); // Colors.indigo.value
+
+  BoolColumn get hasCompletedOnboarding =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get hasGivenConsent =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get analyticsStorageConsentGranted =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get adStorageConsentGranted =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get adUserDataConsentGranted =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get adPersonalizationSignalsConsentGranted =>
+      boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
