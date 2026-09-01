@@ -128,7 +128,9 @@ class _BootStrapState extends State<BootStrap> {
       allowFirstFrame();
     }
 
-    await dependencies.notificationGateway.requestPermission();
+    try {
+      await dependencies.notificationGateway.requestPermission();
+    } catch (_) {}
   }
 
   @override

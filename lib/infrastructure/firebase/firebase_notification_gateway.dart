@@ -17,6 +17,21 @@ final class FirebaseNotificationGateway implements NotificationGateway {
   @override
   Future<bool> isSupported() => _messaging.isSupported();
 
+  static const _unsupportedSettings = NotificationSettings(
+    authorizationStatus: AuthorizationStatus.notDetermined,
+    alert: AppleNotificationSetting.notSupported,
+    announcement: AppleNotificationSetting.notSupported,
+    badge: AppleNotificationSetting.notSupported,
+    carPlay: AppleNotificationSetting.notSupported,
+    lockScreen: AppleNotificationSetting.notSupported,
+    notificationCenter: AppleNotificationSetting.notSupported,
+    showPreviews: AppleShowPreviewSetting.notSupported,
+    timeSensitive: AppleNotificationSetting.notSupported,
+    criticalAlert: AppleNotificationSetting.notSupported,
+    sound: AppleNotificationSetting.notSupported,
+    providesAppNotificationSettings: AppleNotificationSetting.notSupported,
+  );
+
   @override
   Future<NotificationSettings> requestPermission({
     bool alert = true,
@@ -29,31 +44,35 @@ final class FirebaseNotificationGateway implements NotificationGateway {
     bool providesAppNotificationSettings = false,
   }) async {
     if (!await isSupported()) {
-      throw UnsupportedError(
-        'Firebase Messaging is not supported on this platform.',
-      );
+      return _unsupportedSettings;
     }
 
-    return _messaging.requestPermission(
-      alert: alert,
-      announcement: announcement,
-      badge: badge,
-      carPlay: carPlay,
-      criticalAlert: criticalAlert,
-      provisional: provisional,
-      sound: sound,
-      providesAppNotificationSettings: providesAppNotificationSettings,
-    );
+    try {
+      return await _messaging.requestPermission(
+        alert: alert,
+        announcement: announcement,
+        badge: badge,
+        carPlay: carPlay,
+        criticalAlert: criticalAlert,
+        provisional: provisional,
+        sound: sound,
+        providesAppNotificationSettings: providesAppNotificationSettings,
+      );
+    } catch (_) {
+      return _unsupportedSettings;
+    }
   }
 
   @override
   Future<NotificationSettings> getNotificationSettings() async {
     if (!await isSupported()) {
-      throw UnsupportedError(
-        'Firebase Messaging is not supported on this platform.',
-      );
+      return _unsupportedSettings;
     }
-    return _messaging.getNotificationSettings();
+    try {
+      return await _messaging.getNotificationSettings();
+    } catch (_) {
+      return _unsupportedSettings;
+    }
   }
 
   @override
