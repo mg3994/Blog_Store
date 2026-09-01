@@ -72,7 +72,8 @@ class _BootStrapState extends State<BootStrap> {
     });
   }
 
-  KaiselRouterConfig? _routerConfig;
+  AppRouter? _appRouter;
+ 
   Dependencies? _dependencies;
   AppSettingBloc? _appSettingsBloc;
 
@@ -96,22 +97,28 @@ class _BootStrapState extends State<BootStrap> {
         dependencies.crashReporter.recordError(error, stack, fatal: true);
         return true;
       };
-      _setProgress(0.60, 'Preparing navigation...');
-      final routerConfig = AppRouter(dependencies).createConfig();
+
       Intl.defaultLocale = PlatformDispatcher.instance.locale
           .toLanguageTag(); //usefull For Manish //! TODO: support
       final appSettingBloc =
           widget.appSettingsBloc ?? dependencies.appSettingBloc;
-      _setProgress(0.75, 'Loading settings...');
+
+      _setProgress(0.60, 'Loading settings...');
       // Preloads saved SQLite theme/locale into memory BEFORE native splash screen vanishes
       await appSettingBloc.loadSettings();
+
+      _setProgress(0.75, 'Preparing navigation...');
+      final appRouter = AppRouter(
+        dependencies,
+        appSettingBloc: appSettingBloc,
+      );
       _setProgress(1.0, 'Ready');
       if (!mounted) return;
 
       setState(() {
         _dependencies = dependencies;
         _appSettingsBloc = appSettingBloc;
-        _routerConfig = routerConfig;
+        _appRouter = appRouter;
       });
     } catch (error, stack) {
       dependencies.crashReporter.recordError(error, stack, fatal: true);
@@ -153,11 +160,11 @@ class _BootStrapState extends State<BootStrap> {
   Widget build(BuildContext context) {
     final dependencies = _dependencies;
     final appSettingBloc = _appSettingsBloc;
-    final routerConfig = _routerConfig;
+    final appRouter = _appRouter;
 
     if (dependencies == null ||
         appSettingBloc == null ||
-        routerConfig == null) {
+        appRouter == null) {
       return _AppBootstrapLoading(
         progress: _progress,
         message: _loadingMessage,
@@ -177,7 +184,10 @@ class _BootStrapState extends State<BootStrap> {
               builder: (BuildContext context, Widget? child) {
                 return MaterialUiCompatibilityBridge(child: child!);
               },
-              routerConfig: routerConfig,
+              routerConfig: appRouter.routerConfig,
+              routeInformationParser: appRouter.routeInformationParser,
+                
+                  
               onGenerateTitle: (context) => context.l10n.appName,
               supportedLocales: AppLocalizations.supportedLocales,
               localizationsDelegates: [

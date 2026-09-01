@@ -8,9 +8,13 @@ import 'package:blogstore/injection/dependency_injection.dart'
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart' show AppSettingBloc, AppSettingUpdateSeedColorEvent, AppSettingTemporarilyChangeLocaleEvent;
 import '../../features/settings/settings.dart';
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingUpdateSeedColorEvent;
+import '../../generated/app_localizations.dart' show AppLocalizations;
+
+part 'app_stack_codec.dart';
 
 // 1. Sealed Route Hierarchy
 sealed class AppRoute extends KaiselRoute {
@@ -48,11 +52,18 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 
 // 2. Class-Based Router accepting Dependencies
 final class AppRouter {
-  const AppRouter(this._dependencies);
+  const AppRouter(this._dependencies, {this.appSettingBloc});
 
   final Dependencies _dependencies;
+  final AppSettingBloc? appSettingBloc;
 
-  KaiselRouterConfig<AppRoute> createConfig() {
+  KaiselRouteInformationParser<AppRoute> get routeInformationParser =>
+      KaiselRouteInformationParser<AppRoute>.fromStackCodec(
+        codec: const AppStackCodec(),
+        fallback: const [HomeRoute()],
+      );
+
+  KaiselRouterConfig<AppRoute> get routerConfig {
     return KaiselRouterConfig<AppRoute>.adaptive(
       initial: const HomeRoute(),
       observers: () => [_dependencies.analyticsGateway.observer()],

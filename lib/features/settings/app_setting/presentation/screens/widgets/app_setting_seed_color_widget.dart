@@ -47,39 +47,10 @@ class AppSettingSeedColorWidget extends StatelessWidget {
                 runSpacing: 16,
                 children: seedColors.map((color) {
                   final isSelected = activeColor.toARGB32() == color.toARGB32();
-                  return GestureDetector(
-                    onTap: () {
-                      appSettingBloc.add(AppSettingUpdateSeedColorEvent(color));
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isSelected)
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: color, width: 2),
-                            ),
-                          ),
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                          ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 22,
-                                )
-                              : null,
-                        ),
-                      ],
-                    ),
+                  return _SeedColorOption(
+                    color: color,
+                    isSelected: isSelected,
+                    appSettingBloc: appSettingBloc,
                   );
                 }).toList(),
               ),
@@ -87,6 +58,51 @@ class AppSettingSeedColorWidget extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _SeedColorOption extends StatelessWidget {
+  const _SeedColorOption({
+    required this.color,
+    required this.isSelected,
+    required this.appSettingBloc,
+  });
+
+  final Color color;
+  final bool isSelected;
+  final AppSettingBloc appSettingBloc;
+
+  void _handleTap() {
+    appSettingBloc.add(AppSettingUpdateSeedColorEvent(color));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (isSelected)
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: color, width: 2),
+              ),
+            ),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: isSelected
+                ? const Icon(Icons.check, color: Colors.white, size: 22)
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }

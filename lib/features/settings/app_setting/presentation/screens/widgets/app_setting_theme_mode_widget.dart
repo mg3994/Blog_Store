@@ -46,27 +46,21 @@ class AppSettingThemeModeWidget extends StatelessWidget {
                       label: 'Light',
                       icon: Icons.light_mode_outlined,
                       isSelected: currentMode == ThemeMode.light,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.light),
-                      ),
+                      appSettingBloc: appSettingBloc,
                     ),
                     _ThemeOptionButton(
                       mode: ThemeMode.dark,
                       label: 'Dark',
                       icon: Icons.dark_mode_outlined,
                       isSelected: currentMode == ThemeMode.dark,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.dark),
-                      ),
+                      appSettingBloc: appSettingBloc,
                     ),
                     _ThemeOptionButton(
                       mode: ThemeMode.system,
                       label: 'System',
                       icon: Icons.settings_suggest_outlined,
                       isSelected: currentMode == ThemeMode.system,
-                      onTap: () => appSettingBloc.add(
-                        const AppSettingUpdateThemeModeEvent(ThemeMode.system),
-                      ),
+                      appSettingBloc: appSettingBloc,
                     ),
                   ],
                 ),
@@ -85,14 +79,18 @@ class _ThemeOptionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.isSelected,
-    required this.onTap,
+    required this.appSettingBloc,
   });
 
   final ThemeMode mode;
   final String label;
   final IconData icon;
   final bool isSelected;
-  final VoidCallback onTap;
+  final AppSettingBloc appSettingBloc;
+
+  void _handleTap() {
+    appSettingBloc.add(AppSettingUpdateThemeModeEvent(mode));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +112,7 @@ class _ThemeOptionButton extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: onTap,
+          onTap: _handleTap,
           borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),

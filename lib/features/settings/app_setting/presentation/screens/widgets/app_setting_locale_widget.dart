@@ -17,7 +17,6 @@ import 'package:material_ui/material_ui.dart'
         EdgeInsets,
         BoxDecoration,
         Icon,
-        VoidCallback,
         StatefulWidget,
         State;
 
@@ -60,9 +59,7 @@ class AppSettingLocaleWidget extends StatelessWidget {
                     _LocaleTile(
                       locale: locale,
                       selectedLocale: selectedLocale,
-                      onTap: () {
-                        bloc.add(AppSettingUpdateLocaleEvent(locale));
-                      },
+                      appSettingBloc: bloc,
                     ),
                     if (index < AppLocalizations.supportedLocales.length - 1)
                       Divider(
@@ -87,12 +84,12 @@ class _LocaleTile extends StatefulWidget {
   const _LocaleTile({
     required this.locale,
     required this.selectedLocale,
-    required this.onTap,
+    required this.appSettingBloc,
   });
 
   final Locale locale;
   final Locale selectedLocale;
-  final VoidCallback onTap;
+  final AppSettingBloc appSettingBloc;
 
   @override
   State<_LocaleTile> createState() => _LocaleTileState();
@@ -100,6 +97,10 @@ class _LocaleTile extends StatefulWidget {
 
 class _LocaleTileState extends State<_LocaleTile> {
   String? _languageName;
+
+  void _handleTap() {
+    widget.appSettingBloc.add(AppSettingUpdateLocaleEvent(widget.locale));
+  }
 
   @override
   void initState() {
@@ -144,7 +145,7 @@ class _LocaleTileState extends State<_LocaleTile> {
       trailing: isSelected
           ? Icon(Icons.check, size: 20, color: theme.colorScheme.primary)
           : null,
-      onTap: widget.onTap,
+      onTap: _handleTap,
     );
   }
 }

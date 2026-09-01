@@ -72,6 +72,10 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
     });
   }
 
+  void _clearSearch() {
+    _searchController.clear();
+  }
+
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
@@ -118,9 +122,7 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
+                          onPressed: _clearSearch,
                         )
                       : null,
                   filled: true,
