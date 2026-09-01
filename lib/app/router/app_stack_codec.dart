@@ -1,15 +1,18 @@
 part of 'router.dart';
 
 class AppStackCodec implements KaiselStackCodec<AppRoute> {
-  const AppStackCodec(this._dependencies, {this._appSettingBloc});
+  const AppStackCodec(this._dependencies, {AppSettingBloc? appSettingBloc})
+      : _appSettingBloc = appSettingBloc;
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
   @override
   Uri encode(List<AppRoute> stack) {
     return switch (stack.last) {
-      Home() => Uri(path: '/'),
-      ProductDetail(:final id) => Uri(path: '/products/$id'),
-      Settings() => Uri(path: '/settings'),
+      OnboardingRoute() => Uri(path: '/onboarding'),
+      HomeRoute() => Uri(path: '/'),
+      ProductDetailRoute(:final id) => Uri(path: '/products/$id'),
+      SettingsMasterRoute() || AppSettingRoute() || PrivacySettingRoute() =>
+        Uri(path: '/settings'),
     };
   }
 
@@ -17,10 +20,26 @@ class AppStackCodec implements KaiselStackCodec<AppRoute> {
   List<AppRoute>? decode(Uri uri) {
     _applyGlobalLanguage(uri);
 
+    final hasCompletedOnboarding =
+        _appSettingBloc?.stateValue.hasCompletedOnboarding ?? false;
+
     return switch (uri.pathSegments) {
-      [] || [''] => const [Home()],
-      ['products', final id] => [const Home(), ProductDetail(id)],
-      ['settings'] => const [Home(), Settings()],
+      ['onboarding'] => const [OnboardingRoute()],
+      [] || [''] => hasCompletedOnboarding
+          ? const [HomeRoute()]
+          : const [OnboardingRoute()],
+      ['products', final id] => [
+        hasCompletedOnboarding
+            ? const HomeRoute()
+            : const OnboardingRoute(),
+        ProductDetailRoute(id),
+      ],
+      ['settings'] => [
+        hasCompletedOnboarding
+            ? const HomeRoute()
+            : const OnboardingRoute(),
+        const SettingsMasterRoute(),
+      ],
       _ => null,
     };
   }

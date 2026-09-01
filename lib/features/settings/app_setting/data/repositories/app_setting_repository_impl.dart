@@ -9,9 +9,10 @@ import '../datasources/local/app_setting_local_datasource.dart'
 
 final class AppSettingRepositoryImpl implements AppSettingRepository {
   const AppSettingRepositoryImpl({
-    required this._localDataSource,
-    this._analyticsGateway,
-  });
+    required AppSettingLocalDataSource localDataSource,
+    AnalyticsGateway? analyticsGateway,
+  })  : _localDataSource = localDataSource,
+        _analyticsGateway = analyticsGateway;
 
   final AppSettingLocalDataSource _localDataSource;
   final AnalyticsGateway? _analyticsGateway;
@@ -39,6 +40,47 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
       parameters: {
         'language_code': locale.languageCode,
         'is_temporary': 'false',
+      },
+    );
+  }
+
+  @override
+  Future<void> updateOnboardingCompleted(bool completed) async {
+    await _localDataSource.updateSettings(hasCompletedOnboarding: completed);
+    await _analyticsGateway?.logEvent(
+      name: 'onboarding_completed',
+      parameters: {'completed': completed.toString()},
+    );
+  }
+
+  @override
+  Future<void> updateConsent({
+    required bool hasGivenConsent,
+    required bool analyticsStorageConsentGranted,
+    required bool adStorageConsentGranted,
+    required bool adUserDataConsentGranted,
+    required bool adPersonalizationSignalsConsentGranted,
+  }) async {
+    await _localDataSource.updateSettings(
+      hasGivenConsent: hasGivenConsent,
+      analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+      adStorageConsentGranted: adStorageConsentGranted,
+      adUserDataConsentGranted: adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          adPersonalizationSignalsConsentGranted,
+    );
+    await _analyticsGateway?.setConsent(
+      analyticsStorageConsentGranted: analyticsStorageConsentGranted,
+      adStorageConsentGranted: adStorageConsentGranted,
+      adUserDataConsentGranted: adUserDataConsentGranted,
+      adPersonalizationSignalsConsentGranted:
+          adPersonalizationSignalsConsentGranted,
+    );
+    await _analyticsGateway?.logEvent(
+      name: 'consent_updated',
+      parameters: {
+        'analytics': analyticsStorageConsentGranted.toString(),
+        'ad_storage': adStorageConsentGranted.toString(),
       },
     );
   }
