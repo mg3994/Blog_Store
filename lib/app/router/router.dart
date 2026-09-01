@@ -56,14 +56,14 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 
 // 2. Class-Based Router accepting Dependencies
 final class AppRouter {
-  const AppRouter(this._dependencies, {this.appSettingBloc});
+  const AppRouter(this._dependencies, {this._appSettingBloc});
 
   final Dependencies _dependencies;
-  final AppSettingBloc? appSettingBloc;
+  final AppSettingBloc? _appSettingBloc;
 
   KaiselRouteInformationParser<AppRoute> get routeInformationParser =>
       KaiselRouteInformationParser<AppRoute>.fromStackCodec(
-        codec: AppStackCodec(_dependencies, appSettingBloc: appSettingBloc),
+        codec: AppStackCodec(_dependencies, appSettingBloc: _appSettingBloc),
         fallback: const [HomeRoute()],
       );
 
