@@ -1,9 +1,9 @@
 part of 'router.dart';
 
 class AppStackCodec implements KaiselStackCodec<AppRoute> {
-  const AppStackCodec(this.dependencies, {required this.appSettingBloc});
+  const AppStackCodec(this.dependencies, {this.appSettingBloc});
   final Dependencies dependencies;
-  final AppSettingBloc appSettingBloc;
+  final AppSettingBloc? appSettingBloc;
   @override
   Uri encode(List<AppRoute> stack) {
     return switch (stack.last) {
@@ -43,7 +43,7 @@ class AppStackCodec implements KaiselStackCodec<AppRoute> {
     }
 
     // Update locale through your AppSettingBloc.
-    appSettingBloc.add(
+    appSettingBloc?.add(
       AppSettingTemporarilyChangeLocaleEvent(
         Locale.fromSubtags(languageCode: languageCode),
       ),

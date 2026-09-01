@@ -8,7 +8,11 @@ import 'package:blogstore/injection/dependency_injection.dart'
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart' show AppSettingBloc, AppSettingUpdateSeedColorEvent, AppSettingTemporarilyChangeLocaleEvent;
+import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
+    show
+        AppSettingBloc,
+        AppSettingUpdateSeedColorEvent,
+        AppSettingTemporarilyChangeLocaleEvent;
 import '../../features/settings/settings.dart';
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingUpdateSeedColorEvent;
@@ -59,7 +63,7 @@ final class AppRouter {
 
   KaiselRouteInformationParser<AppRoute> get routeInformationParser =>
       KaiselRouteInformationParser<AppRoute>.fromStackCodec(
-        codec: const AppStackCodec(),
+        codec: AppStackCodec(_dependencies, appSettingBloc: appSettingBloc),
         fallback: const [HomeRoute()],
       );
 
