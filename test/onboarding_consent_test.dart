@@ -10,7 +10,7 @@ void main() {
       expect(const PrivacySettingRoute(), equals(const PrivacySettingRoute()));
     });
 
-    test('AppSettingState copyWith updates onboarding & consent flags', () {
+    test('AppSettingState copyWith updates all 7 consent flags', () {
       const state = AppSettingState(
         themeMode: ThemeMode.system,
         locale: Locale('en'),
@@ -19,18 +19,26 @@ void main() {
 
       expect(state.hasCompletedOnboarding, isFalse);
       expect(state.hasGivenConsent, isFalse);
+      expect(state.functionalityStorageConsentGranted, isTrue);
+      expect(state.securityStorageConsentGranted, isTrue);
 
       final updatedState = state.copyWith(
         hasCompletedOnboarding: true,
         hasGivenConsent: true,
         analyticsStorageConsentGranted: true,
-        adStorageConsentGranted: false,
+        adStorageConsentGranted: true,
+        adUserDataConsentGranted: true,
+        adPersonalizationSignalsConsentGranted: true,
+        personalizationStorageConsentGranted: true,
       );
 
       expect(updatedState.hasCompletedOnboarding, isTrue);
       expect(updatedState.hasGivenConsent, isTrue);
       expect(updatedState.analyticsStorageConsentGranted, isTrue);
-      expect(updatedState.adStorageConsentGranted, isFalse);
+      expect(updatedState.adStorageConsentGranted, isTrue);
+      expect(updatedState.adUserDataConsentGranted, isTrue);
+      expect(updatedState.adPersonalizationSignalsConsentGranted, isTrue);
+      expect(updatedState.personalizationStorageConsentGranted, isTrue);
     });
   });
 }

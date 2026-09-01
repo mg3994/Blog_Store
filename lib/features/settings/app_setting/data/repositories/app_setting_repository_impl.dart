@@ -73,6 +73,9 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
     required bool adStorageConsentGranted,
     required bool adUserDataConsentGranted,
     required bool adPersonalizationSignalsConsentGranted,
+    required bool functionalityStorageConsentGranted,
+    required bool personalizationStorageConsentGranted,
+    required bool securityStorageConsentGranted,
   }) async {
     await _localDataSource.updateSettings(
       hasGivenConsent: hasGivenConsent,
@@ -81,6 +84,9 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
       adUserDataConsentGranted: adUserDataConsentGranted,
       adPersonalizationSignalsConsentGranted:
           adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted: functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted: personalizationStorageConsentGranted,
+      securityStorageConsentGranted: securityStorageConsentGranted,
     );
     await _analyticsGateway?.setConsent(
       analyticsStorageConsentGranted: analyticsStorageConsentGranted,
@@ -88,6 +94,10 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
       adUserDataConsentGranted: adUserDataConsentGranted,
       adPersonalizationSignalsConsentGranted:
           adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted: functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted,
+      securityStorageConsentGranted: securityStorageConsentGranted,
     );
     await _analyticsGateway?.logEvent(
       name: 'consent_updated',

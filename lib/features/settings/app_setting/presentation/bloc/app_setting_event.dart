@@ -42,8 +42,9 @@ final class AppSettingResetToDefaultEvent extends AppSettingEvent {
   const AppSettingResetToDefaultEvent();
 }
 
-final class AppSettingCompleteOnboardingEvent extends AppSettingEvent {
-  const AppSettingCompleteOnboardingEvent();
+final class AppSettingOnboardingEvent extends AppSettingEvent {
+  const AppSettingOnboardingEvent({required this.isCompleted});
+  final bool isCompleted;
 }
 
 final class AppSettingUpdateConsentEvent extends AppSettingEvent {
@@ -53,6 +54,9 @@ final class AppSettingUpdateConsentEvent extends AppSettingEvent {
     required this.adStorageConsentGranted,
     required this.adUserDataConsentGranted,
     required this.adPersonalizationSignalsConsentGranted,
+    required this.functionalityStorageConsentGranted,
+    required this.personalizationStorageConsentGranted,
+    required this.securityStorageConsentGranted,
   });
 
   final bool hasGivenConsent;
@@ -60,4 +64,7 @@ final class AppSettingUpdateConsentEvent extends AppSettingEvent {
   final bool adStorageConsentGranted;
   final bool adUserDataConsentGranted;
   final bool adPersonalizationSignalsConsentGranted;
+  final bool functionalityStorageConsentGranted;
+  final bool personalizationStorageConsentGranted;
+  final bool securityStorageConsentGranted;
 }

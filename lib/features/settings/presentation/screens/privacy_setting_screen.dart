@@ -56,13 +56,23 @@ class PrivacySettingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                value: true,
-                onChanged: null, // Essential / Necessary is non-untoggleable
-                title: const Text('Necessary Stuffs'),
+                value: state.securityStorageConsentGranted,
+                onChanged: null, // Security / Essential is non-untoggleable
+                title: const Text('Security Storage'),
                 subtitle: const Text(
-                  'Essential core app functionality and security storage. Required for the app to function.',
+                  'Essential security, authentication, and core app storage required for system operation.',
                 ),
                 secondary: const Icon(Icons.security_outlined),
+              ),
+              const Divider(),
+              SwitchListTile(
+                value: state.functionalityStorageConsentGranted,
+                onChanged: null, // Functionality essential
+                title: const Text('Functionality Storage'),
+                subtitle: const Text(
+                  'Stores local app settings, theme, and language choices.',
+                ),
+                secondary: const Icon(Icons.settings_suggest_outlined),
               ),
               const Divider(),
               SwitchListTile(
@@ -78,12 +88,18 @@ class PrivacySettingScreen extends StatelessWidget {
                               state.adUserDataConsentGranted,
                           adPersonalizationSignalsConsentGranted:
                               state.adPersonalizationSignalsConsentGranted,
+                          functionalityStorageConsentGranted:
+                              state.functionalityStorageConsentGranted,
+                          personalizationStorageConsentGranted:
+                              state.personalizationStorageConsentGranted,
+                          securityStorageConsentGranted:
+                              state.securityStorageConsentGranted,
                         ),
                       );
                 },
-                title: const Text('Analytics'),
+                title: const Text('Analytics Storage'),
                 subtitle: const Text(
-                  'Anonymous usage data to help us measure and improve site performance.',
+                  'Anonymous usage data to help us measure and improve app performance.',
                 ),
                 secondary: const Icon(Icons.analytics_outlined),
               ),
@@ -99,14 +115,107 @@ class PrivacySettingScreen extends StatelessWidget {
                           adStorageConsentGranted: value,
                           adUserDataConsentGranted: value,
                           adPersonalizationSignalsConsentGranted: value,
+                          functionalityStorageConsentGranted:
+                              state.functionalityStorageConsentGranted,
+                          personalizationStorageConsentGranted:
+                              state.personalizationStorageConsentGranted,
+                          securityStorageConsentGranted:
+                              state.securityStorageConsentGranted,
                         ),
                       );
                 },
-                title: const Text('Advertising & Personalization'),
+                title: const Text('Ad Storage'),
                 subtitle: const Text(
-                  'Personalized recommendations and ad signals measurement.',
+                  'Allows storage of advertising data and campaign performance metrics.',
                 ),
                 secondary: const Icon(Icons.campaign_outlined),
+              ),
+              const Divider(),
+              SwitchListTile(
+                value: state.adUserDataConsentGranted,
+                onChanged: (value) {
+                  context.read<AppSettingBloc>().add(
+                        AppSettingUpdateConsentEvent(
+                          hasGivenConsent: true,
+                          analyticsStorageConsentGranted:
+                              state.analyticsStorageConsentGranted,
+                          adStorageConsentGranted:
+                              state.adStorageConsentGranted,
+                          adUserDataConsentGranted: value,
+                          adPersonalizationSignalsConsentGranted:
+                              state.adPersonalizationSignalsConsentGranted,
+                          functionalityStorageConsentGranted:
+                              state.functionalityStorageConsentGranted,
+                          personalizationStorageConsentGranted:
+                              state.personalizationStorageConsentGranted,
+                          securityStorageConsentGranted:
+                              state.securityStorageConsentGranted,
+                        ),
+                      );
+                },
+                title: const Text('Ad User Data'),
+                subtitle: const Text(
+                  'Allows consent for sending user data related to advertising.',
+                ),
+                secondary: const Icon(Icons.badge_outlined),
+              ),
+              const Divider(),
+              SwitchListTile(
+                value: state.adPersonalizationSignalsConsentGranted,
+                onChanged: (value) {
+                  context.read<AppSettingBloc>().add(
+                        AppSettingUpdateConsentEvent(
+                          hasGivenConsent: true,
+                          analyticsStorageConsentGranted:
+                              state.analyticsStorageConsentGranted,
+                          adStorageConsentGranted:
+                              state.adStorageConsentGranted,
+                          adUserDataConsentGranted:
+                              state.adUserDataConsentGranted,
+                          adPersonalizationSignalsConsentGranted: value,
+                          functionalityStorageConsentGranted:
+                              state.functionalityStorageConsentGranted,
+                          personalizationStorageConsentGranted:
+                              state.personalizationStorageConsentGranted,
+                          securityStorageConsentGranted:
+                              state.securityStorageConsentGranted,
+                        ),
+                      );
+                },
+                title: const Text('Ad Personalization Signals'),
+                subtitle: const Text(
+                  'Enables personalized advertising signals and targeting.',
+                ),
+                secondary: const Icon(Icons.insights_outlined),
+              ),
+              const Divider(),
+              SwitchListTile(
+                value: state.personalizationStorageConsentGranted,
+                onChanged: (value) {
+                  context.read<AppSettingBloc>().add(
+                        AppSettingUpdateConsentEvent(
+                          hasGivenConsent: true,
+                          analyticsStorageConsentGranted:
+                              state.analyticsStorageConsentGranted,
+                          adStorageConsentGranted:
+                              state.adStorageConsentGranted,
+                          adUserDataConsentGranted:
+                              state.adUserDataConsentGranted,
+                          adPersonalizationSignalsConsentGranted:
+                              state.adPersonalizationSignalsConsentGranted,
+                          functionalityStorageConsentGranted:
+                              state.functionalityStorageConsentGranted,
+                          personalizationStorageConsentGranted: value,
+                          securityStorageConsentGranted:
+                              state.securityStorageConsentGranted,
+                        ),
+                      );
+                },
+                title: const Text('Personalization Storage'),
+                subtitle: const Text(
+                  'Stores personal preferences for customized content and recommendations.',
+                ),
+                secondary: const Icon(Icons.person_pin_outlined),
               ),
             ],
           );

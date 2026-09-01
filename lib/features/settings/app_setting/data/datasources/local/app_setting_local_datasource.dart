@@ -20,6 +20,9 @@ abstract interface class AppSettingLocalDataSource {
     bool? adStorageConsentGranted,
     bool? adUserDataConsentGranted,
     bool? adPersonalizationSignalsConsentGranted,
+    bool? functionalityStorageConsentGranted,
+    bool? personalizationStorageConsentGranted,
+    bool? securityStorageConsentGranted,
   });
 }
 
@@ -46,6 +49,9 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
         adStorageConsentGranted: false,
         adUserDataConsentGranted: false,
         adPersonalizationSignalsConsentGranted: false,
+        functionalityStorageConsentGranted: true,
+        personalizationStorageConsentGranted: false,
+        securityStorageConsentGranted: true,
       );
     }
 
@@ -61,6 +67,11 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
       adUserDataConsentGranted: setting.adUserDataConsentGranted,
       adPersonalizationSignalsConsentGranted:
           setting.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          setting.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          setting.personalizationStorageConsentGranted,
+      securityStorageConsentGranted: setting.securityStorageConsentGranted,
     );
   }
 
@@ -81,6 +92,9 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
           adStorageConsentGranted: false,
           adUserDataConsentGranted: false,
           adPersonalizationSignalsConsentGranted: false,
+          functionalityStorageConsentGranted: true,
+          personalizationStorageConsentGranted: false,
+          securityStorageConsentGranted: true,
         );
       }
       return AppSetting(
@@ -95,6 +109,11 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
         adUserDataConsentGranted: setting.adUserDataConsentGranted,
         adPersonalizationSignalsConsentGranted:
             setting.adPersonalizationSignalsConsentGranted,
+        functionalityStorageConsentGranted:
+            setting.functionalityStorageConsentGranted,
+        personalizationStorageConsentGranted:
+            setting.personalizationStorageConsentGranted,
+        securityStorageConsentGranted: setting.securityStorageConsentGranted,
       );
     });
   }
@@ -113,6 +132,9 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
             adStorageConsentGranted: const Value(false),
             adUserDataConsentGranted: const Value(false),
             adPersonalizationSignalsConsentGranted: const Value(false),
+            functionalityStorageConsentGranted: const Value(true),
+            personalizationStorageConsentGranted: const Value(false),
+            securityStorageConsentGranted: const Value(true),
           ),
         );
   }
@@ -128,6 +150,9 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
     bool? adStorageConsentGranted,
     bool? adUserDataConsentGranted,
     bool? adPersonalizationSignalsConsentGranted,
+    bool? functionalityStorageConsentGranted,
+    bool? personalizationStorageConsentGranted,
+    bool? securityStorageConsentGranted,
   }) async {
     await _db
         .into(_db.appSettings)
@@ -163,6 +188,17 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
                 adPersonalizationSignalsConsentGranted != null
                     ? Value(adPersonalizationSignalsConsentGranted)
                     : const Value.absent(),
+            functionalityStorageConsentGranted:
+                functionalityStorageConsentGranted != null
+                    ? Value(functionalityStorageConsentGranted)
+                    : const Value.absent(),
+            personalizationStorageConsentGranted:
+                personalizationStorageConsentGranted != null
+                    ? Value(personalizationStorageConsentGranted)
+                    : const Value.absent(),
+            securityStorageConsentGranted: securityStorageConsentGranted != null
+                ? Value(securityStorageConsentGranted)
+                : const Value.absent(),
           ),
         );
   }

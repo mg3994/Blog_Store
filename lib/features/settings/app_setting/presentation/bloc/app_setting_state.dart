@@ -10,6 +10,9 @@ class AppSettingState {
   final bool adStorageConsentGranted;
   final bool adUserDataConsentGranted;
   final bool adPersonalizationSignalsConsentGranted;
+  final bool functionalityStorageConsentGranted;
+  final bool personalizationStorageConsentGranted;
+  final bool securityStorageConsentGranted;
 
   const AppSettingState({
     required this.themeMode,
@@ -21,6 +24,9 @@ class AppSettingState {
     this.adStorageConsentGranted = false,
     this.adUserDataConsentGranted = false,
     this.adPersonalizationSignalsConsentGranted = false,
+    this.functionalityStorageConsentGranted = true,
+    this.personalizationStorageConsentGranted = false,
+    this.securityStorageConsentGranted = true,
   });
 
   AppSettingState copyWith({
@@ -33,6 +39,9 @@ class AppSettingState {
     bool? adStorageConsentGranted,
     bool? adUserDataConsentGranted,
     bool? adPersonalizationSignalsConsentGranted,
+    bool? functionalityStorageConsentGranted,
+    bool? personalizationStorageConsentGranted,
+    bool? securityStorageConsentGranted,
   }) {
     return AppSettingState(
       themeMode: themeMode ?? this.themeMode,
@@ -50,6 +59,14 @@ class AppSettingState {
       adPersonalizationSignalsConsentGranted:
           adPersonalizationSignalsConsentGranted ??
               this.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          functionalityStorageConsentGranted ??
+              this.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted ??
+              this.personalizationStorageConsentGranted,
+      securityStorageConsentGranted:
+          securityStorageConsentGranted ?? this.securityStorageConsentGranted,
     );
   }
 
@@ -67,7 +84,12 @@ class AppSettingState {
         other.adStorageConsentGranted == adStorageConsentGranted &&
         other.adUserDataConsentGranted == adUserDataConsentGranted &&
         other.adPersonalizationSignalsConsentGranted ==
-            adPersonalizationSignalsConsentGranted;
+            adPersonalizationSignalsConsentGranted &&
+        other.functionalityStorageConsentGranted ==
+            functionalityStorageConsentGranted &&
+        other.personalizationStorageConsentGranted ==
+            personalizationStorageConsentGranted &&
+        other.securityStorageConsentGranted == securityStorageConsentGranted;
   }
 
   @override
@@ -81,5 +103,8 @@ class AppSettingState {
         adStorageConsentGranted,
         adUserDataConsentGranted,
         adPersonalizationSignalsConsentGranted,
+        functionalityStorageConsentGranted,
+        personalizationStorageConsentGranted,
+        securityStorageConsentGranted,
       );
 }

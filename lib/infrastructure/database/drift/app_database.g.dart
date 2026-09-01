@@ -142,6 +142,51 @@ class $AppSettingsTable extends AppSettings
         ),
         defaultValue: const Constant(false),
       );
+  static const VerificationMeta _functionalityStorageConsentGrantedMeta =
+      const VerificationMeta('functionalityStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> functionalityStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'functionality_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("functionality_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
+  static const VerificationMeta _personalizationStorageConsentGrantedMeta =
+      const VerificationMeta('personalizationStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> personalizationStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'personalization_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("personalization_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _securityStorageConsentGrantedMeta =
+      const VerificationMeta('securityStorageConsentGranted');
+  @override
+  late final GeneratedColumn<bool> securityStorageConsentGranted =
+      GeneratedColumn<bool>(
+        'security_storage_consent_granted',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("security_storage_consent_granted" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -154,6 +199,9 @@ class $AppSettingsTable extends AppSettings
     adStorageConsentGranted,
     adUserDataConsentGranted,
     adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted,
+    securityStorageConsentGranted,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -239,6 +287,33 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('functionality_storage_consent_granted')) {
+      context.handle(
+        _functionalityStorageConsentGrantedMeta,
+        functionalityStorageConsentGranted.isAcceptableOrUnknown(
+          data['functionality_storage_consent_granted']!,
+          _functionalityStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('personalization_storage_consent_granted')) {
+      context.handle(
+        _personalizationStorageConsentGrantedMeta,
+        personalizationStorageConsentGranted.isAcceptableOrUnknown(
+          data['personalization_storage_consent_granted']!,
+          _personalizationStorageConsentGrantedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('security_storage_consent_granted')) {
+      context.handle(
+        _securityStorageConsentGrantedMeta,
+        securityStorageConsentGranted.isAcceptableOrUnknown(
+          data['security_storage_consent_granted']!,
+          _securityStorageConsentGrantedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -290,6 +365,18 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.bool,
         data['${effectivePrefix}ad_personalization_signals_consent_granted'],
       )!,
+      functionalityStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}functionality_storage_consent_granted'],
+      )!,
+      personalizationStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}personalization_storage_consent_granted'],
+      )!,
+      securityStorageConsentGranted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}security_storage_consent_granted'],
+      )!,
     );
   }
 
@@ -315,6 +402,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
   final bool adStorageConsentGranted;
   final bool adUserDataConsentGranted;
   final bool adPersonalizationSignalsConsentGranted;
+  final bool functionalityStorageConsentGranted;
+  final bool personalizationStorageConsentGranted;
+  final bool securityStorageConsentGranted;
   const AppSetting({
     required this.id,
     required this.themeMode,
@@ -326,6 +416,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     required this.adStorageConsentGranted,
     required this.adUserDataConsentGranted,
     required this.adPersonalizationSignalsConsentGranted,
+    required this.functionalityStorageConsentGranted,
+    required this.personalizationStorageConsentGranted,
+    required this.securityStorageConsentGranted,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -350,6 +443,15 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     map['ad_personalization_signals_consent_granted'] = Variable<bool>(
       adPersonalizationSignalsConsentGranted,
     );
+    map['functionality_storage_consent_granted'] = Variable<bool>(
+      functionalityStorageConsentGranted,
+    );
+    map['personalization_storage_consent_granted'] = Variable<bool>(
+      personalizationStorageConsentGranted,
+    );
+    map['security_storage_consent_granted'] = Variable<bool>(
+      securityStorageConsentGranted,
+    );
     return map;
   }
 
@@ -367,6 +469,13 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       adPersonalizationSignalsConsentGranted: Value(
         adPersonalizationSignalsConsentGranted,
       ),
+      functionalityStorageConsentGranted: Value(
+        functionalityStorageConsentGranted,
+      ),
+      personalizationStorageConsentGranted: Value(
+        personalizationStorageConsentGranted,
+      ),
+      securityStorageConsentGranted: Value(securityStorageConsentGranted),
     );
   }
 
@@ -398,6 +507,15 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       adPersonalizationSignalsConsentGranted: serializer.fromJson<bool>(
         json['adPersonalizationSignalsConsentGranted'],
       ),
+      functionalityStorageConsentGranted: serializer.fromJson<bool>(
+        json['functionalityStorageConsentGranted'],
+      ),
+      personalizationStorageConsentGranted: serializer.fromJson<bool>(
+        json['personalizationStorageConsentGranted'],
+      ),
+      securityStorageConsentGranted: serializer.fromJson<bool>(
+        json['securityStorageConsentGranted'],
+      ),
     );
   }
   @override
@@ -424,6 +542,15 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       'adPersonalizationSignalsConsentGranted': serializer.toJson<bool>(
         adPersonalizationSignalsConsentGranted,
       ),
+      'functionalityStorageConsentGranted': serializer.toJson<bool>(
+        functionalityStorageConsentGranted,
+      ),
+      'personalizationStorageConsentGranted': serializer.toJson<bool>(
+        personalizationStorageConsentGranted,
+      ),
+      'securityStorageConsentGranted': serializer.toJson<bool>(
+        securityStorageConsentGranted,
+      ),
     };
   }
 
@@ -438,6 +565,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     bool? adStorageConsentGranted,
     bool? adUserDataConsentGranted,
     bool? adPersonalizationSignalsConsentGranted,
+    bool? functionalityStorageConsentGranted,
+    bool? personalizationStorageConsentGranted,
+    bool? securityStorageConsentGranted,
   }) => AppSetting(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
@@ -455,6 +585,14 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     adPersonalizationSignalsConsentGranted:
         adPersonalizationSignalsConsentGranted ??
         this.adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted:
+        functionalityStorageConsentGranted ??
+        this.functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted:
+        personalizationStorageConsentGranted ??
+        this.personalizationStorageConsentGranted,
+    securityStorageConsentGranted:
+        securityStorageConsentGranted ?? this.securityStorageConsentGranted,
   );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
@@ -484,6 +622,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           data.adPersonalizationSignalsConsentGranted.present
           ? data.adPersonalizationSignalsConsentGranted.value
           : this.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          data.functionalityStorageConsentGranted.present
+          ? data.functionalityStorageConsentGranted.value
+          : this.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          data.personalizationStorageConsentGranted.present
+          ? data.personalizationStorageConsentGranted.value
+          : this.personalizationStorageConsentGranted,
+      securityStorageConsentGranted: data.securityStorageConsentGranted.present
+          ? data.securityStorageConsentGranted.value
+          : this.securityStorageConsentGranted,
     );
   }
 
@@ -502,7 +651,16 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ..write('adStorageConsentGranted: $adStorageConsentGranted, ')
           ..write('adUserDataConsentGranted: $adUserDataConsentGranted, ')
           ..write(
-            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted',
+            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted, ',
+          )
+          ..write(
+            'functionalityStorageConsentGranted: $functionalityStorageConsentGranted, ',
+          )
+          ..write(
+            'personalizationStorageConsentGranted: $personalizationStorageConsentGranted, ',
+          )
+          ..write(
+            'securityStorageConsentGranted: $securityStorageConsentGranted',
           )
           ..write(')'))
         .toString();
@@ -520,6 +678,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     adStorageConsentGranted,
     adUserDataConsentGranted,
     adPersonalizationSignalsConsentGranted,
+    functionalityStorageConsentGranted,
+    personalizationStorageConsentGranted,
+    securityStorageConsentGranted,
   );
   @override
   bool operator ==(Object other) =>
@@ -536,7 +697,13 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           other.adStorageConsentGranted == this.adStorageConsentGranted &&
           other.adUserDataConsentGranted == this.adUserDataConsentGranted &&
           other.adPersonalizationSignalsConsentGranted ==
-              this.adPersonalizationSignalsConsentGranted);
+              this.adPersonalizationSignalsConsentGranted &&
+          other.functionalityStorageConsentGranted ==
+              this.functionalityStorageConsentGranted &&
+          other.personalizationStorageConsentGranted ==
+              this.personalizationStorageConsentGranted &&
+          other.securityStorageConsentGranted ==
+              this.securityStorageConsentGranted);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
@@ -550,6 +717,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<bool> adStorageConsentGranted;
   final Value<bool> adUserDataConsentGranted;
   final Value<bool> adPersonalizationSignalsConsentGranted;
+  final Value<bool> functionalityStorageConsentGranted;
+  final Value<bool> personalizationStorageConsentGranted;
+  final Value<bool> securityStorageConsentGranted;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
@@ -561,6 +731,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     this.adStorageConsentGranted = const Value.absent(),
     this.adUserDataConsentGranted = const Value.absent(),
     this.adPersonalizationSignalsConsentGranted = const Value.absent(),
+    this.functionalityStorageConsentGranted = const Value.absent(),
+    this.personalizationStorageConsentGranted = const Value.absent(),
+    this.securityStorageConsentGranted = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -573,6 +746,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     this.adStorageConsentGranted = const Value.absent(),
     this.adUserDataConsentGranted = const Value.absent(),
     this.adPersonalizationSignalsConsentGranted = const Value.absent(),
+    this.functionalityStorageConsentGranted = const Value.absent(),
+    this.personalizationStorageConsentGranted = const Value.absent(),
+    this.securityStorageConsentGranted = const Value.absent(),
   });
   static Insertable<AppSetting> custom({
     Expression<int>? id,
@@ -585,6 +761,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Expression<bool>? adStorageConsentGranted,
     Expression<bool>? adUserDataConsentGranted,
     Expression<bool>? adPersonalizationSignalsConsentGranted,
+    Expression<bool>? functionalityStorageConsentGranted,
+    Expression<bool>? personalizationStorageConsentGranted,
+    Expression<bool>? securityStorageConsentGranted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -603,6 +782,14 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       if (adPersonalizationSignalsConsentGranted != null)
         'ad_personalization_signals_consent_granted':
             adPersonalizationSignalsConsentGranted,
+      if (functionalityStorageConsentGranted != null)
+        'functionality_storage_consent_granted':
+            functionalityStorageConsentGranted,
+      if (personalizationStorageConsentGranted != null)
+        'personalization_storage_consent_granted':
+            personalizationStorageConsentGranted,
+      if (securityStorageConsentGranted != null)
+        'security_storage_consent_granted': securityStorageConsentGranted,
     });
   }
 
@@ -617,6 +804,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Value<bool>? adStorageConsentGranted,
     Value<bool>? adUserDataConsentGranted,
     Value<bool>? adPersonalizationSignalsConsentGranted,
+    Value<bool>? functionalityStorageConsentGranted,
+    Value<bool>? personalizationStorageConsentGranted,
+    Value<bool>? securityStorageConsentGranted,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -635,6 +825,14 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       adPersonalizationSignalsConsentGranted:
           adPersonalizationSignalsConsentGranted ??
           this.adPersonalizationSignalsConsentGranted,
+      functionalityStorageConsentGranted:
+          functionalityStorageConsentGranted ??
+          this.functionalityStorageConsentGranted,
+      personalizationStorageConsentGranted:
+          personalizationStorageConsentGranted ??
+          this.personalizationStorageConsentGranted,
+      securityStorageConsentGranted:
+          securityStorageConsentGranted ?? this.securityStorageConsentGranted,
     );
   }
 
@@ -683,6 +881,21 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
         adPersonalizationSignalsConsentGranted.value,
       );
     }
+    if (functionalityStorageConsentGranted.present) {
+      map['functionality_storage_consent_granted'] = Variable<bool>(
+        functionalityStorageConsentGranted.value,
+      );
+    }
+    if (personalizationStorageConsentGranted.present) {
+      map['personalization_storage_consent_granted'] = Variable<bool>(
+        personalizationStorageConsentGranted.value,
+      );
+    }
+    if (securityStorageConsentGranted.present) {
+      map['security_storage_consent_granted'] = Variable<bool>(
+        securityStorageConsentGranted.value,
+      );
+    }
     return map;
   }
 
@@ -701,7 +914,16 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
           ..write('adStorageConsentGranted: $adStorageConsentGranted, ')
           ..write('adUserDataConsentGranted: $adUserDataConsentGranted, ')
           ..write(
-            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted',
+            'adPersonalizationSignalsConsentGranted: $adPersonalizationSignalsConsentGranted, ',
+          )
+          ..write(
+            'functionalityStorageConsentGranted: $functionalityStorageConsentGranted, ',
+          )
+          ..write(
+            'personalizationStorageConsentGranted: $personalizationStorageConsentGranted, ',
+          )
+          ..write(
+            'securityStorageConsentGranted: $securityStorageConsentGranted',
           )
           ..write(')'))
         .toString();
@@ -1313,6 +1535,9 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<bool> adStorageConsentGranted,
       Value<bool> adUserDataConsentGranted,
       Value<bool> adPersonalizationSignalsConsentGranted,
+      Value<bool> functionalityStorageConsentGranted,
+      Value<bool> personalizationStorageConsentGranted,
+      Value<bool> securityStorageConsentGranted,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -1326,6 +1551,9 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<bool> adStorageConsentGranted,
       Value<bool> adUserDataConsentGranted,
       Value<bool> adPersonalizationSignalsConsentGranted,
+      Value<bool> functionalityStorageConsentGranted,
+      Value<bool> personalizationStorageConsentGranted,
+      Value<bool> securityStorageConsentGranted,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -1388,6 +1616,23 @@ class $$AppSettingsTableFilterComposer
         column: $table.adPersonalizationSignalsConsentGranted,
         builder: (column) => ColumnFilters(column),
       );
+
+  ColumnFilters<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$AppSettingsTableOrderingComposer
@@ -1450,6 +1695,23 @@ class $$AppSettingsTableOrderingComposer
         column: $table.adPersonalizationSignalsConsentGranted,
         builder: (column) => ColumnOrderings(column),
       );
+
+  ColumnOrderings<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -1506,6 +1768,23 @@ class $$AppSettingsTableAnnotationComposer
         column: $table.adPersonalizationSignalsConsentGranted,
         builder: (column) => column,
       );
+
+  GeneratedColumn<bool> get functionalityStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.functionalityStorageConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get personalizationStorageConsentGranted =>
+      $composableBuilder(
+        column: $table.personalizationStorageConsentGranted,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get securityStorageConsentGranted => $composableBuilder(
+    column: $table.securityStorageConsentGranted,
+    builder: (column) => column,
+  );
 }
 
 class $$AppSettingsTableTableManager
@@ -1551,6 +1830,12 @@ class $$AppSettingsTableTableManager
                 Value<bool> adUserDataConsentGranted = const Value.absent(),
                 Value<bool> adPersonalizationSignalsConsentGranted =
                     const Value.absent(),
+                Value<bool> functionalityStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> personalizationStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> securityStorageConsentGranted =
+                    const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 themeMode: themeMode,
@@ -1563,6 +1848,11 @@ class $$AppSettingsTableTableManager
                 adUserDataConsentGranted: adUserDataConsentGranted,
                 adPersonalizationSignalsConsentGranted:
                     adPersonalizationSignalsConsentGranted,
+                functionalityStorageConsentGranted:
+                    functionalityStorageConsentGranted,
+                personalizationStorageConsentGranted:
+                    personalizationStorageConsentGranted,
+                securityStorageConsentGranted: securityStorageConsentGranted,
               ),
           createCompanionCallback:
               ({
@@ -1578,6 +1868,12 @@ class $$AppSettingsTableTableManager
                 Value<bool> adUserDataConsentGranted = const Value.absent(),
                 Value<bool> adPersonalizationSignalsConsentGranted =
                     const Value.absent(),
+                Value<bool> functionalityStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> personalizationStorageConsentGranted =
+                    const Value.absent(),
+                Value<bool> securityStorageConsentGranted =
+                    const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
@@ -1590,6 +1886,11 @@ class $$AppSettingsTableTableManager
                 adUserDataConsentGranted: adUserDataConsentGranted,
                 adPersonalizationSignalsConsentGranted:
                     adPersonalizationSignalsConsentGranted,
+                functionalityStorageConsentGranted:
+                    functionalityStorageConsentGranted,
+                personalizationStorageConsentGranted:
+                    personalizationStorageConsentGranted,
+                securityStorageConsentGranted: securityStorageConsentGranted,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

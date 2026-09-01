@@ -41,6 +41,15 @@ class AppSettings extends Table {
   BoolColumn get adPersonalizationSignalsConsentGranted =>
       boolean().withDefault(const Constant(false))();
 
+  BoolColumn get functionalityStorageConsentGranted =>
+      boolean().withDefault(const Constant(true))();
+
+  BoolColumn get personalizationStorageConsentGranted =>
+      boolean().withDefault(const Constant(false))();
+
+  BoolColumn get securityStorageConsentGranted =>
+      boolean().withDefault(const Constant(true))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

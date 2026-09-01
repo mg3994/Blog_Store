@@ -143,9 +143,9 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
         );
         await _repository.resetToDefaultSettings();
 
-      case AppSettingCompleteOnboardingEvent():
-        emit(stateValue.copyWith(hasCompletedOnboarding: true));
-        await _repository.updateOnboardingCompleted(true);
+      case AppSettingOnboardingEvent(isCompleted: final isCompleted):
+        emit(stateValue.copyWith(hasCompletedOnboarding: isCompleted));
+        await _repository.updateOnboardingCompleted(isCompleted);
 
       case AppSettingUpdateConsentEvent(
         hasGivenConsent: final hasGivenConsent,
@@ -154,6 +154,11 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
         adUserDataConsentGranted: final adUserDataConsentGranted,
         adPersonalizationSignalsConsentGranted:
             final adPersonalizationSignalsConsentGranted,
+        functionalityStorageConsentGranted:
+            final functionalityStorageConsentGranted,
+        personalizationStorageConsentGranted:
+            final personalizationStorageConsentGranted,
+        securityStorageConsentGranted: final securityStorageConsentGranted,
       ):
         emit(
           stateValue.copyWith(
@@ -163,6 +168,11 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
             adUserDataConsentGranted: adUserDataConsentGranted,
             adPersonalizationSignalsConsentGranted:
                 adPersonalizationSignalsConsentGranted,
+            functionalityStorageConsentGranted:
+                functionalityStorageConsentGranted,
+            personalizationStorageConsentGranted:
+                personalizationStorageConsentGranted,
+            securityStorageConsentGranted: securityStorageConsentGranted,
           ),
         );
         await _repository.updateConsent(
@@ -172,6 +182,11 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
           adUserDataConsentGranted: adUserDataConsentGranted,
           adPersonalizationSignalsConsentGranted:
               adPersonalizationSignalsConsentGranted,
+          functionalityStorageConsentGranted:
+              functionalityStorageConsentGranted,
+          personalizationStorageConsentGranted:
+              personalizationStorageConsentGranted,
+          securityStorageConsentGranted: securityStorageConsentGranted,
         );
     }
   }

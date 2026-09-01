@@ -16,6 +16,9 @@ abstract interface class AppSettingRepository {
     required bool adStorageConsentGranted,
     required bool adUserDataConsentGranted,
     required bool adPersonalizationSignalsConsentGranted,
+    required bool functionalityStorageConsentGranted,
+    required bool personalizationStorageConsentGranted,
+    required bool securityStorageConsentGranted,
   });
   //TODO: Remove beow
   Future<void> temporarilyChangeThemeMode(ThemeMode themeMode);
