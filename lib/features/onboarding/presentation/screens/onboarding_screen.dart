@@ -17,42 +17,53 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final state = context.read<AppSettingBloc>().stateValue;
-        if (state.hasGivenConsent && state.analyticsStorageConsentGranted) {
-          context.dependencies.analyticsGateway.logTutorialBegin();
-        }
-      }
-    });
+  bool _analyticsConsent = true;
+  bool _advertisingConsent = true;
+  bool _showSettingsSelection = false;
+
+  void _onAcceptAllConsent() {
+    context.read<AppSettingBloc>().add(
+          const AppSettingUpdateConsentEvent(
+            hasGivenConsent: true,
+            analyticsStorageConsentGranted: true,
+            adStorageConsentGranted: true,
+            adUserDataConsentGranted: true,
+            adPersonalizationSignalsConsentGranted: true,
+          ),
+        );
+    context.dependencies.analyticsGateway.logTutorialBegin();
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
-  final List<_OnboardingPageData> _pages = const [
-    _OnboardingPageData(
-      icon: Icons.storefront_outlined,
-      title: 'Welcome to BlogStore',
-      description:
-          'Discover curated blog posts, articles, and products all in one seamless app.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.sync_outlined,
-      title: 'Offline-First Experience',
-      description:
-          'Access your favorite articles and store catalog anytime, even without an active internet connection.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.privacy_tip_outlined,
-      title: 'Your Privacy Matters',
-      description:
-          'Customize your app experience, locale, appearance, and privacy choices anytime in Settings.',
-    ),
-  ];
+  void _onAcceptSelectedConsent() {
+    context.read<AppSettingBloc>().add(
+          AppSettingUpdateConsentEvent(
+            hasGivenConsent: true,
+            analyticsStorageConsentGranted: _analyticsConsent,
+            adStorageConsentGranted: _advertisingConsent,
+            adUserDataConsentGranted: _advertisingConsent,
+            adPersonalizationSignalsConsentGranted: _advertisingConsent,
+          ),
+        );
+    if (_analyticsConsent) {
+      context.dependencies.analyticsGateway.logTutorialBegin();
+    }
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage == 0) {
+      _onAcceptAllConsent();
+      return;
+    }
+
+    if (_currentPage < 3) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -63,9 +74,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _completeOnboarding() {
-    context
-        .read<AppSettingBloc>()
-        .add(const AppSettingCompleteOnboardingEvent());
+    final bloc = context.read<AppSettingBloc>();
+    if (!bloc.stateValue.hasGivenConsent) {
+      _onAcceptAllConsent();
+    }
+    bloc.add(const AppSettingCompleteOnboardingEvent());
     context.set(const [HomeRoute()]);
   }
 
@@ -78,7 +91,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isLastPage = _currentPage == _pages.length - 1;
+    final colorScheme = theme.colorScheme;
+    final isLastPage = _currentPage == 3;
 
     return Scaffold(
       body: SafeArea(
@@ -92,60 +106,213 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             Expanded(
-              child: PageView.builder(
+              child: PageView(
                 controller: _pageController,
-                itemCount: _pages.length,
                 onPageChanged: (index) {
                   setState(() {
                     _currentPage = index;
                   });
                 },
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            page.icon,
-                            size: 80,
-                            color: theme.colorScheme.primary,
-                          ),
+                children: [
+                  // Page 0: Cookie & Privacy Consent Slide
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primaryContainer,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.cookie_outlined,
+                                size: 64,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'We use cookies & data',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            RichText(
+                              text: TextSpan(
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                ),
+                                children: [
+                                  const TextSpan(
+                                    text:
+                                        'These enhance site performance, gather anonymous analytics, and power personalized recommendations. Learn more in our ',
+                                  ),
+                                  TextSpan(
+                                    text: 'privacy policy',
+                                    style: TextStyle(
+                                      color: colorScheme.primary,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            if (_showSettingsSelection) ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Switch(
+                                          value: true,
+                                          onChanged: null,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Necessary',
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                            color: colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Switch(
+                                          value: _analyticsConsent,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              _analyticsConsent = val;
+                                            });
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Analytics',
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                            color: colorScheme.onSurface,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Switch(
+                                    value: _advertisingConsent,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _advertisingConsent = val;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Advertising',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showSettingsSelection = false;
+                                        });
+                                      },
+                                      child: const Text('Back'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: FilledButton(
+                                      onPressed: _onAcceptSelectedConsent,
+                                      child: const Text('Accept'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showSettingsSelection = true;
+                                        });
+                                      },
+                                      child: const Text('Settings'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: FilledButton(
+                                      onPressed: _onAcceptAllConsent,
+                                      child: const Text('Accept all'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
                         ),
-                        const SizedBox(height: 40),
-                        Text(
-                          page.title,
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          page.description,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
-                  );
-                },
+                  ),
+
+                  // Page 1: Welcome
+                  const _OnboardingPageWidget(
+                    icon: Icons.storefront_outlined,
+                    title: 'Welcome to BlogStore',
+                    description:
+                        'Discover curated blog posts, articles, and products all in one seamless app.',
+                  ),
+
+                  // Page 2: Offline-First
+                  const _OnboardingPageWidget(
+                    icon: Icons.sync_outlined,
+                    title: 'Offline-First Experience',
+                    description:
+                        'Access your favorite articles and store catalog anytime, even without an active internet connection.',
+                  ),
+
+                  // Page 3: Privacy
+                  const _OnboardingPageWidget(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Your Privacy Matters',
+                    description:
+                        'Customize your app experience, locale, appearance, and privacy choices anytime in Settings.',
+                  ),
+                ],
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                4,
                 (index) => AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -153,8 +320,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: _currentPage == index
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
+                        ? colorScheme.primary
+                        : colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -167,7 +334,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 48,
                 child: FilledButton(
                   onPressed: _nextPage,
-                  child: Text(isLastPage ? 'Get Started' : 'Next'),
+                  child: Text(
+                    _currentPage == 0
+                        ? 'Continue'
+                        : (isLastPage ? 'Get Started' : 'Next'),
+                  ),
                 ),
               ),
             ),
@@ -178,8 +349,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-class _OnboardingPageData {
-  const _OnboardingPageData({
+class _OnboardingPageWidget extends StatelessWidget {
+  const _OnboardingPageWidget({
     required this.icon,
     required this.title,
     required this.description,
@@ -188,4 +359,46 @@ class _OnboardingPageData {
   final IconData icon;
   final String title;
   final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 80,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 40),
+          Text(
+            title,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            description,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 }

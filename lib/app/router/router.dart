@@ -8,7 +8,6 @@ import 'package:blogstore/injection/dependency_injection.dart'
 import 'package:kaisel/kaisel.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../features/consent/presentation/widgets/analytics_consent_modal.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show
@@ -282,23 +281,8 @@ class SettingsTwoPane extends StatelessWidget {
 }
 
 // 3. Decoupled Screen Views
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        AnalyticsConsentModal.showIfNeeded(context);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
