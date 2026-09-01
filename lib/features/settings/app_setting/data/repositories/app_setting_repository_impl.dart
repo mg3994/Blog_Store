@@ -56,10 +56,13 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   @override
   Future<void> updateOnboardingCompleted(bool completed) async {
     await _localDataSource.updateSettings(hasCompletedOnboarding: completed);
-    if (completed) {
-      await _analyticsGateway?.logTutorialComplete();
-    } else {
-      await _analyticsGateway?.logTutorialBegin();
+    final settings = await _localDataSource.loadSettings();
+    if (settings.hasGivenConsent && settings.analyticsStorageConsentGranted) {
+      if (completed) {
+        await _analyticsGateway?.logTutorialComplete();
+      } else {
+        await _analyticsGateway?.logTutorialBegin();
+      }
     }
   }
 

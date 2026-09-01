@@ -22,7 +22,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.dependencies.analyticsGateway.logTutorialBegin();
+        final state = context.read<AppSettingBloc>().stateValue;
+        if (state.hasGivenConsent && state.analyticsStorageConsentGranted) {
+          context.dependencies.analyticsGateway.logTutorialBegin();
+        }
       }
     });
   }
