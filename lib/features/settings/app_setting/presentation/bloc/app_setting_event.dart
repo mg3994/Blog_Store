@@ -38,6 +38,10 @@ final class AppSettingTemporarilyChangeSeedColorEvent extends AppSettingEvent {
   final Color seedColor;
 }
 
+final class AppSettingResetToDefaultEvent extends AppSettingEvent {
+  const AppSettingResetToDefaultEvent();
+}
+
 final class AppSettingCompleteOnboardingEvent extends AppSettingEvent {
   const AppSettingCompleteOnboardingEvent();
 }

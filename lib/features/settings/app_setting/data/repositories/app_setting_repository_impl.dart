@@ -24,6 +24,15 @@ final class AppSettingRepositoryImpl implements AppSettingRepository {
   Stream<AppSetting> watchSettings() => _localDataSource.watchSettings();
 
   @override
+  Future<void> resetToDefaultSettings() async {
+    await _localDataSource.resetToDefaultSettings();
+    await _analyticsGateway?.logEvent(
+      name: 'settings_reset_to_default',
+      parameters: {'is_default': 'true'},
+    );
+  }
+
+  @override
   Future<void> updateThemeMode(ThemeMode themeMode) async {
     await _localDataSource.updateSettings(themeMode: themeMode);
     await _analyticsGateway?.logEvent(

@@ -24,6 +24,8 @@ import '../features/settings/app_setting/domain/repositories/app_setting_reposit
     show AppSettingRepository;
 import '../features/settings/app_setting/domain/usecases/get_app_settings.dart'
     show GetAppSettings;
+import '../features/settings/app_setting/domain/usecases/reset_app_settings.dart'
+    show ResetAppSettings;
 import '../features/settings/app_setting/domain/usecases/temp_change_locale.dart'
     show TemporarilyChangeLocale;
 import '../features/settings/app_setting/domain/usecases/temp_change_seed_color.dart'
@@ -107,6 +109,9 @@ final class Dependencies {
       );
 
   late final GetAppSettings getAppSettings = GetAppSettings(
+    appSettingRepository,
+  );
+  late final ResetAppSettings resetAppSettings = ResetAppSettings(
     appSettingRepository,
   );
   late final WatchAppSettings watchAppSettings = WatchAppSettings(

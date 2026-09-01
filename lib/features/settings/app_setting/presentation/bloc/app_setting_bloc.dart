@@ -127,6 +127,22 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
           seedColor,
         ); // all those _temp_ are just for analytics
 
+      case AppSettingResetToDefaultEvent():
+        emit(
+          const AppSettingState(
+            themeMode: AppConfig.defaultThemeMode,
+            locale: AppConfig.defaultLocale,
+            seedColor: Colors.indigo,
+            hasCompletedOnboarding: false,
+            hasGivenConsent: false,
+            analyticsStorageConsentGranted: false,
+            adStorageConsentGranted: false,
+            adUserDataConsentGranted: false,
+            adPersonalizationSignalsConsentGranted: false,
+          ),
+        );
+        await _repository.resetToDefaultSettings();
+
       case AppSettingCompleteOnboardingEvent():
         emit(stateValue.copyWith(hasCompletedOnboarding: true));
         await _repository.updateOnboardingCompleted(true);

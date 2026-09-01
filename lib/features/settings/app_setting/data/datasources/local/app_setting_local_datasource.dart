@@ -9,6 +9,7 @@ import '../../../domain/entities/app_setting.dart' show AppSetting;
 abstract interface class AppSettingLocalDataSource {
   Future<AppSetting> loadSettings();
   Stream<AppSetting> watchSettings();
+  Future<void> resetToDefaultSettings();
   Future<void> updateSettings({
     ThemeMode? themeMode,
     String? languageCode,
@@ -96,6 +97,24 @@ final class AppSettingLocalDataSourceImpl implements AppSettingLocalDataSource {
             setting.adPersonalizationSignalsConsentGranted,
       );
     });
+  }
+
+  @override
+  Future<void> resetToDefaultSettings() async {
+    await _db.into(_db.appSettings).insertOnConflictUpdate(
+          AppSettingsCompanion(
+            id: const Value(1),
+            themeMode: Value(AppConfig.defaultThemeMode),
+            languageCode: Value(AppConfig.defaultLocale.languageCode),
+            seedColor: Value(AppConfig.defaultThemeSeedColorHex),
+            hasCompletedOnboarding: const Value(false),
+            hasGivenConsent: const Value(false),
+            analyticsStorageConsentGranted: const Value(false),
+            adStorageConsentGranted: const Value(false),
+            adUserDataConsentGranted: const Value(false),
+            adPersonalizationSignalsConsentGranted: const Value(false),
+          ),
+        );
   }
 
   @override
