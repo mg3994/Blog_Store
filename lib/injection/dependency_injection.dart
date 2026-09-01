@@ -5,6 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart'
     show FirebaseCrashlytics;
 import 'package:firebase_messaging/firebase_messaging.dart'
     show FirebaseMessaging;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:material_ui/material_ui.dart'
     show InheritedWidget, BuildContext;
 
@@ -39,6 +40,7 @@ import '../features/settings/app_setting/domain/usecases/watch_app_settings.dart
     show WatchAppSettings;
 import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc;
+import '../firebase_web_config.dart' show FirebaseWebConfig;
 import '../infrastructure/auth/firebase_access_token_provider.dart'
     show FirebaseAccessTokenProvider;
 import '../infrastructure/database/drift/app_database.dart' show AppDatabase;
@@ -79,7 +81,13 @@ final class Dependencies {
       FirebaseAccessTokenProvider(FirebaseAuth.instance);
 
   late final NotificationGateway notificationGateway =
-      FirebaseNotificationGateway(FirebaseMessaging.instance);
+      FirebaseNotificationGateway(
+        FirebaseMessaging.instance,
+        vapidKey: kIsWeb ? FirebaseWebConfig.vapidKey : null,
+        serviceWorkerScriptPath: kIsWeb
+            ? FirebaseWebConfig.serviceWorkerScriptPath
+            : null,
+      );
 
   late final CrashReporter crashReporter = FirebaseCrashReporter(
     FirebaseCrashlytics.instance,

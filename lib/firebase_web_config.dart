@@ -20,4 +20,6 @@ abstract final class FirebaseWebConfig {
   static const String messagingSenderId = '318526800636';
   static const String appId = '1:318526800636:web:3388facad20b50c3abcd79';
   static const String measurementId = "G-EX30SN5FR5";
+  static const String? serviceWorkerScriptPath = '/firebase-messaging-sw.js';
+  static const String? vapidKey = "";
 }
