@@ -14,7 +14,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
       selector: (state) => state.themeMode,
       builder: (context, currentMode) {
         final appSettingBloc = context.read<AppSettingBloc>();
-        final isCompact = MediaQuery.sizeOf(context).width < 500;
+        final isCompact = MediaQuery.sizeOf(context).width < 440; //better with 500 //TODO: Here  Layout constrained max width works better as that is relatd to current widget only but we are avoiding Heavy widgets
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -119,26 +119,32 @@ class _ThemeOptionButton extends StatelessWidget {
         child: InkWell(
           onTap: _handleTap,
           borderRadius: BorderRadius.circular(10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 20, color: iconColor),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
 
-                if (showLabel) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: textColor,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 20, color: iconColor),
+
+                  if (showLabel) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      label,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                        color: textColor,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

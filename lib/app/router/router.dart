@@ -438,14 +438,19 @@ class _LazyShell extends StatelessWidget {
     final isWide = fold != null || mq.size.width >= 700;
 
     if (isWide) {
+      // Default to AppSettingRoute when nothing specific is selected (i.e. at SettingsMasterRoute)
+      final effectiveRoute = route is SettingsMasterRoute
+          ? const AppSettingRoute()
+          : route;
+
       final twoPaneWidget = SettingsTwoPane(
         master: SettingsMasterScreen(
-          selectedRoute: route,
+          selectedRoute: effectiveRoute,
           onSelectRoute: (tileContext, targetRoute) {
             tileContext.push(targetRoute);
           },
         ),
-        detail: switch (route) {
+        detail: switch (effectiveRoute) {
           AppSettingRoute() => const AppSettingScreen(),
           GeneralSettingRoute() => const Placeholder(),
           NotificationsSettingRoute() => const Placeholder(),
@@ -459,6 +464,7 @@ class _LazyShell extends StatelessWidget {
           ? KaiselAbsorbingPage(widget: twoPaneWidget)
           : KaiselStandalonePage(twoPaneWidget);
     }
+
     return KaiselStandalonePage(switch (route) {
       AppSettingRoute() => const AppSettingScreen(),
       GeneralSettingRoute() => const Placeholder(),
