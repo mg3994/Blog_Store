@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingOnboardingEvent;
-import '../../../settings/privacy_setting/presentation/screens/widgets/analytics_consent_modal.dart'
+import '../../../settings/privacy_setting/privacy_setting.dart'
     show AnalyticsConsentModal;
 
 class OnboardingScreen extends StatefulWidget {
@@ -18,44 +18,38 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  // Use static so this flag survives widget destruction and recreation
-  static bool _hasTriggeredOnboardingInit = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (!_hasTriggeredOnboardingInit) {
-      _hasTriggeredOnboardingInit = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
-
-        await AnalyticsConsentModal.showIfNeeded(context);
-
-        if (mounted) {
-          context.read<AppSettingBloc>().add(
-            const AppSettingOnboardingEvent(isCompleted: false),
-          );
-        }
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final bloc = context.read<AppSettingBloc>();
+      if (!bloc.stateValue.hasGivenConsent) {
+        AnalyticsConsentModal.showIfNeeded(context);
+      }
+    });
   }
 
   final List<_OnboardingPageData> _pages = const [
     _OnboardingPageData(
       icon: Icons.storefront_outlined,
       title: 'Welcome to BlogStore',
-      description: 'Discover curated blog posts, articles, and products all in one seamless app.',
+      description:
+          'Discover curated blog posts, articles, and products all in one seamless app.',
     ),
     _OnboardingPageData(
       icon: Icons.sync_outlined,
       title: 'Offline-First Experience',
-      description: 'Access your favorite articles and store catalog anytime, even without an active internet connection.',
+      description:
+          'Access your favorite articles and store catalog anytime, even without an active internet connection.',
     ),
     _OnboardingPageData(
       icon: Icons.privacy_tip_outlined,
       title: 'Your Privacy Matters',
-      description: 'Customize your app experience, locale, appearance, and privacy choices anytime in Settings.',
+      description:
+          'Customize your app experience, locale, appearance, and privacy choices anytime in Settings.',
     ),
   ];
 
