@@ -14,7 +14,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
       selector: (state) => state.themeMode,
       builder: (context, currentMode) {
         final appSettingBloc = context.read<AppSettingBloc>();
-
+        final isCompact = MediaQuery.sizeOf(context).width < 500;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,6 +45,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
                       mode: ThemeMode.light,
                       label: 'Light',
                       icon: Icons.light_mode_outlined,
+                      showLabel: !isCompact,
                       isSelected: currentMode == ThemeMode.light,
                       appSettingBloc: appSettingBloc,
                     ),
@@ -52,6 +53,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
                       mode: ThemeMode.dark,
                       label: 'Dark',
                       icon: Icons.dark_mode_outlined,
+                      showLabel: !isCompact,
                       isSelected: currentMode == ThemeMode.dark,
                       appSettingBloc: appSettingBloc,
                     ),
@@ -59,6 +61,7 @@ class AppSettingThemeModeWidget extends StatelessWidget {
                       mode: ThemeMode.system,
                       label: 'System',
                       icon: Icons.settings_suggest_outlined,
+                      showLabel: !isCompact,
                       isSelected: currentMode == ThemeMode.system,
                       appSettingBloc: appSettingBloc,
                     ),
@@ -78,6 +81,7 @@ class _ThemeOptionButton extends StatelessWidget {
     required this.mode,
     required this.label,
     required this.icon,
+    required this.showLabel,
     required this.isSelected,
     required this.appSettingBloc,
   });
@@ -85,6 +89,7 @@ class _ThemeOptionButton extends StatelessWidget {
   final ThemeMode mode;
   final String label;
   final IconData icon;
+  final bool showLabel;
   final bool isSelected;
   final AppSettingBloc appSettingBloc;
 
@@ -120,16 +125,19 @@ class _ThemeOptionButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 20, color: iconColor),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                    color: textColor,
+
+                if (showLabel) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                      color: textColor,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

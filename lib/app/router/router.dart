@@ -428,6 +428,51 @@ class _LazyShell extends StatelessWidget {
     ),
   ];
 
+  KaiselPageResult _buildContentRoute(
+    BuildContext context,
+    SettingsRoute route,
+    KaiselStackContext<SettingsRoute> ctx,
+  ) {
+    final mq = MediaQuery.of(context);
+    final fold = _verticalFold(mq);
+    final isWide = fold != null || mq.size.width >= 700;
+
+    if (isWide) {
+      final twoPaneWidget = SettingsTwoPane(
+        master: SettingsMasterScreen(
+          selectedRoute: route,
+          onSelectRoute: (tileContext, targetRoute) {
+            tileContext.push(targetRoute);
+          },
+        ),
+        detail: switch (route) {
+          AppSettingRoute() => const AppSettingScreen(),
+          GeneralSettingRoute() => const Placeholder(),
+          NotificationsSettingRoute() => const Placeholder(),
+          PrivacySettingRoute() => const Placeholder(),
+          _ => const AppSettingScreen(),
+        },
+        hinge: fold?.bounds,
+      );
+
+      return (ctx.previous is SettingsMasterRoute)
+          ? KaiselAbsorbingPage(widget: twoPaneWidget)
+          : KaiselStandalonePage(twoPaneWidget);
+    }
+    return KaiselStandalonePage(switch (route) {
+      AppSettingRoute() => const AppSettingScreen(),
+      GeneralSettingRoute() => const Placeholder(),
+      NotificationsSettingRoute() => const Placeholder(),
+      PrivacySettingRoute() => const Placeholder(),
+      _ => SettingsMasterScreen(
+        selectedRoute: route,
+        onSelectRoute: (tileContext, targetRoute) {
+          tileContext.push(targetRoute);
+        },
+      ),
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -450,50 +495,9 @@ class _LazyShell extends StatelessWidget {
             };
           },
         ),
-
         KaiselBranchSpec<SettingsRoute>.adaptive(
           initial: const SettingsMasterRoute(),
-          builder: (context, route, stack) {
-            Widget resolveScreen(SettingsRoute r) {
-              return switch (r) {
-                GeneralSettingRoute() => const Placeholder(),
-                AppSettingRoute() => const AppSettingScreen(),
-                NotificationsSettingRoute() => const Placeholder(),
-                PrivacySettingRoute() => const Placeholder(),
-                SettingsMasterRoute() => const SettingsMasterScreen(),
-              };
-            }
-
-            if (isWide) {
-              // When a detail route is pushed (stack length >= 2), absorb the detail into the TwoPane layout
-              return KaiselAbsorbingPage(
-                widget: SettingsTwoPane(
-                  master: SettingsMasterScreen(
-                    selectedRoute: route,
-                    onSelectRoute: (tileContext, targetRoute) {
-                      tileContext.pushOrReplaceTop(targetRoute);
-                    },
-                  ),
-                  detail: resolveScreen(route),
-                  hinge: fold?.bounds,
-                ),
-                absorbing: 1,
-              );
-            } else {
-              // Compact mode (single pane)
-              return switch (route) {
-                SettingsMasterRoute() => KaiselStandalonePage(
-                  SettingsMasterScreen(
-                    selectedRoute: route,
-                    onSelectRoute: (tileContext, targetRoute) {
-                      tileContext.push(targetRoute);
-                    },
-                  ),
-                ),
-                _ => KaiselStandalonePage(resolveScreen(route)),
-              };
-            }
-          },
+          builder: _buildContentRoute,
         ),
       ],
       chromeBuilder: (context, active, content, switchBranch) => (isWide)
