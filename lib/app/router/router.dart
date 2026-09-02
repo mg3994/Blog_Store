@@ -31,13 +31,13 @@ KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
       return proposed;
     }
 
-    final needsConsent = proposed.any((route) => route is RequiresConsent);
+    // Exclude OnboardingRoute from consent checks if consent isn't needed during onboarding
+    final needsConsent = proposed.any((route) => route is AppRoute && route is! OnboardingRoute);
 
     if (!needsConsent) {
       return proposed;
     }
 
-    // Prevent repeatedly stacking the consent flow.
     final consentAlreadyVisible = current.any(
       (route) => route is ConsentModalRoute,
     );
@@ -48,7 +48,7 @@ KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
 
     pendingConsentRoutes = List<AppRoute>.unmodifiable(proposed);
 
-    return [...current, const ConsentModalRoute()];
+    return [...proposed, const ConsentModalRoute()]; // ✅ Append to proposed stack rather than current
   };
 }
 
@@ -270,16 +270,13 @@ abstract interface class RequiresAuth {
 }
 
 /// Marker for routes that require authentication.
-abstract interface class RequiresConsent {
-  const RequiresConsent();
-}
 
-sealed class AppRoute extends KaiselRoute implements RequiresConsent {
+sealed class AppRoute extends KaiselRoute {
   const AppRoute();
 }
 
 final class ConsentModalRoute extends AppRoute
-    implements KaiselModalRoute<bool> {
+    implements KaiselModalRoute<bool?> {
   const ConsentModalRoute();
 }
 
@@ -479,34 +476,35 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 
 final class AppRouter {
   AppRouter(this._dependencies, {this._appSettingBloc})
-    : _routerConfig = _createRouterConfig(_dependencies, _appSettingBloc);
+    : _routerConfig = _createRouterConfig(_dependencies, _appSettingBloc) {
+    debugPrint('🔥 AppRouter CREATED');
+  }
+
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
 
   late final KaiselRouterConfig<AppRoute> _routerConfig;
+
   KaiselRouterConfig<AppRoute> get routerConfig => _routerConfig;
 
   static KaiselRouterConfig<AppRoute> _createRouterConfig(
     Dependencies dependencies,
     AppSettingBloc? appSettingBloc,
   ) {
-    final initialRoute =
-        (appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
-        ? const HomeRoot()
+    final hasCompletedOnboarding =
+        appSettingBloc?.stateValue.hasCompletedOnboarding ?? false;
+
+    final initialRoute = hasCompletedOnboarding
+        ? const MainShellRoute()
         : const OnboardingRoute();
 
     return KaiselRouterConfig<AppRoute>.adaptive(
-      //don't use adaptive here we will be using that in shells
-      initial: initialRoute,
+      initial: initialRoute, // ✅ Dynamically resolves to OnboardingRoute
       codec: AppStackCodec(dependencies, appSettingBloc: appSettingBloc),
-      // 3. Apply the guard and re-evaluation trigger
-      // guards: loginBloc != null ? [_authGuard(loginBloc)] : [],
-      // reevaluateOn: loginBloc?.toValueListenable(),
-      //
-       guards: [consentGuard(appSettingBloc)],
-
+      guards: [consentGuard(appSettingBloc)],
       observers: () => [dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) {
+        debugPrint('🔥 ROUTE = ${route.routeName}');
         dependencies.analyticsGateway.logScreenView(
           screenName: route.routeName,
         );
