@@ -23,6 +23,27 @@ import '../../generated/app_localizations.dart' show AppLocalizations;
 
 part 'app_stack_codec.dart';
 
+//  guards: [authGuard(loginBloc)],
+//   reevaluateOn: loginBloc.toValueListenable(),
+// KaiselGuard<AppRoute> authGuard(LoginBloc loginBloc) => (current, proposed) {
+//   final isLoggedIn = loginBloc.stateValue.isLoggedIn;
+
+//   // When unauthenticated, only LoginRoute is permitted
+//   if (!isLoggedIn) {
+//     if (proposed.length == 1 && proposed.first is LoginRoute) {
+//       return proposed;
+//     }
+//     return const [LoginRoute()];
+//   }
+
+//   // When authenticated, redirect away from LoginRoute to HomeRoute
+//   if (proposed.any((r) => r is LoginRoute)) {
+//     return [HomeRoute(loginBloc.stateValue.username)];
+//   }
+
+//   return proposed;
+// };
+
 // 1. Sealed Route Hierarchy
 sealed class AppRoute extends KaiselRoute {
   const AppRoute();
