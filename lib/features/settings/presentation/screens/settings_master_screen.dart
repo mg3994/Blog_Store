@@ -172,10 +172,11 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
                           title: item.titleBuilder(context),
                           subtitle: item.subtitleBuilder(context),
                           isSelected: isSelected,
-                          onTap: (tileContext) => widget.onSelectRoute?.call(
-                            tileContext,
-                            item.route,
-                          ),
+                          onTap: (tileContext) {
+                            // ✅ Fix: Guard against duplicate clicks
+                            if (isSelected) return;
+                            widget.onSelectRoute?.call(tileContext, item.route);
+                          },
                         );
                       },
                     ),

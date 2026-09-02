@@ -29,7 +29,7 @@ class AppSettingScreen extends StatelessWidget {
         backgroundColor: theme.colorScheme.surfaceContainerLowest,
         appBar: AppBar(
           title: Text(context.l10n.settingsAppearanceTitle),
-          automaticallyImplyLeading: showBackButton,
+          automaticallyImplyLeading: showBackButton, // here still one issue is there if one person is on wide dispalay and he clicks multiple times on any of the option of setting master then that option be in stack multiple times , and as we resize it to compact this will cause issue as we have to click multple time to go back , and in most of cases the route will be the same we are poping
           elevation: 0,
         ),
         body: SingleChildScrollView(
