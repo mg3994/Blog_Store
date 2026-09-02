@@ -14,11 +14,195 @@ import '../../features/settings/app_setting/presentation/bloc/app_setting_bloc.d
         AppSettingUpdateSeedColorEvent,
         AppSettingTemporarilyChangeLocaleEvent;
 
+import '../../features/settings/privacy_setting/privacy_setting.dart'
+    show AnalyticsConsentModal;
 import '../../features/settings/settings.dart';
 
 import '../../generated/app_localizations.dart' show AppLocalizations;
 
 part 'app_stack_codec.dart';
+
+List<AppRoute>? pendingConsentRoutes;
+
+KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
+  return (current, proposed) {
+    if (bloc?.stateValue.hasGivenConsent == true) {
+      pendingConsentRoutes = null;
+      return proposed;
+    }
+
+    final needsConsent = proposed.any((route) => route is RequiresConsent);
+
+    if (!needsConsent) {
+      return proposed;
+    }
+
+    // Prevent repeatedly stacking the consent flow.
+    final consentAlreadyVisible = current.any(
+      (route) => route is ConsentModalRoute,
+    );
+
+    if (consentAlreadyVisible) {
+      return current;
+    }
+
+    pendingConsentRoutes = List<AppRoute>.unmodifiable(proposed);
+
+    return [...current, const ConsentModalRoute()];
+  };
+}
+
+/// A transparent flow page that slides its content up from the bottom, and
+/// forwards name/arguments so the flow stays observable.
+class _SlideUpFlowPage extends Page<Object?> {
+  const _SlideUpFlowPage({
+    required LocalKey super.key,
+    required this.child,
+    super.name,
+    super.arguments,
+  });
+
+  final Widget child;
+
+  @override
+  Route<Object?> createRoute(BuildContext context) {
+    return PageRouteBuilder<Object?>(
+      settings: this,
+      opaque: false,
+      transitionDuration: const Duration(milliseconds: 280),
+      reverseTransitionDuration: const Duration(milliseconds: 220),
+      pageBuilder: (_, _, _) => child,
+      transitionsBuilder: (_, animation, _, child) => SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+            ),
+        child: child,
+      ),
+    );
+  }
+}
+
+// Page<Object?> _pageWrapper(KaiselPageWrapperContext<AppRoute> ctx) {
+//   if (ctx.isFlow) {
+//     return _SlideUpFlowPage(
+//       key: ctx.key,
+//       name: ctx.route.routeName,
+//       arguments: ctx.route,
+//       child: ctx.child,
+//     );
+//   }
+//   return MaterialPage<Object?>(
+//     key: ctx.key,
+//     name: ctx.route.routeName,
+//     arguments: ctx.route,
+//     child: ctx.child,
+//   );
+// }
+
+// Widget _modalBuilder(
+//   BuildContext context,
+//   KaiselModalRoute<Object?> flowRoute,
+//   Widget flowChild,
+// ) {
+//   return ColoredBox(
+//     color: Colors.black.withValues(alpha: 0.6),
+//     child: Align(
+//       alignment: Alignment.bottomCenter,
+//       child: Container(
+//         width: double.infinity,
+//         margin: const EdgeInsets.all(16),
+//         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+//         decoration: BoxDecoration(
+//           color: const Color(0xFF14141C),
+//           borderRadius: BorderRadius.circular(16),
+//         ),
+//         child: SafeArea(top: false, child: flowChild),
+//       ),
+//     ),
+//   );
+// }
+
+Page<Object?> _pageWrapper(KaiselPageWrapperContext<AppRoute> ctx) {
+  final route = ctx.route;
+
+  if (route is ConsentModalRoute) {
+    return _ConsentModalPage(
+      key: ctx.key,
+      name: route.routeName,
+      arguments: route,
+      child: ctx.child,
+    );
+  }
+
+  if (ctx.isFlow) {
+    return _SlideUpFlowPage(
+      key: ctx.key,
+      name: route.routeName,
+      arguments: route,
+      child: ctx.child,
+    );
+  }
+
+  return MaterialPage<Object?>(
+    key: ctx.key,
+    name: route.routeName,
+    arguments: route,
+    child: ctx.child,
+  );
+}
+
+Widget _modalBuilder(
+  BuildContext context,
+  KaiselModalRoute<Object?> flowRoute,
+  Widget flowChild,
+) {
+  return SafeArea(child: flowChild);
+}
+
+final class _ConsentModalPage extends Page<Object?> {
+  const _ConsentModalPage({
+    required LocalKey super.key,
+    required this.child,
+    super.name,
+    super.arguments,
+  });
+
+  final Widget child;
+
+  @override
+  Route<Object?> createRoute(BuildContext context) {
+    return PageRouteBuilder<Object?>(
+      settings: this,
+      opaque: false,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 280),
+      reverseTransitionDuration: const Duration(milliseconds: 220),
+      pageBuilder: (_, _, _) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: child,
+            ),
+          ),
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+              .animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              ),
+          child: child,
+        );
+      },
+    );
+  }
+}
 
 //
 // 1. Local state to hold the stashed routes
@@ -80,9 +264,23 @@ part 'app_stack_codec.dart';
 /// ===========================================================================
 /// Application routes
 /// ===========================================================================
+/// Marker for routes that require authentication.
+abstract interface class RequiresAuth {
+  const RequiresAuth();
+}
 
-sealed class AppRoute extends KaiselRoute {
+/// Marker for routes that require authentication.
+abstract interface class RequiresConsent {
+  const RequiresConsent();
+}
+
+sealed class AppRoute extends KaiselRoute implements RequiresConsent {
   const AppRoute();
+}
+
+final class ConsentModalRoute extends AppRoute
+    implements KaiselModalRoute<bool> {
+  const ConsentModalRoute();
 }
 
 final class OnboardingRoute extends AppRoute {
@@ -289,7 +487,10 @@ final class AppRouter {
   late final KaiselRouterConfig<AppRoute> _routerConfig;
 
   KaiselRouterConfig<AppRoute> get routerConfig => _routerConfig;
+  GlobalKey<NavigatorState> get navigatorKey => _routerConfig.navigatorKey;
 
+  static final GlobalKey<NavigatorState> _navigatorKey =
+      GlobalKey<NavigatorState>();
   static KaiselRouterConfig<AppRoute> _createRouterConfig(
     Dependencies dependencies,
     AppSettingBloc? appSettingBloc,
@@ -300,6 +501,7 @@ final class AppRouter {
         : const OnboardingRoute();
 
     return KaiselRouterConfig<AppRoute>.adaptive(
+      navigatorKey: _navigatorKey,
       //don't use adaptive here we will be using that in shells
       initial: initialRoute,
       codec: AppStackCodec(dependencies, appSettingBloc: appSettingBloc),
@@ -307,12 +509,15 @@ final class AppRouter {
       // guards: loginBloc != null ? [_authGuard(loginBloc)] : [],
       // reevaluateOn: loginBloc?.toValueListenable(),
       //
+      guards: [consentGuard(appSettingBloc)],
       observers: () => [dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) {
         dependencies.analyticsGateway.logScreenView(
           screenName: route.routeName,
         );
       },
+      pageWrapper: _pageWrapper,
+      modalBuilder: _modalBuilder,
       builder: _buildRoute,
     );
   }
@@ -337,6 +542,12 @@ final class AppRouter {
       ),
 
       (_, MainShellRoute(), _) => KaiselStandalonePage(_LazyShell()),
+
+      // TODO: Handle this case.
+      // TODO: Handle this case.
+      (_, ConsentModalRoute(), _) => KaiselStandalonePage(
+        AnalyticsConsentModal(),
+      ), //TODO:....,
     };
   }
 }
@@ -545,6 +756,32 @@ class _LazyShell extends StatelessWidget {
             };
           },
         ),
+        //below todo
+        KaiselBranchSpec<HomeRoute>.adaptive(
+          initial: const HomeRoot(),
+          builder: (context, route, stack) {
+            return switch (route) {
+              HomeRoot() => const KaiselStandalonePage(HomeScreen()),
+
+              ProductDetailRoute(:final id) => KaiselStandalonePage(
+                ProductDetailScreen(id: id),
+              ),
+            };
+          },
+        ),
+        KaiselBranchSpec<HomeRoute>.adaptive(
+          initial: const HomeRoot(),
+          builder: (context, route, stack) {
+            return switch (route) {
+              HomeRoot() => const KaiselStandalonePage(HomeScreen()),
+
+              ProductDetailRoute(:final id) => KaiselStandalonePage(
+                ProductDetailScreen(id: id),
+              ),
+            };
+          },
+        ),
+        // above todo
         KaiselBranchSpec<SettingsRoute>.adaptive(
           initial: const SettingsMasterRoute(),
           builder: _buildContentRoute,

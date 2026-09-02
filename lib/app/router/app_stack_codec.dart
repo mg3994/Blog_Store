@@ -6,6 +6,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
 
+  static const _homeBranch = 0;
+  static const _settingsBranch = 3;
+
   @override
   KaiselConfig<AppRoute>? decode(Uri uri) {
     _applyGlobalLanguage(uri);
@@ -20,9 +23,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // ---------------------------------------------------------------------
 
       [] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 0,
+          activeBranch: _homeBranch,
           activeBranchStack: [HomeRoot()],
         ),
       ),
@@ -30,7 +33,7 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // ---------------------------------------------------------------------
       // Onboarding
       // ---------------------------------------------------------------------
-      ['onboarding'] => KaiselConfig(mainStack: [OnboardingRoute()]),
+      ['onboarding'] => KaiselConfig(mainStack: const [OnboardingRoute()]),
 
       // ---------------------------------------------------------------------
       // Home → Product
@@ -38,7 +41,7 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       ['products', final id] => KaiselConfig(
         mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 0,
+          activeBranch: _homeBranch,
           activeBranchStack: [HomeRoot(), ProductDetailRoute(id)],
         ),
       ),
@@ -47,9 +50,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // Settings
       // ---------------------------------------------------------------------
       ['settings'] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 1,
+          activeBranch: _settingsBranch,
           activeBranchStack: [SettingsMasterRoute()],
         ),
       ),
@@ -58,9 +61,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // Settings → Appearance
       // ---------------------------------------------------------------------
       ['settings', 'appearance'] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 1,
+          activeBranch: _settingsBranch,
           activeBranchStack: [SettingsMasterRoute(), AppSettingRoute()],
         ),
       ),
@@ -69,9 +72,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // Settings → General
       // ---------------------------------------------------------------------
       ['settings', 'general'] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 1,
+          activeBranch: _settingsBranch,
           activeBranchStack: [SettingsMasterRoute(), GeneralSettingRoute()],
         ),
       ),
@@ -80,9 +83,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // Settings → Notifications
       // ---------------------------------------------------------------------
       ['settings', 'notifications'] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 1,
+          activeBranch: _settingsBranch,
           activeBranchStack: [
             SettingsMasterRoute(),
             NotificationsSettingRoute(),
@@ -94,9 +97,9 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
       // Settings → Privacy
       // ---------------------------------------------------------------------
       ['settings', 'privacy'] => KaiselConfig(
-        mainStack: [MainShellRoute()],
+        mainStack: const [MainShellRoute()],
         nestedState: KaiselShellConfig(
-          activeBranch: 1,
+          activeBranch: _settingsBranch,
           activeBranchStack: [SettingsMasterRoute(), PrivacySettingRoute()],
         ),
       ),
@@ -125,8 +128,8 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
         ),
       ) =>
         switch (branch) {
-          0 => _encodeHome(stack),
-          1 => _encodeSettings(stack),
+          _homeBranch => _encodeHome(stack),
+          _settingsBranch => _encodeSettings(stack),
           _ => Uri(path: '/'),
         },
 

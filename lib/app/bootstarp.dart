@@ -35,12 +35,16 @@ import 'package:material_ui/material_ui.dart'
         Directionality,
         TextDirection,
         MaterialUiCompatibilityBridge,
-        GlobalMaterialLocalizations;
+        GlobalMaterialLocalizations,
+        GlobalKey,
+        NavigatorState;
 
 import '../core/theme/app_theme.dart';
 
 import '../features/settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingState;
+import '../features/settings/privacy_setting/privacy_setting.dart'
+    show AnalyticsConsentModal;
 import '../generated/app_localizations.dart';
 import '../infrastructure/firebase/notifications/background_messaging.dart'
     show firebaseMessagingBackgroundHandler;
@@ -141,6 +145,7 @@ class _BootStrapState extends State<BootStrap> {
   @override
   void didChangeDependencies() {
     allowFirstFrame();
+
     super.didChangeDependencies();
   }
 
@@ -173,11 +178,10 @@ class _BootStrapState extends State<BootStrap> {
           bloc: appSettingBloc,
           builder: (context, state) {
             return MaterialApp.router(
+              routerConfig: appRouter.routerConfig, //  move it outside //TODO:
               builder: (BuildContext context, Widget? child) {
                 return MaterialUiCompatibilityBridge(child: child!);
               },
-              routerConfig: appRouter.routerConfig, //  move it outside //TODO:
-              // routeInformationParser: appRouter.routeInformationParser,
 
               onGenerateTitle: (context) => context.l10n.appName,
               supportedLocales: AppLocalizations.supportedLocales,

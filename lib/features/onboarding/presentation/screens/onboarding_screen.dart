@@ -5,8 +5,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingOnboardingEvent;
-import '../../../settings/privacy_setting/privacy_setting.dart'
-    show AnalyticsConsentModal;
+// import '../../../settings/privacy_setting/privacy_setting.dart'
+//     show AnalyticsConsentModal;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,23 +19,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     if (!mounted) return;
 
-      final bloc = context.read<AppSettingBloc>();
-      if (mounted && !bloc.stateValue.hasGivenConsent) {
-        // avoid use of hasGivenConsent at multiple places
-        await AnalyticsConsentModal.showIfNeeded(context);
-      }
-      if (mounted && !bloc.stateValue.hasCompletedOnboarding) {
-        bloc.add(const AppSettingOnboardingEvent(isCompleted: false));
-      }
-    });
-  }
+  //     final bloc = context.read<AppSettingBloc>();
+  //     if (mounted && !bloc.stateValue.hasGivenConsent) {
+  //       // avoid use of hasGivenConsent at multiple places
+  //       await AnalyticsConsentModal.showIfNeeded(context); //whatever the cntext is i want to show the modal on top
+  //     }
+  //     if (mounted && !bloc.stateValue.hasCompletedOnboarding) {
+  //       bloc.add(const AppSettingOnboardingEvent(isCompleted: false));
+  //     }
+  //   });
+  // }
 
   final List<_OnboardingPageData> _pages = const [
     _OnboardingPageData(
