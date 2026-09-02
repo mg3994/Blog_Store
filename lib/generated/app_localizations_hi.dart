@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -19,14 +20,11 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String pronoun(String gender) {
-    String _temp0 = intl.Intl.selectLogic(
-      gender,
-      {
-        'male': 'वह',
-        'female': 'वह',
-        'other': 'वे',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(gender, {
+      'male': 'वह',
+      'female': 'वह',
+      'other': 'वे',
+    });
     return '$_temp0';
   }
 
@@ -73,24 +71,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String authorRole(String role) {
-    String _temp0 = intl.Intl.selectLogic(
-      role,
-      {
-        'author': 'लेखक',
-        'editor': 'संपादक',
-        'admin': 'प्रशासक',
-        'other': 'सदस्य',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(role, {
+      'author': 'लेखक',
+      'editor': 'संपादक',
+      'admin': 'प्रशासक',
+      'other': 'सदस्य',
+    });
     return '$_temp0';
   }
 
   @override
   String articlePrice(double amount) {
     final intl.NumberFormat amountNumberFormat =
-        intl.NumberFormat.compactCurrency(
-      locale: localeName,
-    );
+        intl.NumberFormat.compactCurrency(locale: localeName);
     final String amountString = amountNumberFormat.format(amount);
 
     return 'मूल्य: $amountString';

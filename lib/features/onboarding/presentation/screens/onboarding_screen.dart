@@ -29,6 +29,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (!bloc.stateValue.hasGivenConsent) {
         AnalyticsConsentModal.showIfNeeded(context);
       }
+      context.read<AppSettingBloc>().add(
+        const AppSettingOnboardingEvent(isCompleted: false),
+      );
     });
   }
 
