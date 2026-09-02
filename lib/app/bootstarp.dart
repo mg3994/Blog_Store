@@ -35,7 +35,6 @@ import 'package:material_ui/material_ui.dart'
         Directionality,
         TextDirection,
         MaterialUiCompatibilityBridge,
-        
         GlobalMaterialLocalizations;
 
 import '../core/theme/app_theme.dart';
@@ -177,7 +176,7 @@ class _BootStrapState extends State<BootStrap> {
               builder: (BuildContext context, Widget? child) {
                 return MaterialUiCompatibilityBridge(child: child!);
               },
-              routerConfig: appRouter.routerConfig,
+              routerConfig: appRouter.routerConfig, //  move it outside //TODO:
               // routeInformationParser: appRouter.routeInformationParser,
 
               onGenerateTitle: (context) => context.l10n.appName,

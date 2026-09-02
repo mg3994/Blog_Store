@@ -20,6 +20,42 @@ import '../../generated/app_localizations.dart' show AppLocalizations;
 
 part 'app_stack_codec.dart';
 
+//
+// 1. Local state to hold the stashed routes
+// List<AppRoute>? pendingRoutes;
+
+// // 2. Define the guard capturing the local state
+// KaiselGuard<AppRoute> authGuard = (current, proposed) {
+//   if (loginBloc == null) return proposed;
+
+//   final isLoggedIn = loginBloc.stateValue.isLoggedIn;
+//   final needsAuth = proposed.any((r) => r is RequiresAuth);
+
+//   // SCENARIO A: Needs auth but not logged in -> Stash and redirect
+//   if (needsAuth && !isLoggedIn) {
+//     pendingRoutes = proposed; // Stash the whole proposed stack
+
+//     return [
+//       ...proposed.where((r) => r is! RequiresAuth),
+//       const LoginRoute(),
+//     ];
+//   }
+
+//   // SCENARIO B: User just logged in -> Restore stash or default to Shell
+//   if (isLoggedIn && proposed.any((r) => r is LoginRoute)) {
+//     if (pendingRoutes != null && pendingRoutes!.isNotEmpty) {
+//       final restored = pendingRoutes!;
+//       pendingRoutes = null; // Clear the stash
+//       return restored;
+//     }
+//     return const [MainShellRoute()];
+//   }
+
+//   return proposed;
+// };
+
+//
+
 //  guards: [authGuard(loginBloc)],
 //   reevaluateOn: loginBloc.toValueListenable(),
 // KaiselGuard<AppRoute> authGuard(LoginBloc loginBloc) => (current, proposed) {
@@ -65,7 +101,9 @@ final class OnboardingRoute extends AppRoute {
 ///         └── AppSettingRoute
 /// ===========================================================================
 
-sealed class MainShellRoute extends AppRoute {
+// sealed
+
+final class MainShellRoute extends AppRoute {
   // this is our ShellHost
   const MainShellRoute();
 }
@@ -198,10 +236,10 @@ final class SettingsModuleCodec extends ModuleStackCodec<SettingsRoute> {
   List<String> encode(List<SettingsRoute> stack) {
     return switch (stack.last) {
       SettingsMasterRoute() => const [],
-      AppSettingRoute() => const ['app-settings'],
-      GeneralSettingRoute() => const ['general-settings'],
-      NotificationsSettingRoute() => const ['notifications-settings'],
-      PrivacySettingRoute() => const ['privacy-settings'],
+      AppSettingRoute() => const ['appearance'],
+      GeneralSettingRoute() => const ['general'],
+      NotificationsSettingRoute() => const ['notifications'],
+      PrivacySettingRoute() => const ['privacy'],
     };
   }
 
@@ -209,19 +247,13 @@ final class SettingsModuleCodec extends ModuleStackCodec<SettingsRoute> {
   List<SettingsRoute>? decode(List<String> segments) {
     return switch (segments) {
       [] => const [SettingsMasterRoute()],
-      ['app-settings'] => const [SettingsMasterRoute(), AppSettingRoute()],
-      ['general-settings'] => const [
-        SettingsMasterRoute(),
-        GeneralSettingRoute(),
-      ],
-      ['notifications-settings'] => const [
+      ['appearance'] => const [SettingsMasterRoute(), AppSettingRoute()],
+      ['general'] => const [SettingsMasterRoute(), GeneralSettingRoute()],
+      ['notifications'] => const [
         SettingsMasterRoute(),
         NotificationsSettingRoute(),
       ],
-      ['privacy-settings'] => const [
-        SettingsMasterRoute(),
-        PrivacySettingRoute(),
-      ],
+      ['privacy'] => const [SettingsMasterRoute(), PrivacySettingRoute()],
       _ => null,
     };
   }
@@ -248,24 +280,36 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 /// ===========================================================================
 
 final class AppRouter {
-  const AppRouter(this._dependencies, {this._appSettingBloc});
+  AppRouter(this._dependencies, {this._appSettingBloc})
+    : _routerConfig = _createRouterConfig(_dependencies, _appSettingBloc);
 
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
 
-  KaiselRouterConfig<AppRoute> get routerConfig {
+  late final KaiselRouterConfig<AppRoute> _routerConfig;
+
+  KaiselRouterConfig<AppRoute> get routerConfig => _routerConfig;
+
+  static KaiselRouterConfig<AppRoute> _createRouterConfig(
+    Dependencies dependencies,
+    AppSettingBloc? appSettingBloc,
+  ) {
     final initialRoute =
-        (_appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
+        (appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
         ? const HomeRoot()
         : const OnboardingRoute();
 
     return KaiselRouterConfig<AppRoute>.adaptive(
       //don't use adaptive here we will be using that in shells
       initial: initialRoute,
-      codec: AppStackCodec(_dependencies, appSettingBloc: _appSettingBloc),
-      observers: () => [_dependencies.analyticsGateway.observer()],
+      codec: AppStackCodec(dependencies, appSettingBloc: appSettingBloc),
+      // 3. Apply the guard and re-evaluation trigger
+      // guards: loginBloc != null ? [_authGuard(loginBloc)] : [],
+      // reevaluateOn: loginBloc?.toValueListenable(),
+      //
+      observers: () => [dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) {
-        _dependencies.analyticsGateway.logScreenView(
+        dependencies.analyticsGateway.logScreenView(
           screenName: route.routeName,
         );
       },
@@ -273,7 +317,7 @@ final class AppRouter {
     );
   }
 
-  KaiselPageResult _buildRoute(
+  static KaiselPageResult _buildRoute(
     BuildContext context,
     AppRoute route,
     KaiselStackContext<AppRoute> stack,

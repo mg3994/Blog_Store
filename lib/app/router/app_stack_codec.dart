@@ -10,24 +10,95 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
   KaiselConfig<AppRoute>? decode(Uri uri) {
     _applyGlobalLanguage(uri);
 
-    return switch (uri.pathSegments) {
+    final segments = uri.pathSegments
+        .where((segment) => segment.isNotEmpty)
+        .toList();
+
+    return switch (segments) {
+      // ---------------------------------------------------------------------
       // Home
-      [] || [''] => KaiselConfig(mainStack: [HomeRoot()]),
+      // ---------------------------------------------------------------------
 
-      // Onboarding
-      ['onboarding'] => KaiselConfig(mainStack: [OnboardingRoute()]),
-
-      // Home → Product detail
-      ['products', final id] => KaiselConfig(
-        mainStack: [const HomeRoot(), ProductDetailRoute(id)],
+      [] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 0,
+          activeBranchStack: [HomeRoot()],
+        ),
       ),
 
-      // Settings
-      ['settings'] => KaiselConfig(mainStack: [SettingsMasterRoute()]),
+      // ---------------------------------------------------------------------
+      // Onboarding
+      // ---------------------------------------------------------------------
+      ['onboarding'] => KaiselConfig(mainStack: [OnboardingRoute()]),
 
-      // Settings → App settings
-      ['settings', 'app'] => KaiselConfig(
-        mainStack: [SettingsMasterRoute(), AppSettingRoute()],
+      // ---------------------------------------------------------------------
+      // Home → Product
+      // ---------------------------------------------------------------------
+      ['products', final id] => KaiselConfig(
+        mainStack: const [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 0,
+          activeBranchStack: [HomeRoot(), ProductDetailRoute(id)],
+        ),
+      ),
+
+      // ---------------------------------------------------------------------
+      // Settings
+      // ---------------------------------------------------------------------
+      ['settings'] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 1,
+          activeBranchStack: [SettingsMasterRoute()],
+        ),
+      ),
+
+      // ---------------------------------------------------------------------
+      // Settings → Appearance
+      // ---------------------------------------------------------------------
+      ['settings', 'appearance'] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 1,
+          activeBranchStack: [SettingsMasterRoute(), AppSettingRoute()],
+        ),
+      ),
+
+      // ---------------------------------------------------------------------
+      // Settings → General
+      // ---------------------------------------------------------------------
+      ['settings', 'general'] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 1,
+          activeBranchStack: [SettingsMasterRoute(), GeneralSettingRoute()],
+        ),
+      ),
+
+      // ---------------------------------------------------------------------
+      // Settings → Notifications
+      // ---------------------------------------------------------------------
+      ['settings', 'notifications'] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 1,
+          activeBranchStack: [
+            SettingsMasterRoute(),
+            NotificationsSettingRoute(),
+          ],
+        ),
+      ),
+
+      // ---------------------------------------------------------------------
+      // Settings → Privacy
+      // ---------------------------------------------------------------------
+      ['settings', 'privacy'] => KaiselConfig(
+        mainStack: [MainShellRoute()],
+        nestedState: KaiselShellConfig(
+          activeBranch: 1,
+          activeBranchStack: [SettingsMasterRoute(), PrivacySettingRoute()],
+        ),
       ),
 
       _ => null,
@@ -36,24 +107,67 @@ final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
 
   @override
   Uri encode(KaiselConfig<AppRoute> config) {
-    final top = config.mainStack.last;
+    return switch ((config.mainStack.last, config.nestedState)) {
+      // ---------------------------------------------------------------------
+      // Onboarding
+      // ---------------------------------------------------------------------
 
-    return switch (top) {
-      HomeRoot() => Uri(path: '/'),
+      (OnboardingRoute(), _) => Uri(path: '/onboarding'),
 
-      OnboardingRoute() => Uri(path: '/onboarding'),
+      // ---------------------------------------------------------------------
+      // Main shell
+      // ---------------------------------------------------------------------
+      (
+        MainShellRoute(),
+        KaiselShellConfig(
+          activeBranch: final branch,
+          activeBranchStack: final stack,
+        ),
+      ) =>
+        switch (branch) {
+          0 => _encodeHome(stack),
+          1 => _encodeSettings(stack),
+          _ => Uri(path: '/'),
+        },
 
-      ProductDetailRoute(:final id) => Uri(path: '/products/$id'),
+      // Defensive fallback.
+      (MainShellRoute(), _) => Uri(path: '/'),
 
-      SettingsMasterRoute() => Uri(path: '/settings'),
+      _ => Uri(path: '/'),
+    };
+  }
 
-      AppSettingRoute() => Uri(path: '/settings/app'),
-      // TODO: Handle this case.
-      GeneralSettingRoute() => throw UnimplementedError(),
-      // TODO: Handle this case.
-      NotificationsSettingRoute() => throw UnimplementedError(),
-      // TODO: Handle this case.
-      PrivacySettingRoute() => throw UnimplementedError(),
+  Uri _encodeHome(List<KaiselRoute> stack) {
+    return switch (stack) {
+      [HomeRoot()] => Uri(path: '/'),
+
+      [HomeRoot(), ProductDetailRoute(:final id)] => Uri(path: '/products/$id'),
+
+      _ => Uri(path: '/'),
+    };
+  }
+
+  Uri _encodeSettings(List<KaiselRoute> stack) {
+    return switch (stack) {
+      [SettingsMasterRoute()] => Uri(path: '/settings'),
+
+      [SettingsMasterRoute(), AppSettingRoute()] => Uri(
+        path: '/settings/appearance',
+      ),
+
+      [SettingsMasterRoute(), GeneralSettingRoute()] => Uri(
+        path: '/settings/general',
+      ),
+
+      [SettingsMasterRoute(), NotificationsSettingRoute()] => Uri(
+        path: '/settings/notifications',
+      ),
+
+      [SettingsMasterRoute(), PrivacySettingRoute()] => Uri(
+        path: '/settings/privacy',
+      ),
+
+      _ => Uri(path: '/settings'),
     };
   }
 
