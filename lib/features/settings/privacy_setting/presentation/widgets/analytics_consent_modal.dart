@@ -9,23 +9,31 @@ import 'analytics_consent_preferences.dart';
 class AnalyticsConsentModal extends StatefulWidget {
   const AnalyticsConsentModal({super.key});
 
-  /// Shows the Modal Bottom Sheet if the user has not yet given consent.
+  /// Shows the Modal Bottom Sheet if the user has not yet given consent and prompt is not open.
   static Future<void> showIfNeeded(BuildContext context) async {
     final bloc = context.read<AppSettingBloc>();
-    if (!bloc.stateValue.hasGivenConsent) {
+    if (!bloc.stateValue.hasGivenConsent && !bloc.stateValue.isConsentPromptOpen) {
       await show(context);
     }
   }
 
   /// Explicitly shows the Analytics Consent Modal Bottom Sheet.
   static Future<void> show(BuildContext context) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AnalyticsConsentModal(),
-    );
+    final bloc = context.read<AppSettingBloc>();
+    if (bloc.stateValue.isConsentPromptOpen) return;
+
+    bloc.add(const AppSettingShowConsentPromptEvent());
+    try {
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => const AnalyticsConsentModal(),
+      );
+    } finally {
+      bloc.add(const AppSettingDismissConsentPromptEvent());
+    }
   }
 
   @override

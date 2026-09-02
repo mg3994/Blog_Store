@@ -47,6 +47,14 @@ final class AppSettingOnboardingEvent extends AppSettingEvent {
   const AppSettingOnboardingEvent({required this.isCompleted});
 }
 
+final class AppSettingShowConsentPromptEvent extends AppSettingEvent {
+  const AppSettingShowConsentPromptEvent();
+}
+
+final class AppSettingDismissConsentPromptEvent extends AppSettingEvent {
+  const AppSettingDismissConsentPromptEvent();
+}
+
 final class AppSettingUpdateConsentEvent extends AppSettingEvent {
   const AppSettingUpdateConsentEvent({
     required this.hasGivenConsent,

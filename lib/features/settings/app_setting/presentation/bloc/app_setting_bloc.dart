@@ -141,6 +141,14 @@ class AppSettingBloc extends BlocSignal<AppSettingEvent, AppSettingState> {
         emit(stateValue.copyWith(hasCompletedOnboarding: isCompleted));
         await _updateOnboardingCompleted(isCompleted);
 
+      case AppSettingShowConsentPromptEvent():
+        if (stateValue.isConsentPromptOpen) return;
+        emit(stateValue.copyWith(isConsentPromptOpen: true));
+
+      case AppSettingDismissConsentPromptEvent():
+        if (!stateValue.isConsentPromptOpen) return;
+        emit(stateValue.copyWith(isConsentPromptOpen: false));
+
       case AppSettingUpdateConsentEvent(
         hasGivenConsent: final hasGivenConsent,
         analyticsStorageConsentGranted: final analyticsStorageConsentGranted,

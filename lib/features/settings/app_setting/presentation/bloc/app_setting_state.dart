@@ -6,6 +6,7 @@ class AppSettingState {
   final Color seedColor;
   final bool hasCompletedOnboarding;
   final bool hasGivenConsent;
+  final bool isConsentPromptOpen;
   final bool analyticsStorageConsentGranted;
   final bool adStorageConsentGranted;
   final bool adUserDataConsentGranted;
@@ -20,6 +21,7 @@ class AppSettingState {
     required this.seedColor,
     this.hasCompletedOnboarding = false,
     this.hasGivenConsent = false,
+    this.isConsentPromptOpen = false,
     this.analyticsStorageConsentGranted = false,
     this.adStorageConsentGranted = false,
     this.adUserDataConsentGranted = false,
@@ -35,6 +37,7 @@ class AppSettingState {
     Color? seedColor,
     bool? hasCompletedOnboarding,
     bool? hasGivenConsent,
+    bool? isConsentPromptOpen,
     bool? analyticsStorageConsentGranted,
     bool? adStorageConsentGranted,
     bool? adUserDataConsentGranted,
@@ -50,6 +53,7 @@ class AppSettingState {
       hasCompletedOnboarding:
           hasCompletedOnboarding ?? this.hasCompletedOnboarding,
       hasGivenConsent: hasGivenConsent ?? this.hasGivenConsent,
+      isConsentPromptOpen: isConsentPromptOpen ?? this.isConsentPromptOpen,
       analyticsStorageConsentGranted:
           analyticsStorageConsentGranted ?? this.analyticsStorageConsentGranted,
       adStorageConsentGranted:
@@ -79,6 +83,7 @@ class AppSettingState {
         other.seedColor == seedColor &&
         other.hasCompletedOnboarding == hasCompletedOnboarding &&
         other.hasGivenConsent == hasGivenConsent &&
+        other.isConsentPromptOpen == isConsentPromptOpen &&
         other.analyticsStorageConsentGranted ==
             analyticsStorageConsentGranted &&
         other.adStorageConsentGranted == adStorageConsentGranted &&
@@ -99,6 +104,7 @@ class AppSettingState {
     seedColor,
     hasCompletedOnboarding,
     hasGivenConsent,
+    isConsentPromptOpen,
     analyticsStorageConsentGranted,
     adStorageConsentGranted,
     adUserDataConsentGranted,
@@ -113,6 +119,7 @@ class AppSettingState {
     seedColor: Color(AppConfig.defaultThemeSeedColorHex),
     hasCompletedOnboarding: false,
     hasGivenConsent: false,
+    isConsentPromptOpen: false,
     analyticsStorageConsentGranted: false,
     adStorageConsentGranted: false,
     adUserDataConsentGranted: false,
