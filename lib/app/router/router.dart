@@ -22,17 +22,68 @@ import '../../generated/app_localizations.dart' show AppLocalizations;
 
 part 'app_stack_codec.dart';
 
-List<AppRoute>? pendingConsentRoutes;
+// List<AppRoute>? pendingConsentRoutes;
 
-KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
+// KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
+//   return (current, proposed) {
+//     if (bloc?.stateValue.hasGivenConsent == true) {
+//       pendingConsentRoutes = null;
+//       return proposed;
+//     }
+
+//     // Exclude OnboardingRoute from consent checks if consent isn't needed during onboarding
+//     // final needsConsent = proposed.any((route) => route is AppRoute && route is! OnboardingRoute);
+//     final needsConsent = proposed.any((route) => route is AppRoute);
+
+//     if (!needsConsent) {
+//       return proposed;
+//     }
+
+//     final consentAlreadyVisible = current.any(
+//       (route) => route is ConsentModalRoute,
+//     );
+
+//     if (consentAlreadyVisible) {
+//       return current;
+//     }
+
+//     pendingConsentRoutes = List<AppRoute>.unmodifiable(proposed);
+
+//     return [
+//       ...proposed,
+//       const ConsentModalRoute(),
+//     ]; // ✅ Append to proposed stack rather than current
+//   };
+// }
+
+/// Returns a guard instance with its own encapsulated pending state.
+KaiselGuard<AppRoute> createConsentGuard(AppSettingBloc? bloc) {
+  // Scoped strictly to this guard instance — non-global
+  List<AppRoute>? pendingConsentRoutes;
+
   return (current, proposed) {
-    if (bloc?.stateValue.hasGivenConsent == true) {
-      pendingConsentRoutes = null;
+    debugPrint(
+      '🛡️ GUARD current: ${current.map((r) => r.routeName).toList()}',
+    );
+    debugPrint(
+      '🛡️ GUARD proposed: ${proposed.map((r) => r.routeName).toList()}',
+    );
+
+    final hasConsent = bloc?.stateValue.hasGivenConsent ?? false;
+
+    if (hasConsent) {
+      debugPrint('🛡️ CONSENT GIVEN → proposed');
+      if (pendingConsentRoutes != null) {
+        final restored = pendingConsentRoutes!;
+        pendingConsentRoutes = null;
+        return restored;
+      }
       return proposed;
     }
 
-    // Exclude OnboardingRoute from consent checks if consent isn't needed during onboarding
-    final needsConsent = proposed.any((route) => route is AppRoute && route is! OnboardingRoute);
+    final needsConsent = proposed.any(
+      (route) => route is AppRoute// && route is! OnboardingRoute,
+    );
 
     if (!needsConsent) {
       return proposed;
@@ -46,9 +97,10 @@ KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
       return current;
     }
 
+    // Stash proposed routes internally in closure state
     pendingConsentRoutes = List<AppRoute>.unmodifiable(proposed);
 
-    return [...proposed, const ConsentModalRoute()]; // ✅ Append to proposed stack rather than current
+    return [...proposed, const ConsentModalRoute()];
   };
 }
 
