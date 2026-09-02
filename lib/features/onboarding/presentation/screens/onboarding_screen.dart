@@ -5,8 +5,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../settings/app_setting/presentation/bloc/app_setting_bloc.dart'
     show AppSettingBloc, AppSettingOnboardingEvent;
-import '../../../settings/privacy_setting/privacy_setting.dart' show AnalyticsConsentModal;
-
+import '../../../settings/privacy_setting/privacy_setting.dart'
+    show AnalyticsConsentModal;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -70,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     context.read<AppSettingBloc>().add(
       const AppSettingOnboardingEvent(isCompleted: true),
     );
-    context.set(const [HomeRoute()]);
+    context.set(const [HomeRoot()]);
   }
 
   @override

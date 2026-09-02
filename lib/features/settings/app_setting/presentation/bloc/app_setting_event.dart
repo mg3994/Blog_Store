@@ -68,3 +68,11 @@ final class AppSettingUpdateConsentEvent extends AppSettingEvent {
   final bool personalizationStorageConsentGranted;
   final bool securityStorageConsentGranted;
 }
+
+// final class AppSettingShowConsentPromptEvent extends AppSettingEvent {
+//   const AppSettingShowConsentPromptEvent();
+// }
+
+// final class AppSettingDismissConsentPromptEvent extends AppSettingEvent {
+//   const AppSettingDismissConsentPromptEvent();
+// }

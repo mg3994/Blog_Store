@@ -5,12 +5,12 @@ import 'package:bloc_signals_flutter/bloc_signals_flutter.dart'
 import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:blogstore/app/router/router.dart' show AppRouter;
 import 'package:cupertino_ui/cupertino_ui.dart'
-    show DefaultCupertinoLocalizations, GlobalCupertinoLocalizations;
+    show GlobalCupertinoLocalizations;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
 import 'package:intl/intl.dart' show Intl;
-import 'package:kaisel/kaisel.dart';
+
 import 'package:material_ui/material_ui.dart'
     show
         Widget,
@@ -35,8 +35,7 @@ import 'package:material_ui/material_ui.dart'
         Directionality,
         TextDirection,
         MaterialUiCompatibilityBridge,
-        DefaultMaterialLocalizations,
-        DefaultWidgetsLocalizations,
+        
         GlobalMaterialLocalizations;
 
 import '../core/theme/app_theme.dart';

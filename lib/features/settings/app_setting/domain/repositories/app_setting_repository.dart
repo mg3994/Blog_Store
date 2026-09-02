@@ -5,7 +5,7 @@ import '../entities/app_setting.dart';
 abstract interface class AppSettingRepository {
   Future<AppSetting> getSettings();
   Stream<AppSetting> watchSettings();
-  Future<void> resetToDefaultSettings();
+  Future<void> resetToDefaultAppSettings();
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateLocale(Locale locale);
   Future<void> updateSeedColor(Color seedColor);
@@ -16,7 +16,7 @@ abstract interface class AppSettingRepository {
     required bool adStorageConsentGranted,
     required bool adUserDataConsentGranted,
     required bool adPersonalizationSignalsConsentGranted,
-     required bool functionalityStorageConsentGranted,
+    required bool functionalityStorageConsentGranted,
     required bool personalizationStorageConsentGranted,
     required bool securityStorageConsentGranted,
   });

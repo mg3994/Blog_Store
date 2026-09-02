@@ -5,5 +5,5 @@ final class ResetAppSettingsUseCase {
 
   final AppSettingRepository _repository;
 
-  Future<void> call() => _repository.resetToDefaultSettings();
+  Future<void> call() => _repository.resetToDefaultAppSettings();
 }

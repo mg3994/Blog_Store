@@ -24,6 +24,8 @@ class AnalyticsConsentModal extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) => const AnalyticsConsentModal(),
     );

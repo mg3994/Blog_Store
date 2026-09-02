@@ -1,3 +1,4 @@
+import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:material_ui/material_ui.dart';
 
 class AnalyticsConsentPreferences extends StatelessWidget {
@@ -20,7 +21,7 @@ class AnalyticsConsentPreferences extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = context.theme;
     final colorScheme = theme.colorScheme;
 
     return Column(

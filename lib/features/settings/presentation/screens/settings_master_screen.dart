@@ -1,15 +1,23 @@
 import 'package:blogstore/app/helpers/extensions.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../app/router/router.dart'
+    show
+        SettingsRoute,
+        GeneralSettingRoute,
+        AppSettingRoute,
+        NotificationsSettingRoute,
+        PrivacySettingRoute;
+
 class SettingsCategoryItemData {
   const SettingsCategoryItemData({
-    required this.id,
+    required this.route,
     required this.titleBuilder,
     required this.subtitleBuilder,
     required this.icon,
   });
 
-  final String id;
+  final SettingsRoute route;
   final String Function(BuildContext context) titleBuilder;
   final String Function(BuildContext context) subtitleBuilder;
   final IconData icon;
@@ -17,25 +25,25 @@ class SettingsCategoryItemData {
 
 final List<SettingsCategoryItemData> kSettingsCategoryItems = [
   SettingsCategoryItemData(
-    id: 'general',
+    route: const GeneralSettingRoute(),
     titleBuilder: (context) => context.l10n.settingsGeneralTitle,
     subtitleBuilder: (context) => context.l10n.settingsGeneralSubtitle,
     icon: Icons.person_outline,
   ),
   SettingsCategoryItemData(
-    id: 'appearance',
+    route: const AppSettingRoute(),
     titleBuilder: (context) => context.l10n.settingsAppearanceTitle,
     subtitleBuilder: (context) => context.l10n.settingsAppearanceSubtitle,
     icon: Icons.palette_outlined,
   ),
   SettingsCategoryItemData(
-    id: 'notifications',
+    route: const NotificationsSettingRoute(),
     titleBuilder: (context) => context.l10n.settingsNotificationsTitle,
     subtitleBuilder: (context) => context.l10n.settingsNotificationsSubtitle,
     icon: Icons.notifications_none,
   ),
   SettingsCategoryItemData(
-    id: 'privacy',
+    route: const PrivacySettingRoute(),
     titleBuilder: (context) => context.l10n.settingsPrivacyTitle,
     subtitleBuilder: (context) => context.l10n.settingsPrivacySubtitle,
     icon: Icons.lock_outline,
@@ -45,12 +53,12 @@ final List<SettingsCategoryItemData> kSettingsCategoryItems = [
 class SettingsMasterScreen extends StatefulWidget {
   const SettingsMasterScreen({
     super.key,
-    this.selectedSetting = 'appearance',
-    this.onSelectSetting,
+    this.selectedRoute,
+    this.onSelectRoute,
   });
 
-  final String selectedSetting;
-  final void Function(BuildContext context, String setting)? onSelectSetting;
+  final SettingsRoute? selectedRoute;
+  final void Function(BuildContext context, SettingsRoute route)? onSelectRoute;
 
   @override
   State<SettingsMasterScreen> createState() => _SettingsMasterScreenState();
@@ -155,14 +163,18 @@ class _SettingsMasterScreenState extends State<SettingsMasterScreen> {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final item = filtered[index];
+                        final isSelected =
+                            widget.selectedRoute?.runtimeType ==
+                            item.route.runtimeType;
+
                         return _SettingsCategoryTile(
                           icon: item.icon,
                           title: item.titleBuilder(context),
                           subtitle: item.subtitleBuilder(context),
-                          isSelected: widget.selectedSetting == item.id,
-                          onTap: (tileContext) => widget.onSelectSetting?.call(
+                          isSelected: isSelected,
+                          onTap: (tileContext) => widget.onSelectRoute?.call(
                             tileContext,
-                            item.id,
+                            item.route,
                           ),
                         );
                       },

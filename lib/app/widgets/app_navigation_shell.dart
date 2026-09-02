@@ -251,21 +251,21 @@ class AppNavigationShell extends StatelessWidget {
       label: 'Home',
       unselectedIcon: Icons.home_outlined,
       selectedIcon: Icons.home,
-      route: const HomeRoute(),
-      isSelected: (route) => route is HomeRoute,
+      route: const HomeRoot(),
+      isSelected: (route) => route is HomeRoot || route is HomeRoute,
     ),
     AppNavItem(
       label: 'Store',
       unselectedIcon: Icons.storefront_outlined,
       selectedIcon: Icons.storefront,
-      route: const HomeRoute(), // Replace with StoreRoute() when ready
+      route: const HomeRoot(), //const StoreRoute(), // Replace with StoreRoute() when ready
       isSelected: (route) => false,
     ),
     AppNavItem(
       label: 'Drafts',
       unselectedIcon: Icons.edit_note_outlined,
       selectedIcon: Icons.edit_note,
-      route: const HomeRoute(), // Replace with DraftsRoute() when ready
+      route: const HomeRoot(), //const DraftsRoute(), // Replace with DraftsRoute() when ready
       isSelected: (route) => false,
     ),
     AppNavItem(

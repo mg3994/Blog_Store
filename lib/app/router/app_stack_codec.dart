@@ -1,36 +1,60 @@
 part of 'router.dart';
 
-class AppStackCodec implements KaiselStackCodec<AppRoute> {
+final class AppStackCodec implements KaiselConfigCodec<AppRoute> {
   const AppStackCodec(this._dependencies, {this._appSettingBloc});
+
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
+
   @override
-  Uri encode(List<AppRoute> stack) {
-    return switch (stack.last) {
-      HomeRoute() => Uri(path: '/'),
-      // ProductDetail(:final id) => Uri(path: '/products/$id'),
-      // SettingsRoute() => Uri(path: '/settings'),
-      // TODO: Handle this case.
-      OnboardingRoute() => Uri(path: '/onboarding'),
-      // TODO: Handle this case.
-      SettingsMasterRoute() => Uri(path: '/settings'),
-      // TODO: Handle this case.
-      AppSettingRoute() => Uri(path: '/settings/app'),
-      // TODO: Handle this case.
-      ProductDetailRoute(:final id) => Uri(path: '/products/$id'),
+  KaiselConfig<AppRoute>? decode(Uri uri) {
+    _applyGlobalLanguage(uri);
+
+    return switch (uri.pathSegments) {
+      // Home
+      [] || [''] => KaiselConfig(mainStack: [HomeRoot()]),
+
+      // Onboarding
+      ['onboarding'] => KaiselConfig(mainStack: [OnboardingRoute()]),
+
+      // Home → Product detail
+      ['products', final id] => KaiselConfig(
+        mainStack: [const HomeRoot(), ProductDetailRoute(id)],
+      ),
+
+      // Settings
+      ['settings'] => KaiselConfig(mainStack: [SettingsMasterRoute()]),
+
+      // Settings → App settings
+      ['settings', 'app'] => KaiselConfig(
+        mainStack: [SettingsMasterRoute(), AppSettingRoute()],
+      ),
+
+      _ => null,
     };
   }
 
   @override
-  List<AppRoute>? decode(Uri uri) {
-    _applyGlobalLanguage(uri);
+  Uri encode(KaiselConfig<AppRoute> config) {
+    final top = config.mainStack.last;
 
-    // return switch (uri.pathSegments) {
-    //   [] || [''] => const [Home()],
-    //   ['products', final id] => [const Home(), ProductDetail(id)],
-    //   ['settings'] => const [Home(), Settings()],
-    //   _ => null,
-    // };
+    return switch (top) {
+      HomeRoot() => Uri(path: '/'),
+
+      OnboardingRoute() => Uri(path: '/onboarding'),
+
+      ProductDetailRoute(:final id) => Uri(path: '/products/$id'),
+
+      SettingsMasterRoute() => Uri(path: '/settings'),
+
+      AppSettingRoute() => Uri(path: '/settings/app'),
+      // TODO: Handle this case.
+      GeneralSettingRoute() => throw UnimplementedError(),
+      // TODO: Handle this case.
+      NotificationsSettingRoute() => throw UnimplementedError(),
+      // TODO: Handle this case.
+      PrivacySettingRoute() => throw UnimplementedError(),
+    };
   }
 
   void _applyGlobalLanguage(Uri uri) {
@@ -50,7 +74,6 @@ class AppStackCodec implements KaiselStackCodec<AppRoute> {
       return;
     }
 
-    // Update locale through your AppSettingBloc.
     _appSettingBloc?.add(
       AppSettingTemporarilyChangeLocaleEvent(
         Locale.fromSubtags(languageCode: languageCode),
