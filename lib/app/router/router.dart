@@ -82,7 +82,7 @@ KaiselGuard<AppRoute> createConsentGuard(AppSettingBloc? bloc) {
     }
 
     final needsConsent = proposed.any(
-      (route) => route is AppRoute// && route is! OnboardingRoute,
+      (route) => route is AppRoute, // && route is! OnboardingRoute,
     );
 
     if (!needsConsent) {
@@ -528,7 +528,11 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 
 final class AppRouter {
   AppRouter(this._dependencies, {this._appSettingBloc})
-    : _routerConfig = _createRouterConfig(_dependencies, _appSettingBloc) {
+    : _routerConfig = _createRouterConfig(
+        _dependencies,
+        createConsentGuard(_appSettingBloc),
+        _appSettingBloc,
+      ) {
     debugPrint('🔥 AppRouter CREATED');
   }
 
@@ -541,6 +545,7 @@ final class AppRouter {
 
   static KaiselRouterConfig<AppRoute> _createRouterConfig(
     Dependencies dependencies,
+    KaiselGuard<AppRoute> consentGuard,
     AppSettingBloc? appSettingBloc,
   ) {
     final hasCompletedOnboarding =
@@ -553,7 +558,7 @@ final class AppRouter {
     return KaiselRouterConfig<AppRoute>.adaptive(
       initial: initialRoute, // ✅ Dynamically resolves to OnboardingRoute
       codec: AppStackCodec(dependencies, appSettingBloc: appSettingBloc),
-      guards: [consentGuard(appSettingBloc)],
+      guards: [consentGuard],
       observers: () => [dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) {
         debugPrint('🔥 ROUTE = ${route.routeName}');

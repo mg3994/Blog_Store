@@ -21,14 +21,15 @@ class AppSettingScreen extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final isCompact = mq.size.width < 700;
     final isOnlyPage = KaiselPageScope.maybeOf(context)?.isBottom ?? false;
-
+    // On wide screens, master & detail are visible side-by-side: disable the back button
+    final showBackButton = isCompact && !isOnlyPage;
     return BlocSignalProvider<AppSettingBloc>.value(
       value: context.dependencies.appSettingBloc,
       child: Scaffold(
         backgroundColor: theme.colorScheme.surfaceContainerLowest,
         appBar: AppBar(
           title: Text(context.l10n.settingsAppearanceTitle),
-          automaticallyImplyLeading: !isOnlyPage,
+          automaticallyImplyLeading: showBackButton,
           elevation: 0,
         ),
         body: SingleChildScrollView(
