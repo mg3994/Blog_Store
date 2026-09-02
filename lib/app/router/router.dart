@@ -52,7 +52,6 @@ KaiselGuard<AppRoute> consentGuard(AppSettingBloc? bloc) {
   };
 }
 
-
 /// A transparent flow page that slides its content up from the bottom, and
 /// forwards name/arguments so the flow stays observable.
 class _SlideUpFlowPage extends Page<Object?> {
@@ -479,35 +478,36 @@ DisplayFeature? _verticalFold(MediaQueryData mq) {
 /// ===========================================================================
 
 final class AppRouter {
-  AppRouter(this._dependencies, {this._appSettingBloc});
+  AppRouter(this._dependencies, {this._appSettingBloc})
+    : _routerConfig = _createRouterConfig(_dependencies, _appSettingBloc);
   final Dependencies _dependencies;
   final AppSettingBloc? _appSettingBloc;
 
-  late final KaiselRouterConfig<AppRoute> _routerConfig = _createRouterConfig();
+  late final KaiselRouterConfig<AppRoute> _routerConfig;
   KaiselRouterConfig<AppRoute> get routerConfig => _routerConfig;
-  GlobalKey<NavigatorState> get navigatorKey => _routerConfig.navigatorKey;
-  static final GlobalKey<NavigatorState> _navigatorKey =
-      GlobalKey<NavigatorState>();
-  KaiselRouterConfig<AppRoute> _createRouterConfig() {
+
+  static KaiselRouterConfig<AppRoute> _createRouterConfig(
+    Dependencies dependencies,
+    AppSettingBloc? appSettingBloc,
+  ) {
     final initialRoute =
-        (_appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
+        (appSettingBloc?.stateValue.hasCompletedOnboarding ?? false)
         ? const HomeRoot()
         : const OnboardingRoute();
 
     return KaiselRouterConfig<AppRoute>.adaptive(
-      navigatorKey: _navigatorKey,
       //don't use adaptive here we will be using that in shells
       initial: initialRoute,
-      codec: AppStackCodec(_dependencies, appSettingBloc: _appSettingBloc),
+      codec: AppStackCodec(dependencies, appSettingBloc: appSettingBloc),
       // 3. Apply the guard and re-evaluation trigger
       // guards: loginBloc != null ? [_authGuard(loginBloc)] : [],
       // reevaluateOn: loginBloc?.toValueListenable(),
       //
-      guards:[consentGuard(_appSettingBloc)],
+       guards: [consentGuard(appSettingBloc)],
 
-      observers: () => [_dependencies.analyticsGateway.observer()],
+      observers: () => [dependencies.analyticsGateway.observer()],
       onScreenChanged: (route) {
-        _dependencies.analyticsGateway.logScreenView(
+        dependencies.analyticsGateway.logScreenView(
           screenName: route.routeName,
         );
       },
@@ -517,7 +517,7 @@ final class AppRouter {
     );
   }
 
-  KaiselPageResult _buildRoute(
+  static KaiselPageResult _buildRoute(
     BuildContext context,
     AppRoute route,
     KaiselStackContext<AppRoute> stack,
