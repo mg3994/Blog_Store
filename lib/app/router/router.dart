@@ -57,33 +57,24 @@ part 'app_stack_codec.dart';
 // }
 
 /// Returns a guard instance with its own encapsulated pending state.
+/// Returns a guard instance with atomic pending-stack handling for rapid clicks.
 KaiselGuard<AppRoute> createConsentGuard(AppSettingBloc? bloc) {
-  // Scoped strictly to this guard instance — non-global
   List<AppRoute>? pendingConsentRoutes;
 
   return (current, proposed) {
-    debugPrint(
-      '🛡️ GUARD current: ${current.map((r) => r.routeName).toList()}',
-    );
-    debugPrint(
-      '🛡️ GUARD proposed: ${proposed.map((r) => r.routeName).toList()}',
-    );
-
     final hasConsent = bloc?.stateValue.hasGivenConsent ?? false;
 
+    // 1. Consent already granted: restore stashed stack or allow proposed directly
     if (hasConsent) {
-      debugPrint('🛡️ CONSENT GIVEN → proposed');
       if (pendingConsentRoutes != null) {
-        final restored = pendingConsentRoutes!;
+        final restored = List<AppRoute>.from(pendingConsentRoutes!);
         pendingConsentRoutes = null;
         return restored;
       }
       return proposed;
     }
 
-    final needsConsent = proposed.any(
-      (route) => route is AppRoute, // && route is! OnboardingRoute,
-    );
+    final needsConsent = proposed.any((route) => route is AppRoute);
 
     if (!needsConsent) {
       return proposed;
@@ -93,13 +84,15 @@ KaiselGuard<AppRoute> createConsentGuard(AppSettingBloc? bloc) {
       (route) => route is ConsentModalRoute,
     );
 
+    // 2. Prevent Fast-Click Stacking: If modal is already shown, lock down intermediate clicks
     if (consentAlreadyVisible) {
       return current;
     }
 
-    // Stash proposed routes internally in closure state
+    // 3. Stash only the FIRST valid proposed target on entry
     pendingConsentRoutes = List<AppRoute>.unmodifiable(proposed);
 
+    // Append modal on top of proposed targets cleanly
     return [...proposed, const ConsentModalRoute()];
   };
 }
@@ -606,43 +599,43 @@ final class AppRouter {
 /// Settings adaptive layout
 /// ===========================================================================
 
-final class SettingsTwoPane extends StatelessWidget {
-  const SettingsTwoPane({
-    super.key,
-    required this.master,
-    required this.detail,
-    this.hinge,
-  });
+// final class SettingsTwoPane extends StatelessWidget {
+//   const SettingsTwoPane({
+//     super.key,
+//     required this.master,
+//     required this.detail,
+//     this.hinge,
+//   });
 
-  final Widget master;
-  final Widget detail;
-  final Rect? hinge;
+//   final Widget master;
+//   final Widget detail;
+//   final Rect? hinge;
 
-  @override
-  Widget build(BuildContext context) {
-    final h = hinge;
+//   @override
+//   Widget build(BuildContext context) {
+//     final h = hinge;
 
-    if (h == null) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(width: 320, child: master),
-          const VerticalDivider(width: 1),
-          Expanded(child: detail),
-        ],
-      );
-    }
+//     if (h == null) {
+//       return Row(
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           SizedBox(width: 320, child: master),
+//           const VerticalDivider(width: 1),
+//           Expanded(child: detail),
+//         ],
+//       );
+//     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(width: h.left, child: master),
-        SizedBox(width: h.width),
-        Expanded(child: detail),
-      ],
-    );
-  }
-}
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.stretch,
+//       children: [
+//         SizedBox(width: h.left, child: master),
+//         SizedBox(width: h.width),
+//         Expanded(child: detail),
+//       ],
+//     );
+//   }
+// }
 
 /// ===========================================================================
 /// Screens
@@ -748,11 +741,13 @@ class _LazyShell extends StatelessWidget {
           ? const AppSettingRoute()
           : route;
 
-      final twoPaneWidget = SettingsTwoPane(
+      final twoPaneWidget = KaiselMasterDetailScaffold(
         master: SettingsMasterScreen(
           selectedRoute: effectiveRoute,
           onSelectRoute: (tileContext, targetRoute) {
-            tileContext.push(targetRoute);
+            if (effectiveRoute.runtimeType == targetRoute.runtimeType) return;
+
+            tileContext.pushOrReplaceTop(targetRoute);
           },
         ),
         detail: switch (effectiveRoute) {
@@ -762,7 +757,8 @@ class _LazyShell extends StatelessWidget {
           PrivacySettingRoute() => const Placeholder(),
           _ => const AppSettingScreen(),
         },
-        hinge: fold?.bounds,
+
+        // hinge: fold?.bounds,
       );
 
       return (ctx.previous is SettingsMasterRoute)
@@ -778,7 +774,8 @@ class _LazyShell extends StatelessWidget {
       _ => SettingsMasterScreen(
         selectedRoute: route,
         onSelectRoute: (tileContext, targetRoute) {
-          tileContext.push(targetRoute);
+          // ✅ Safely replace top to prevent fast tap duplication
+          tileContext.pushOrReplaceTop(targetRoute);
         },
       ),
     });
@@ -792,7 +789,8 @@ class _LazyShell extends StatelessWidget {
     final isWide = fold != null || mediaQuery.size.width >= 700;
 
     return KaiselBranchedShell.specs(
-      lazy: true,
+      // lazy: true,
+
       branches: [
         KaiselBranchSpec<HomeRoute>.adaptive(
           initial: const HomeRoot(),
